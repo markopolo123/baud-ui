@@ -322,4 +322,6 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.Then(`^the element "([^"]*)" has classes "([^"]*)"$`, s.elementHasClasses)
 	sc.Then(`^the element "([^"]*)" has attribute "([^"]*)" equal to "([^"]*)"$`, s.elementHasAttr)
 	sc.Then(`^the behaviors script comes before the hyperscript library script$`, s.behaviorsScriptFirst)
+
+	registerBtnSteps(sc, s)
 }
