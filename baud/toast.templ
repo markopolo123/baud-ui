@@ -1,0 +1,38 @@
+package baud
+
+// ToastRegion is the fixed bottom-right stack toasts land in — rendered
+// once per document by Page so every htmx response can push notifications
+// into it via hx-swap-oob (see ToastOOB). aria-live="polite" makes screen
+// readers announce arrivals without interrupting; positioning (above the
+// statusbar) lives in components/toasts.css.
+templ ToastRegion() {
+	<div id="toasts" class="toasts" aria-live="polite"></div>
+}
+
+// Toast is one notification row: 3px left tone bar + tone glyph + title +
+// optional body + ✕ dismiss. The Toast behavior (assets/baud._hs) removes
+// it after data-toast-ms milliseconds ("0" = sticky; hover pauses the
+// countdown) and on ✕ click. role="status" pairs with the region's
+// aria-live for polite announcement.
+templ Toast(p ToastProps) {
+	<div class={ "toast", p.toneClass() } role="status" data-toast-ms={ p.dismissMs() } _="install Toast">
+		<span class="toast-glyph" aria-hidden="true">{ p.glyph() }</span>
+		<span class="toast-msg">
+			<span class="toast-title">{ p.Title }</span>
+			if p.Body != "" {
+				<span class="toast-body">{ p.Body }</span>
+			}
+		</span>
+		<button type="button" class="x-btn" aria-label="dismiss notification">✕</button>
+	</div>
+}
+
+// ToastOOB wraps Toast for out-of-band delivery: include it anywhere in an
+// htmx response (typically with hx-swap="none" on the trigger) and htmx
+// appends the toast to #toasts — beforeend is a non-inline swap, so the
+// wrapper div is stripped and only the .toast lands in the region.
+templ ToastOOB(p ToastProps) {
+	<div hx-swap-oob="beforeend:#toasts">
+		@Toast(p)
+	</div>
+}

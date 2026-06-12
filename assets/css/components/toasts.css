@@ -1,0 +1,45 @@
+/* ============================================================
+   baud/ui — toasts (@layer components)
+   Lifted from design/baud-components.css (toasts section) nearly
+   verbatim. Fixed pixel offsets/gaps are design-spec constants,
+   not density-driven (panels.css precedent); colours are tokens
+   only. The stack is fixed bottom-right, above the statusbar
+   (bottom: --rh + 12px tracks the statusbar height per density).
+   .toast-title/.toast-body split the prototype's single msg span
+   into the spec's "title + optional body" lines. The outer border
+   flows through --border-style (b-ascii dashes); the 3px tone bar
+   stays solid — it is a fill, not a hairline. Entrance slide-in
+   only under prefers-reduced-motion: no-preference.
+   Owned by wave 4 (toasts) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  .toasts {
+    position: fixed; right: 12px; bottom: calc(var(--rh) + 12px); z-index: 200;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .toast {
+    display: flex; align-items: center; gap: 8px;
+    min-width: 280px; max-width: 380px; padding: 7px 9px;
+    background: var(--bg-panel); border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 10px 30px var(--shadow);
+    border-left: 3px solid var(--fg-faint);
+  }
+  .toast.tone-ok { border-left-color: var(--ok); color: var(--fg); }
+  .toast.tone-err { border-left-color: var(--err); color: var(--fg); }
+  .toast.tone-warn { border-left-color: var(--warn); color: var(--fg); }
+  .toast.tone-info { border-left-color: var(--info); color: var(--fg); }
+  .toast .toast-glyph { font-weight: 700; }
+  .toast.tone-ok .toast-glyph { color: var(--ok); }
+  .toast.tone-err .toast-glyph { color: var(--err); }
+  .toast.tone-warn .toast-glyph { color: var(--warn); }
+  .toast.tone-info .toast-glyph { color: var(--info); }
+  .toast .toast-msg { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .toast .toast-title { color: var(--fg); }
+  .toast .toast-body { font-size: var(--fs-sm); color: var(--fg-muted); }
+  .toast .x-btn { color: var(--fg-faint); padding: 0 2px; font-size: var(--fs); }
+  .toast .x-btn:hover { color: var(--err); }
+  @media (prefers-reduced-motion: no-preference) {
+    .toast { animation: toast-in 0.16s ease-out; }
+    @keyframes toast-in { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+  }
+}
