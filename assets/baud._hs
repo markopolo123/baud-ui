@@ -267,6 +267,10 @@ behavior TagInput
       add .empty to menu
     else
       remove .empty from menu
+    end
+  end
+end
+
 -- SelectKeys: shared ↑↓ / ↵ / Esc keyboard handling for the enhanced
 -- select and the combobox. Installed on the .select root; the element
 -- carrying aria-expanded (trigger button or combobox input) keeps focus
