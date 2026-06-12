@@ -7,6 +7,9 @@ import "github.com/markopolo123/baud-ui/baud"
 // hyperscript behavior), and a boxed strip whose tabs hx-get the
 // server-rendered range pane (GET /demo/tabs, demo/tabs_api.go) into one
 // shared tabpanel. The e2e suite drives both with mouse and keyboard.
+// Local panes are aria-labelledby their owning tab; the shared htmx pane
+// is controlled by every boxed tab in turn, so no single tab labels it
+// (labelledBy stays empty).
 templ SheetTabs() {
 	<div id="tabs-local-demo" class="vstack gap-2">
 		@baud.Tabs(baud.TabsProps{ID: "tabs-under", Tabs: []baud.Tab{
@@ -15,16 +18,16 @@ templ SheetTabs() {
 			{Label: "logs", Panel: "pane-logs"},
 			{Label: "env", Panel: "pane-env"},
 		}})
-		@baud.TabPanel("pane-pods", true) {
+		@baud.TabPanel("pane-pods", "tabs-under-tab-0", true) {
 			<span>39 pods running across 3 nodes</span>
 		}
-		@baud.TabPanel("pane-events", false) {
+		@baud.TabPanel("pane-events", "tabs-under-tab-1", false) {
 			<span>7 events in the last hour</span>
 		}
-		@baud.TabPanel("pane-logs", false) {
+		@baud.TabPanel("pane-logs", "tabs-under-tab-2", false) {
 			<span>tailing ingest-gw logs</span>
 		}
-		@baud.TabPanel("pane-env", false) {
+		@baud.TabPanel("pane-env", "tabs-under-tab-3", false) {
 			<span>14 env vars injected</span>
 		}
 	</div>
@@ -35,7 +38,7 @@ templ SheetTabs() {
 			{Label: "1d", Href: "/demo/tabs?range=1d"},
 			{Label: "1w", Href: "/demo/tabs?range=1w"},
 		}})
-		@baud.TabPanel("tabs-range-pane", true) {
+		@baud.TabPanel("tabs-range-pane", "", true) {
 			@TabsRangePane("5m")
 		}
 	</div>

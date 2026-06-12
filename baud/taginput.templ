@@ -27,9 +27,9 @@ templ TagInput(p TagInputProps) {
 			/>
 		</span>
 		if len(p.Suggestions) > 0 {
-			<div class="tags-menu">
+			<div class="tags-menu menu">
 				for _, sug := range p.Suggestions {
-					<button type="button" class="tags-menu-item" data-tag={ sug }>
+					<button type="button" class="menu-item" data-tag={ sug }>
 						<span class="tags-menu-tag">{ sug }</span>
 						<span class="tags-menu-meta">add</span>
 					</button>

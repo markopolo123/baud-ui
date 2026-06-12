@@ -180,6 +180,10 @@ func TestTabsLocalSwitching(t *testing.T) {
 	if got := tabsAttr(t, page, "#tabs-under-tab-0", "aria-selected"); got != "false" {
 		t.Errorf("previous tab aria-selected = %q, want false", got)
 	}
+	// each pre-rendered pane is labelled by its owning tab
+	if got := tabsAttr(t, page, "#pane-events", "aria-labelledby"); got != "tabs-under-tab-1" {
+		t.Errorf("pane aria-labelledby = %q, want tabs-under-tab-1", got)
+	}
 	// is-active (and the accent underline with it) follows the selection.
 	if got := computedStyleSel(t, page, "#tabs-under-tab-1", "borderBottomColor"); got != gruvAccent {
 		t.Errorf("clicked tab underline = %q, want %s", got, gruvAccent)
@@ -302,5 +306,35 @@ func TestTabsKeyboard(t *testing.T) {
 	}
 	if !tabsHidden(t, page, "#pane-logs") {
 		t.Error("logs pane stayed visible after activating env")
+	}
+
+	// Home/End jump focus to the first/last tab — same roving pattern as
+	// ←/→: focus and tabindex move, the selection does not.
+	if err := page.Keyboard().Press("Home"); err != nil {
+		t.Fatalf("press Home: %v", err)
+	}
+	if got := tabsActiveID(t, page); got != "tabs-under-tab-0" {
+		t.Fatalf("Home focused %q, want tabs-under-tab-0", got)
+	}
+	if got := tabsAttr(t, page, "#tabs-under-tab-0", "tabindex"); got != "0" {
+		t.Errorf("Home-focused tab tabindex = %q, want 0", got)
+	}
+	if got := tabsAttr(t, page, "#tabs-under-tab-3", "tabindex"); got != "-1" {
+		t.Errorf("previously focused tab tabindex = %q, want -1", got)
+	}
+	if got := tabsAttr(t, page, "#tabs-under-tab-3", "aria-selected"); got != "true" {
+		t.Errorf("Home changed the selection: tab-3 aria-selected = %q, want true", got)
+	}
+	if err := page.Keyboard().Press("End"); err != nil {
+		t.Fatalf("press End: %v", err)
+	}
+	if got := tabsActiveID(t, page); got != "tabs-under-tab-3" {
+		t.Fatalf("End focused %q, want tabs-under-tab-3", got)
+	}
+	if got := tabsAttr(t, page, "#tabs-under-tab-3", "tabindex"); got != "0" {
+		t.Errorf("End-focused tab tabindex = %q, want 0", got)
+	}
+	if got := tabsAttr(t, page, "#tabs-under-tab-0", "tabindex"); got != "-1" {
+		t.Errorf("first tab tabindex after End = %q, want -1", got)
 	}
 }

@@ -134,6 +134,24 @@ func TestTagInputEnterAddsChip(t *testing.T) {
 	if n := taginputCount(t, page, root+` .tag-chip`); n != 1 {
 		t.Errorf("Enter on empty input changed chip count to %d, want 1", n)
 	}
+
+	// duplicate guard: typing the already-added tag and pressing Enter must
+	// not make a second chip or hidden input. The add handler clears the
+	// text input before its dup check, so the cleared value proves it ran.
+	if err := page.Keyboard().Type("team=infra"); err != nil {
+		t.Fatalf("type duplicate tag text: %v", err)
+	}
+	if err := page.Keyboard().Press("Enter"); err != nil {
+		t.Fatalf("press Enter on duplicate: %v", err)
+	}
+	taginputWait(t, page, "duplicate Enter never reached the add handler (input not cleared)",
+		`() => document.querySelector('#ti-empty').value === ''`)
+	if n := taginputCount(t, page, root+` .tag-chip`); n != 1 {
+		t.Errorf("duplicate Enter made a second chip: %d chips, want 1", n)
+	}
+	if n := taginputCount(t, page, root+` input[type=hidden][name="filters"][value="team=infra"]`); n != 1 {
+		t.Errorf("duplicate Enter duplicated the hidden input: %d, want 1", n)
+	}
 }
 
 // TestTagInputBackspacePopsLastChip: Backspace in an EMPTY input removes the
@@ -249,26 +267,26 @@ func TestTagInputSuggestionsFilter(t *testing.T) {
 		t.Fatalf("type filter text: %v", err)
 	}
 	taginputWait(t, page, "filtering never hid the non-matching suggestion",
-		`() => document.querySelector('.tags:has(#ti-empty) .tags-menu-item[data-tag="status=ok"]').hidden === true`)
+		`() => document.querySelector('.tags:has(#ti-empty) .menu-item[data-tag="status=ok"]').hidden === true`)
 	taginputWait(t, page, "matching suggestion got hidden by the filter",
-		`() => document.querySelector('.tags:has(#ti-empty) .tags-menu-item[data-tag="status=err"]').hidden === false`)
+		`() => document.querySelector('.tags:has(#ti-empty) .menu-item[data-tag="status=err"]').hidden === false`)
 
 	// clicking the suggestion adds the chip + hidden input, then the added
 	// tag disappears from the menu (dup filter) and the other returns
 	// (query was cleared by the add)
-	if err := page.Locator(root + ` .tags-menu-item[data-tag="status=err"]`).Click(); err != nil {
+	if err := page.Locator(root + ` .menu-item[data-tag="status=err"]`).Click(); err != nil {
 		t.Fatalf("click suggestion: %v", err)
 	}
 	taginputWait(t, page, "suggestion click never produced the chip's hidden input",
 		`() => !!document.querySelector('.tags:has(#ti-empty) .tag-chip input[type=hidden][name="filters"][value="status=err"]')`)
 	taginputWait(t, page, "added tag still offered in the menu",
-		`() => document.querySelector('.tags:has(#ti-empty) .tags-menu-item[data-tag="status=err"]').hidden === true`)
+		`() => document.querySelector('.tags:has(#ti-empty) .menu-item[data-tag="status=err"]').hidden === true`)
 	taginputWait(t, page, "cleared query never restored the other suggestion",
-		`() => document.querySelector('.tags:has(#ti-empty) .tags-menu-item[data-tag="status=ok"]').hidden === false`)
+		`() => document.querySelector('.tags:has(#ti-empty) .menu-item[data-tag="status=ok"]').hidden === false`)
 
 	// adding the last remaining suggestion empties the menu — it stops
 	// painting even while open
-	if err := page.Locator(root + ` .tags-menu-item[data-tag="status=ok"]`).Click(); err != nil {
+	if err := page.Locator(root + ` .menu-item[data-tag="status=ok"]`).Click(); err != nil {
 		t.Fatalf("click last suggestion: %v", err)
 	}
 	taginputWait(t, page, "exhausted menu still painting",
