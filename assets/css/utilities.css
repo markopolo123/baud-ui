@@ -1,0 +1,26 @@
+/* ============================================================
+   baud/ui — utilities (@layer utilities)
+   The COMPLETE utility inventory. Deliberately starved —
+   composition glue only. Do not add more.
+   ============================================================ */
+@layer utilities {
+  .hstack { display: flex; align-items: center; gap: var(--gap); }
+  .vstack { display: flex; flex-direction: column; gap: var(--gap); }
+  .fill   { flex: 1; min-width: 0; }
+  .scroll { overflow: auto; min-height: 0; }
+
+  .gap-0 { gap: 0; }
+  .gap-1 { gap: calc(var(--gap) * 0.5); }
+  .gap-2 { gap: var(--gap); }
+  .gap-3 { gap: calc(var(--gap) * 2); }
+
+  /* forms use this, not a general grid */
+  [data-form-grid] {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: calc(var(--gap) * 2);
+    row-gap: var(--gap);
+    align-items: center;
+  }
+  [data-form-grid="2"] { grid-template-columns: 1fr 1fr; }
+}
