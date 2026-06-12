@@ -65,6 +65,8 @@ func datatableWaitFirstHost(t *testing.T, page playwright.Page, want, what strin
 // htmx binds its hx-get listeners only at settle (~20ms later) — DOM
 // attributes are visible before the th is interactive, so keyboard/clicks
 // must wait for the internal-data marker, not the attributes.
+// COUPLING: peeks htmx's PRIVATE htmx-internal-data property, valid for the
+// pinned htmx 2.0.4 (baud/baud.go) — revisit on any htmx upgrade.
 func datatableWaitHeadReady(t *testing.T, page playwright.Page, what string) {
 	t.Helper()
 	if _, err := page.WaitForFunction(
