@@ -16,11 +16,11 @@ func NewMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /assets/baud.css", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
-		w.Write(baudui.CSS)
+		w.Write(baudui.CSS())
 	})
 	mux.HandleFunc("GET /assets/baud._hs", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/hyperscript; charset=utf-8")
-		w.Write(baudui.Behaviors)
+		w.Write(baudui.HS())
 	})
 	mux.HandleFunc("GET /api/combobox", HandleComboboxSearch)
 	mux.HandleFunc("GET /{$}", handleFleetConsole)
