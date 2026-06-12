@@ -296,15 +296,17 @@ templ FleetDeployModal() {
 
 // fleetDeployFooter: cancel dismisses; confirm fires the /fleet/deploy/run
 // round-trip (whose whole payload is the OOB toast) and closes the modal
-// via the same click's data-overlay-close.
+// on htmx:afterRequest — NOT via data-overlay-close on the same click,
+// which would detach the issuing button mid-flight and htmx would discard
+// the response (and its OOB toast) entirely.
 templ fleetDeployFooter() {
 	<button type="button" class="btn" data-overlay-close>cancel</button>
 	<button
 		type="button"
 		id="fleet-deploy-run"
 		class="btn btn-primary"
-		data-overlay-close
 		hx-get="/fleet/deploy/run"
 		hx-swap="none"
+		_="on htmx:afterRequest send baud:overlayClose to #fleet-modal"
 	>deploy</button>
 }

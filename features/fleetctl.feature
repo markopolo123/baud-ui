@@ -111,8 +111,8 @@ Feature: fleetctl console — the acceptance-test composition
     And the element "div.overlay" has attribute "id" equal to "fleet-modal"
     And the element "button[id=fleet-deploy-run]" has attribute "hx-get" equal to "/fleet/deploy/run"
     And the element "button[id=fleet-deploy-run]" has attribute "hx-swap" equal to "none"
-    And the element "button[id=fleet-deploy-run]" has attribute "data-overlay-close" equal to ""
-    And exactly 2 elements match "footer.modal-ft>button[data-overlay-close]"
+    And the fleetctl element "button[id=fleet-deploy-run]" attribute "_" contains "send baud:overlayClose"
+    And exactly 1 element matches "footer.modal-ft>button[data-overlay-close]"
 
   Scenario: the command palette is wired to the console filter endpoint
     When I render the fleetctl console
