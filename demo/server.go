@@ -28,5 +28,6 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /sheet", templ.Handler(SheetPage(ServerOpts())))
 	mux.HandleFunc("GET /demo/tabs", tabsPane)
 	mux.HandleFunc("GET /demo/pagination", handlePagination)
+	mux.HandleFunc("GET /demo/datatable", handleDataTableSort)
 	return mux
 }

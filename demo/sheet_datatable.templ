@@ -1,0 +1,20 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetDataTable demos the DataTable: the fleet host table with htmx
+// column sort (GET /demo/datatable, demo/datatable_api.go) — sticky
+// header, pinned h3 selection, threshold-toned cpu/mem/status cells —
+// plus the zebra and lines variants as small static tables. The e2e
+// suite drives the sort round-trip with mouse and keyboard.
+templ SheetDataTable() {
+	<div class="vstack gap-3">
+		@baud.Panel(baud.PanelProps{ID: "dt-fleet-panel", Title: "fleet hosts — htmx sort"}) {
+			@baud.DataTable(dtFleetProps("host", "asc"))
+		}
+		<div class="hstack gap-3">
+			@baud.DataTable(dtVariantProps("dt-zebra", true, false))
+			@baud.DataTable(dtVariantProps("dt-lines", false, true))
+		</div>
+	</div>
+}
