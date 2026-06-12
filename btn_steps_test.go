@@ -81,18 +81,6 @@ func withChildren(c, children templ.Component) templ.Component {
 
 // ---- assertion steps ----------------------------------------------------
 
-// elementHasText asserts the element's full text content (trimmed).
-func (s *scenarioState) elementHasText(selector, want string) error {
-	n, err := s.one(selector)
-	if err != nil {
-		return err
-	}
-	if got := strings.TrimSpace(textContent(n)); got != want {
-		return fmt.Errorf("element %q text = %q, want %q", selector, got, want)
-	}
-	return nil
-}
-
 // elementHasOwnText asserts the element's direct text nodes (trimmed),
 // ignoring text inside child elements (glyph/kbd chips).
 func (s *scenarioState) elementHasOwnText(selector, want string) error {
@@ -149,16 +137,6 @@ func (s *scenarioState) edgeElementChildIs(selector, childSel string, last bool)
 	return nil
 }
 
-func textContent(n *html.Node) string {
-	var b strings.Builder
-	walk(n, func(c *html.Node) {
-		if c.Type == html.TextNode {
-			b.WriteString(c.Data)
-		}
-	})
-	return b.String()
-}
-
 // registerBtnSteps wires the Btn/BtnGroup/Kbd steps into the suite.
 func registerBtnSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a button "([^"]*)"$`, s.renderBtn)
@@ -171,7 +149,6 @@ func registerBtnSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a kbd chip "([^"]*)"$`, s.renderKbdChip)
 	sc.When(`^I render a button group of buttons "([^"]*)" with active "([^"]*)"$`, s.renderBtnGroup)
 
-	sc.Then(`^the element "([^"]*)" has text "([^"]*)"$`, s.elementHasText)
 	sc.Then(`^the element "([^"]*)" has own text "([^"]*)"$`, s.elementHasOwnText)
 	sc.Then(`^the first element child of "([^"]*)" is "([^"]*)"$`, s.firstElementChildIs)
 	sc.Then(`^the last element child of "([^"]*)" is "([^"]*)"$`, s.lastElementChildIs)
