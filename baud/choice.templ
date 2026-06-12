@@ -1,0 +1,67 @@
+package baud
+
+// Checkbox renders a wrapping label around a real checkbox input plus the
+// glyph slot. The [x] / [ ] glyph itself is CSS ::before content keyed on
+// :checked (components/choices.css) — toggling needs no server round-trip
+// and no client logic.
+templ Checkbox(p ChoiceProps) {
+	<label class="cbx">
+		<input
+			type="checkbox"
+			class="cbx-input"
+			name={ p.Name }
+			if p.Value != "" {
+				value={ p.Value }
+			}
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			checked?={ p.Checked }
+			disabled?={ p.Disabled }
+		/>
+		<span class="cbx-box" aria-hidden="true"></span>
+		<span class="cbx-label">{ p.Label }</span>
+	</label>
+}
+
+// Radio is the (•) / ( ) variant of the same structure. Group radios by
+// giving them one Name — native arrow-key selection comes for free.
+templ Radio(p ChoiceProps) {
+	<label class="cbx">
+		<input
+			type="radio"
+			class="cbx-input"
+			name={ p.Name }
+			if p.Value != "" {
+				value={ p.Value }
+			}
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			checked?={ p.Checked }
+			disabled?={ p.Disabled }
+		/>
+		<span class="cbx-box" aria-hidden="true"></span>
+		<span class="cbx-label">{ p.Label }</span>
+	</label>
+}
+
+// Toggle renders the segmented strip. Each segment is a wrapping label over
+// a real radio input; the accent fill on the selected segment is pure CSS
+// (:has(:checked)), and keyboard arrows work because the radios share Name.
+templ Toggle(p ToggleProps) {
+	<span class="tg">
+		for _, o := range p.Options {
+			<label class="tg-opt">
+				<input
+					type="radio"
+					class="tg-input"
+					name={ p.Name }
+					value={ o.Value }
+					checked?={ o.Value == p.Value }
+				/>
+				<span class="tg-opt-label">{ o.label() }</span>
+			</label>
+		}
+	</span>
+}
