@@ -362,4 +362,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerFeedbackSteps(sc, s)
 	registerPopoverSteps(sc, s)
 	registerOverlaySteps(sc, s)
+	registerPaletteSteps(sc, s)
 }
