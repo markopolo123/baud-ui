@@ -78,7 +78,7 @@
   .menu-item[hidden] { display: none; }
   .menu-item:hover { background: var(--bg-hover); color: var(--fg); }
   /* keyboard-highlighted row (aria-activedescendant target) */
-  .menu-item.hl-row { background: var(--sel); color: var(--fg); }
+  .menu-item.hl-row { background: var(--bg-hover); color: var(--fg); }
   .menu-item.is-active { color: var(--accent); }
 
   .menu-side { display: inline-flex; align-items: center; gap: var(--gap); }

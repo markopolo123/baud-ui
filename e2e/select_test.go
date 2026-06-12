@@ -15,9 +15,9 @@ import (
 //	t-gruvbox --bg-panel #282828 → rgb(40, 40, 40), --sel rgba(250,189,47,.14)
 //	t-mocha   --bg-panel #181825 → rgb(24, 24, 37), --sel rgba(137,180,250,.13)
 const (
-	gruvPanel = "rgb(40, 40, 40)"
-	gruvSel   = "rgba(250, 189, 47, 0.14)"
-	mochaSel  = "rgba(137, 180, 250, 0.13)"
+	gruvPanel  = "rgb(40, 40, 40)"
+	gruvHover  = "rgb(60, 56, 54)"
+	mochaHover = "rgb(49, 50, 68)"
 )
 
 // selectOpenSheet opens the sheet and waits for hyperscript to have booted
@@ -201,8 +201,8 @@ func TestSelectMenuKeyboard(t *testing.T) {
 	if got := selectAttr(t, page, trigger, "aria-activedescendant"); got != "sel-env-opt-0" {
 		t.Errorf("aria-activedescendant = %q, want sel-env-opt-0", got)
 	}
-	if got := computedStyleSel(t, page, "#sel-env-opt-0", "backgroundColor"); got != gruvSel {
-		t.Errorf("highlighted option background = %v, want %v (--sel)", got, gruvSel)
+	if got := computedStyleSel(t, page, "#sel-env-opt-0", "backgroundColor"); got != gruvHover {
+		t.Errorf("highlighted option background = %v, want %v (--bg-hover)", got, gruvHover)
 	}
 
 	// ↓ to staging, ↓ to prod, ↑ back to staging.
@@ -214,7 +214,7 @@ func TestSelectMenuKeyboard(t *testing.T) {
 	if got := selectAttr(t, page, trigger, "aria-activedescendant"); got != "sel-env-opt-1" {
 		t.Errorf("after ↓↓↑ aria-activedescendant = %q, want sel-env-opt-1", got)
 	}
-	if got := computedStyleSel(t, page, "#sel-env-opt-0", "backgroundColor"); got == gruvSel {
+	if got := computedStyleSel(t, page, "#sel-env-opt-0", "backgroundColor"); got == gruvHover {
 		t.Error("option 0 kept the --sel highlight after moving away")
 	}
 
@@ -426,8 +426,8 @@ func TestSelectMochaTokenFlow(t *testing.T) {
 	if err := page.Keyboard().Press("ArrowDown"); err != nil {
 		t.Fatalf("press ArrowDown: %v", err)
 	}
-	if got := computedStyleSel(t, page, "#sel-env .menu-item.hl-row", "backgroundColor"); got != mochaSel {
-		t.Errorf("mocha highlight background = %v, want %v (--sel)", got, mochaSel)
+	if got := computedStyleSel(t, page, "#sel-env .menu-item.hl-row", "backgroundColor"); got != mochaHover {
+		t.Errorf("mocha highlight background = %v, want %v (--bg-hover)", got, mochaHover)
 	}
 	if err := page.Keyboard().Press("Escape"); err != nil {
 		t.Fatalf("press Escape: %v", err)
