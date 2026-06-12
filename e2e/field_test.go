@@ -8,42 +8,6 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-// style returns one computed-style property of the first element matching
-// the selector.
-func style(t *testing.T, page playwright.Page, selector, prop string) string {
-	t.Helper()
-	v, err := page.Evaluate(
-		`args => getComputedStyle(document.querySelector(args.sel))[args.prop]`,
-		map[string]any{"sel": selector, "prop": prop},
-	)
-	if err != nil {
-		t.Fatalf("computed %s of %q: %v", prop, selector, err)
-	}
-	s, ok := v.(string)
-	if !ok {
-		t.Fatalf("computed %s of %q: got %T", prop, selector, v)
-	}
-	return s
-}
-
-// wrapStyle resolves the .input-wrap enclosing the given input and returns
-// one of its computed-style properties (the border/glow live on the wrap).
-func wrapStyle(t *testing.T, page playwright.Page, inputSel, prop string) string {
-	t.Helper()
-	v, err := page.Evaluate(
-		`args => getComputedStyle(document.querySelector(args.sel).closest('.input-wrap'))[args.prop]`,
-		map[string]any{"sel": inputSel, "prop": prop},
-	)
-	if err != nil {
-		t.Fatalf("computed wrap %s of %q: %v", prop, inputSel, err)
-	}
-	s, ok := v.(string)
-	if !ok {
-		t.Fatalf("computed wrap %s of %q: got %T", prop, inputSel, v)
-	}
-	return s
-}
-
 func TestFieldInput(t *testing.T) {
 	srv := startDemo(t)
 	page := startBrowser(t)
@@ -54,11 +18,10 @@ func TestFieldInput(t *testing.T) {
 		t.Fatalf("goto /sheet: %v", err)
 	}
 
+	// gruvAccent / mochaAccent come from the shared helpers_test.go consts.
 	const (
-		gruvAccent = "rgb(250, 189, 47)"  // t-gruvbox --accent
-		gruvErr    = "rgb(251, 73, 52)"   // t-gruvbox --err
-		gruvFaint  = "rgb(124, 111, 100)" // t-gruvbox --fg-faint
-		mochaAcc   = "rgb(137, 180, 250)" // t-mocha --accent
+		gruvErr   = "rgb(251, 73, 52)"   // t-gruvbox --err
+		gruvFaint = "rgb(124, 111, 100)" // t-gruvbox --fg-faint
 	)
 
 	// Label is uppercase-styled at --fs-sm via .field-label.
@@ -133,6 +96,6 @@ func TestFieldInput(t *testing.T) {
 		`() => getComputedStyle(document.querySelector('#fi-plain').closest('.input-wrap')).borderTopColor === 'rgb(137, 180, 250)'`, nil,
 	); err != nil {
 		bc := wrapStyle(t, page, "#fi-plain", "borderTopColor")
-		t.Fatalf("t-mocha focus accent not applied: border stayed %s, want %s: %v", bc, mochaAcc, err)
+		t.Fatalf("t-mocha focus accent not applied: border stayed %s, want %s: %v", bc, mochaAccent, err)
 	}
 }
