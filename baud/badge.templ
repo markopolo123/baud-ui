@@ -1,0 +1,19 @@
+package baud
+
+// Badge is a dense status chip. Tone × Variant drive the colour classes;
+// the label is the children block (UPPERCASE via CSS, per type rules).
+// Purely presentational — no client behaviour.
+templ Badge(p BadgeProps) {
+	<span class={ "badge", p.variantClass(), p.toneClass() }>
+		if p.Dot {
+			<span class="badge-dot"></span>
+		}
+		{ children... }
+	</span>
+}
+
+// Dot is the 7px round status dot. Pulse opt-in adds the box-shadow ping
+// (animated only under prefers-reduced-motion: no-preference).
+templ Dot(p DotProps) {
+	<span class={ "dot", p.toneClass(), templ.KV("pulse", p.Pulse) }></span>
+}

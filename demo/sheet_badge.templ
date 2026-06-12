@@ -1,0 +1,44 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// badgeTones × badgeVariants is the full options matrix; the sheet renders
+// every combination so theme/density swaps and the e2e computed-style
+// assertions exercise each one.
+var badgeTones = []string{"ok", "warn", "err", "info", "accent", "neutral"}
+var badgeVariants = []string{"tint", "solid", "outline"}
+
+// SheetBadge renders the Badge tone × variant grid, dotted badges, and the
+// status dots (one per tone, plus a pulsing one).
+templ SheetBadge() {
+	for _, v := range badgeVariants {
+		<div class="sheet-row">
+			for _, t := range badgeTones {
+				@badgeDemo(t, v)
+			}
+		</div>
+	}
+	<div class="sheet-row">
+		for _, t := range badgeTones {
+			@dottedBadgeDemo(t)
+		}
+	</div>
+	<div class="sheet-row">
+		for _, t := range badgeTones {
+			@baud.Dot(baud.DotProps{Tone: t})
+		}
+		@baud.Dot(baud.DotProps{Tone: "err", Pulse: true})
+	</div>
+}
+
+templ badgeDemo(tone, variant string) {
+	@baud.Badge(baud.BadgeProps{Tone: tone, Variant: variant}) {
+		{ tone }
+	}
+}
+
+templ dottedBadgeDemo(tone string) {
+	@baud.Badge(baud.BadgeProps{Tone: tone, Variant: "tint", Dot: true}) {
+		{ tone }
+	}
+}
