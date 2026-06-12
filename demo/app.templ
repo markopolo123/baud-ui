@@ -307,6 +307,6 @@ templ fleetDeployFooter() {
 		class="btn btn-primary"
 		hx-get="/fleet/deploy/run"
 		hx-swap="none"
-		_="on htmx:afterRequest send baud:overlayClose to #fleet-modal"
+		_="on htmx:afterRequest[detail.successful] send baud:overlayClose to #fleet-modal"
 	>deploy</button>
 }

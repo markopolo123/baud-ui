@@ -310,8 +310,8 @@ func TestFleetctlDrawerKillGuardToast(t *testing.T) {
 
 // TestFleetctlDeployModalMouseAndEsc: the topbar deploy button hx-gets the
 // confirm modal; Esc removes it and restores opener focus; reopened, the
-// confirm action fires /fleet/deploy/run (OOB toast) and the same click's
-// data-overlay-close removes the modal.
+// confirm action fires /fleet/deploy/run (OOB toast) and a successful
+// htmx:afterRequest sends baud:overlayClose to remove the modal.
 func TestFleetctlDeployModalMouseAndEsc(t *testing.T) {
 	page, base := fleetctlOpen(t)
 
