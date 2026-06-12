@@ -73,8 +73,7 @@
   .tweak-btn:hover { color: var(--fg); background: var(--bg-hover); }
   .tweak-btn.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
-  /* ---------- demo placeholders ---------- */
-  .demo-main-panes { height: 100%; }
+  /* ---------- sheet pane demos ---------- */
   .pane-demo { height: calc(var(--row) * 8); border: 1px var(--border-style, solid) var(--border); background: var(--bg-panel); }
   .pane-box { padding: var(--pad); background: var(--bg-panel); }
   .pane-box-title {
@@ -82,12 +81,7 @@
     letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-muted);
   }
   .pane-box-note { font-size: var(--fs-sm); color: var(--fg-faint); }
-  .demo-nav { color: var(--fg-muted); }
-  .demo-nav-h {
-    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
-    letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-faint);
-  }
-  .demo-nav-note { font-size: var(--fs-sm); color: var(--fg-faint); }
-  /* The interim .sb-note/.sb-mode statusbar placeholder chrome moved to the
-     real StatusBar component (components/panels.css, wave 2). */
+  /* The wave-0 fleetctl placeholder nav chrome (.demo-nav / .demo-main-panes)
+     left with the placeholder — the real console's glue lives in
+     components/fleetctl.css (wave 5). */
 }

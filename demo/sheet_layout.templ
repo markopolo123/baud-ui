@@ -16,3 +16,12 @@ templ nestedRows() {
 		placeholderPane("1fr", "nested data-panes-rows"),
 		placeholderPane("1fr", "static split"))
 }
+
+// placeholderPane is the sheet's labelled filler tile for the panes demo
+// (formerly shared with the wave-0 fleetctl placeholder page).
+templ placeholderPane(title, note string) {
+	<div class="pane-box vstack gap-1">
+		<span class="pane-box-title">{ title }</span>
+		<span class="pane-box-note">{ note }</span>
+	</div>
+}

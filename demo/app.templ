@@ -2,41 +2,311 @@ package demo
 
 import "github.com/markopolo123/baud-ui/baud"
 
-// AppPage is the fleetctl demo console placeholder. The real console (panel
-// strip, sortable DataTable, tree nav, log tail, overlays) is wave 5; this
-// skeleton proves the shell + panes foundation.
+// AppPage is the fleetctl demo console — the library's acceptance test
+// (design/README.md "Deliverables" item 3): every region is a shipped
+// baud component composed over the in-memory fleet fixtures in
+// fleetctl_api.go. The topbar Tabs hx-get view panes into the shared
+// #fleet-view tabpanel; the ⌘K palette, deploy modal, host drawer and
+// OOB toasts wire the overlay flows.
 templ AppPage(o Opts) {
 	@baud.Page(baud.PageProps{Title: "fleetctl — baud/ui demo", CSSHref: o.CSSHref, HSHref: o.HSHref}) {
-		@baud.Shell(baud.ShellProps{TopBar: appTopBar(o), Nav: appNav(), StatusBar: demoStatusBar("FLEET")}) {
-			@baud.Panes(baud.PanesProps{Template: "1.4fr 1fr", Resizable: true, ID: "fleet-main", Class: "demo-main-panes"},
-				placeholderPane("fleet table", "sortable DataTable lands in wave 3"),
-				placeholderPane("log tail", "fleetctl console lands in wave 5"))
+		@baud.Shell(baud.ShellProps{TopBar: fleetTopBar(o), Nav: fleetNav(), StatusBar: fleetStatusBar()}) {
+			@baud.TabPanel("fleet-view", "", true) {
+				@fleetFleetPane()
+			}
+			@baud.Palette(baud.PaletteProps{ID: "fleet-palette", SearchURL: "/fleet/palette", Commands: fleetPaletteCommands(o)})
 		}
 	}
 }
 
-templ appTopBar(o Opts) {
+// fleetTopBar: brand, the view Tabs (htmx mode into #fleet-view), then the
+// global actions — the deploy confirm (htmx modal) and the ⌘K palette
+// hint. Both action buttons also subscribe to baud:paletteCmd and replay
+// their own click, so palette commands drive the exact same round-trips.
+templ fleetTopBar(o Opts) {
 	<span class="brand">
-		<span class="brand-name">fleetctl</span>
-		<span class="brand-sub">prod · eu-west-1</span>
+		<span class="brand-name">baud/fleetctl</span>
+		<span class="brand-sub">prod · us-east-1 primary</span>
 	</span>
+	@baud.Tabs(baud.TabsProps{ID: "fleet-tabs", Target: "fleet-view", Tabs: []baud.Tab{
+		{Label: "fleet", Count: tabsCount(len(fleetSvcs)), Href: "/fleet/tab?view=fleet"},
+		{Label: "incidents", Count: tabsCount(1), Href: "/fleet/tab?view=incidents"},
+		{Label: "deploys", Href: "/fleet/tab?view=deploys"},
+	}})
 	<span class="fill"></span>
+	<button
+		type="button"
+		id="fleet-deploy-btn"
+		class="btn btn-primary"
+		hx-get="/fleet/deploy"
+		hx-target="body"
+		hx-swap="beforeend"
+		_="on baud:paletteCmd(cmd) from body if cmd is 'fleet-deploy' then call me.click() end"
+	>
+		<span class="btn-glyph">▸</span>
+		deploy
+	</button>
+	<button type="button" id="fleet-cmd-btn" class="btn" _="on click send baud:palette to document.body">
+		cmd
+		<kbd class="kbd">⌘K</kbd>
+	</button>
 	<a class="brand-sub" href={ o.SheetHref }>component sheet</a>
 }
 
-templ appNav() {
-	<div class="vstack gap-1 demo-nav">
-		<span class="demo-nav-h">navigator</span>
-		<span>regions</span>
-		<span>services</span>
-		<span>incidents</span>
-		<span class="demo-nav-note">Tree component lands in wave 3</span>
+// fleetNav is the shell's navigator: regions → clusters → hosts, the
+// SEV-1 host selected, eu-west-1's edge branch lazy-loading its children
+// from /fleet/tree on first expand.
+templ fleetNav() {
+	<div class="vstack gap-1 fleet-nav">
+		<span class="fleet-nav-h">navigator</span>
+		@baud.Tree(baud.TreeProps{ID: "fleet-tree", Nodes: fleetTreeNodes()})
 	</div>
 }
 
-templ placeholderPane(title, note string) {
-	<div class="pane-box vstack gap-1">
-		<span class="pane-box-title">{ title }</span>
-		<span class="pane-box-note">{ note }</span>
+// fleetStatusBar — mode cell, env, fleet counts, the spring, then the
+// incident and a clock-ish static cell on the far edge.
+templ fleetStatusBar() {
+	@baud.StatusBar([]baud.StatusCell{
+		{Text: "FLEET", Mode: true},
+		{Text: "prod · us-east-1"},
+		{Text: "12 svc · 71/74 pods"},
+		{Text: "9 ok · 2 warn · 1 err"},
+		{Spring: true},
+		{Text: "INC-2291 · sev-1 · 14m"},
+		{Text: "14:32:41 utc"},
+	})
+}
+
+// fleetFleetPane is the fleet tab's pane — the console's initial main
+// content and the GET /fleet/tab?view=fleet fragment.
+templ fleetFleetPane() {
+	<div class="fleet-main">
+		@fleetMetrics()
+		@fleetHostsPanel()
+		@fleetLogPanel()
 	</div>
+}
+
+// fleetMetrics is the strip of three Panels: DefList traffic figures,
+// Progress capacity bars, Badge/Dot health summary.
+templ fleetMetrics() {
+	<div id="fleet-metrics" class="fleet-metrics">
+		@baud.Panel(baud.PanelProps{ID: "fleet-m-traffic", Title: "traffic"}) {
+			<div class="fleet-pad">
+				@baud.DefList(baud.DefListProps{}) {
+					@baud.DefItem("fleet rps") {
+						<span>234,179</span>
+						<span class="fl-faint">+4.2% vs 1h ago</span>
+					}
+					@baud.DefItem("p99 latency") {
+						<span class="fl-err">312 ms</span>
+						<span class="fl-faint">slo 250ms</span>
+					}
+					@baud.DefItem("error rate") {
+						<span class="fl-warn">0.61%</span>
+						<span class="fl-faint">budget 38% burned</span>
+					}
+				}
+			</div>
+		}
+		@baud.Panel(baud.PanelProps{ID: "fleet-m-capacity", Title: "capacity"}) {
+			<div class="fleet-pad">
+				@baud.Progress(baud.ProgressProps{Label: "cpu fleet", Value: 64})
+				@baud.Progress(baud.ProgressProps{Label: "mem fleet", Value: 71})
+				@baud.Progress(baud.ProgressProps{Label: "disk db-04", Value: 91})
+			</div>
+		}
+		@baud.Panel(baud.PanelProps{ID: "fleet-m-health", Title: "health"}) {
+			<div class="fleet-pad">
+				<div class="hstack gap-2">
+					@baud.Badge(baud.BadgeProps{Tone: "ok", Dot: true}) {
+						9 ok
+					}
+					@baud.Badge(baud.BadgeProps{Tone: "warn", Dot: true}) {
+						2 warn
+					}
+					@baud.Badge(baud.BadgeProps{Tone: "err", Dot: true}) {
+						1 down
+					}
+				</div>
+				<div class="hstack gap-2">
+					@baud.Badge(baud.BadgeProps{Tone: "err", Variant: "outline"}) {
+						sev-1 · INC-2291
+					}
+					<span class="fl-faint">open 14m</span>
+				</div>
+				<div class="hstack gap-2">
+					@baud.Dot(baud.DotProps{Tone: "ok", Pulse: true})
+					<span class="fl-faint">streaming · 71/74 pods ready</span>
+				</div>
+			</div>
+		}
+	</div>
+}
+
+// fleetHostsPanel: the sortable hosts DataTable (htmx sort via
+// /fleet/hosts, err-desc default, tone-coded thresholds, ingest-gw
+// selected) with the honest single-page Pagination footer pinned under
+// the scrolling table.
+templ fleetHostsPanel() {
+	@baud.Panel(baud.PanelProps{ID: "fleet-hosts-panel", Title: "fleet hosts — prod", Class: "fleet-hosts-panel", Actions: fleetHostsActions()}) {
+		<div class="fill scroll">
+			@baud.DataTable(fleetHostsProps(fleetDefaultSort, fleetDefaultDir))
+		</div>
+		@baud.Pagination(baud.PaginationProps{Page: 1, PerPage: len(fleetSvcs), Total: len(fleetSvcs)})
+	}
+}
+
+// fleetHostsActions — the host row action: DataTable rows carry no action
+// slot (cells are server-rendered strings), so inspecting the selected
+// host is a header action that hx-gets the detail drawer.
+templ fleetHostsActions() {
+	<span class="fl-faint">{ fleetShownText() }</span>
+	<button
+		type="button"
+		id="fleet-inspect-btn"
+		class="btn btn-ghost"
+		hx-get="/fleet/host?id=ingest-gw"
+		hx-target="body"
+		hx-swap="beforeend"
+		_="on baud:paletteCmd(cmd) from body if cmd is 'fleet-inspect' then call me.click() end"
+	>
+		inspect ingest-gw
+	</button>
+	@baud.Kbd("i")
+}
+
+// fleetLogPanel is the log tail: static fixture lines, level tone-coded,
+// pod names in accent, one row per --row.
+templ fleetLogPanel() {
+	@baud.Panel(baud.PanelProps{ID: "fleet-log", Title: "log tail — ingest-gw", Class: "fleet-log-panel", Actions: fleetLogActions()}) {
+		<div class="fleet-log">
+			for _, l := range fleetLogLines {
+				<div class="fleet-log-line">
+					<span class="fl-time">{ l.Time }</span>
+					<span class={ "fl-lvl", "fl-" + l.Level }>{ l.Level }</span>
+					<span class="fl-pod">{ l.Pod }</span>
+					<span class="fl-msg">{ l.Msg }</span>
+				</div>
+			}
+		</div>
+	}
+}
+
+templ fleetLogActions() {
+	@baud.Badge(baud.BadgeProps{Tone: "info", Variant: "outline"}) {
+		all levels
+	}
+	<span class="fl-faint">streaming</span>
+	@baud.Kbd("f")
+}
+
+// fleetIncidentsPane is the incidents tab pane (GET /fleet/tab?view=incidents).
+templ fleetIncidentsPane() {
+	<div class="fleet-main">
+		@baud.Panel(baud.PanelProps{ID: "fleet-incidents", Title: "active incidents", Class: "fill"}) {
+			<div class="fleet-pad">
+				<div class="hstack gap-2">
+					@baud.Badge(baud.BadgeProps{Tone: "err", Variant: "solid"}) {
+						sev-1
+					}
+					<span>INC-2291 — ingest-gw error budget burn</span>
+					<span class="fl-faint">open 14m · commander zoe@</span>
+				</div>
+				@baud.DefList(baud.DefListProps{Lines: true, Rows: []baud.KV{
+					{Key: "impact", Value: "ingest p99 312ms · err 4.81%"},
+					{Key: "suspect", Value: "memory limit 2Gi — OOMKilled loop"},
+					{Key: "next step", Value: "deploy v2.14.1 (limit bump to 4Gi)"},
+				}})
+			</div>
+		}
+	</div>
+}
+
+// fleetDeploysPane is the deploys tab pane (GET /fleet/tab?view=deploys).
+templ fleetDeploysPane() {
+	<div class="fleet-main">
+		@baud.Panel(baud.PanelProps{ID: "fleet-deploys", Title: "deploys", Class: "fill"}) {
+			@baud.PanelState(baud.PanelStateProps{
+				Kind:  baud.StateEmpty,
+				Title: "no deploys in flight",
+				Sub:   "queue one from the deploy action or the ⌘K palette",
+			})
+		}
+	</div>
+}
+
+// fleetHostDrawer is the host-detail Drawer fragment (GET /fleet/host):
+// status badge, tone-coded DefList vitals, the proposed config change as
+// a DiffViewer, and the destructive kill action guarded by ConfirmInput.
+// The guard wiring is declarative htmx: ConfirmInput's danger Btn carries
+// no attribute hooks, so the wrapper div owns the round-trip and triggers
+// on clicks delegated from the (only-enabled-after-match) button.
+templ fleetHostDrawer(h fleetSvc) {
+	@baud.Drawer(baud.DrawerProps{ID: "fleet-drawer", Title: h.Svc + " · " + h.Ver}) {
+		<div class="hstack gap-2">
+			@baud.Badge(baud.BadgeProps{Tone: h.Status, Dot: true}) {
+				{ h.Status }
+			}
+			<span class="fl-faint">{ h.Pods } pods · { h.Region }</span>
+		</div>
+		@baud.DefList(baud.DefListProps{Lines: true}) {
+			@baud.DefItem("cpu") {
+				<span class={ fleetCPUClass(h) }>{ fleetPct(h.CPU) }%</span>
+			}
+			@baud.DefItem("memory") {
+				<span class={ fleetMemClass(h) }>{ fleetPct(h.Mem) }%</span>
+			}
+			@baud.DefItem("rps") {
+				<span>{ fleetThousands(h.RPS) }</span>
+			}
+			@baud.DefItem("p99") {
+				<span class={ fleetP99Class(h) }>{ fleetP99Text(h) } ms</span>
+			}
+			@baud.DefItem("err rate") {
+				<span class={ fleetErrClass(h) }>{ fleetErrPct(h.ErrPct) }%</span>
+			}
+		}
+		@baud.DiffViewer(baud.DiffProps{File: "deploy/" + h.Svc + ".yaml", Lines: fleetDiffLines()})
+		<span class="field-hint">proposed fix — capacity bump awaiting the next deploy</span>
+		<div
+			id="fleet-kill"
+			hx-get={ "/fleet/kill?host=" + h.Svc }
+			hx-trigger="click from:find .btn-danger"
+			hx-swap="none"
+		>
+			@baud.ConfirmInput(baud.ConfirmInputProps{
+				Expect:      h.Svc,
+				ActionLabel: "kill pod",
+				Name:        "host",
+				ID:          "fleet-confirm-input",
+			})
+		</div>
+	}
+}
+
+// FleetDeployModal is the toolbar's deploy-confirm Modal fragment
+// (GET /fleet/deploy) — exported for the BDD steps.
+templ FleetDeployModal() {
+	@baud.Modal(baud.ModalProps{ID: "fleet-modal", Title: "deploy fleet", Footer: fleetDeployFooter()}) {
+		<span>deploy ingest-gw v2.14.1 to prod? rolling restart across 12 pods.</span>
+		<span class="fl-faint">image sha 4f9c21d · last deploy 2h ago</span>
+	}
+}
+
+// fleetDeployFooter: cancel dismisses; confirm fires the /fleet/deploy/run
+// round-trip (whose whole payload is the OOB toast) and closes the modal
+// on htmx:afterRequest — NOT via data-overlay-close on the same click,
+// which would detach the issuing button mid-flight and htmx would discard
+// the response (and its OOB toast) entirely.
+templ fleetDeployFooter() {
+	<button type="button" class="btn" data-overlay-close>cancel</button>
+	<button
+		type="button"
+		id="fleet-deploy-run"
+		class="btn btn-primary"
+		hx-get="/fleet/deploy/run"
+		hx-swap="none"
+		_="on htmx:afterRequest[detail.successful] send baud:overlayClose to #fleet-modal"
+	>deploy</button>
 }

@@ -34,5 +34,14 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /demo/modal", handleModalDemo)
 	mux.HandleFunc("GET /demo/drawer", handleDrawerDemo)
 	mux.HandleFunc("GET /api/palette", HandlePaletteSearch)
+	// fleetctl console endpoints (demo/fleetctl_api.go).
+	mux.HandleFunc("GET /fleet/hosts", handleFleetHosts)
+	mux.HandleFunc("GET /fleet/tab", handleFleetTab)
+	mux.HandleFunc("GET /fleet/host", handleFleetHost)
+	mux.HandleFunc("GET /fleet/kill", handleFleetKill)
+	mux.HandleFunc("GET /fleet/deploy", handleFleetDeploy)
+	mux.HandleFunc("GET /fleet/deploy/run", handleFleetDeployRun)
+	mux.HandleFunc("GET /fleet/tree", handleFleetTree)
+	mux.HandleFunc("GET /fleet/palette", handleFleetPalette)
 	return mux
 }

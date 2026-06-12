@@ -1,0 +1,65 @@
+/* ============================================================
+   baud/ui — fleetctl demo console (@layer components)
+   Composition glue only: the console is built from shipped
+   components; these rules tile the main column, pad the metric
+   panel bodies and tone-code the log tail. Tokens only.
+   Owned by wave 5 (fleetctl) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  /* the shared view tabpanel fills the shell's main scroll region */
+  [data-shell] > main > .tab-panel { height: 100%; }
+
+  .fleet-main {
+    display: flex; flex-direction: column;
+    gap: var(--gap); padding: var(--pad);
+    height: 100%; min-height: 0;
+  }
+
+  /* ---------- metrics strip ---------- */
+  .fleet-metrics {
+    flex: none;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+  }
+  .fleet-pad {
+    display: flex; flex-direction: column;
+    gap: var(--gap); padding: var(--pad);
+  }
+
+  /* ---------- hosts table + log tail split ---------- */
+  .fleet-hosts-panel { flex: 1.6 1 0; min-height: calc(var(--row) * 8); }
+  .fleet-hosts-panel > .panel-bd { display: flex; flex-direction: column; }
+  .fleet-log-panel { flex: 1 1 0; min-height: calc(var(--row) * 5); }
+
+  /* ---------- nav ---------- */
+  .fleet-nav-h {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-faint);
+  }
+
+  /* ---------- log tail ---------- */
+  .fleet-log { padding: calc(var(--pad) * 0.5) 0; font-variant-numeric: tabular-nums; }
+  .fleet-log-line {
+    display: flex; align-items: center;
+    gap: calc(var(--gap) * 1.5);
+    height: var(--row); padding: 0 var(--pad);
+    white-space: nowrap; overflow: hidden;
+  }
+  .fl-time { flex: none; color: var(--fg-faint); }
+  .fl-lvl {
+    flex: none; width: 5ch;
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 700;
+    text-transform: uppercase;
+  }
+  .fl-pod { flex: none; width: 18ch; color: var(--accent); overflow: hidden; text-overflow: ellipsis; }
+  .fl-msg { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+  /* console text tones — scoped per component, cf. the tables.css and
+     feedback.css tone classes (the prototype's tone-* utilities). */
+  .fl-ok { color: var(--ok); }
+  .fl-warn { color: var(--warn); }
+  .fl-err { color: var(--err); }
+  .fl-info { color: var(--info); }
+  .fl-faint { color: var(--fg-faint); }
+  .fl-accent { color: var(--accent); }
+}
