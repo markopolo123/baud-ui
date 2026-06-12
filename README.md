@@ -26,8 +26,8 @@ to the browser:
 
 | asset | what | how to get it |
 |---|---|---|
-| `dist/baud.css` | the CSS bundle | built from committed sources by `just css` (concatenates `assets/css/tokens.css` + `base.css` + `components/*.css` + `utilities.css`) |
-| `assets/baud._hs` | the hyperscript behaviors file | committed as-is |
+| the CSS bundle | `tokens.css` + `base.css` + `components/*.css` + `utilities.css`, concatenated | `baudui.CSS()` (root package; built from embedded sources at first use) — or `just css` if you want the `dist/baud.css` file |
+| the hyperscript behaviors file | `assets/baud._hs`, committed as-is | `baudui.HS()` — or serve the file directly |
 
 htmx and _hyperscript are **peer dependencies**, not bundled — pinned versions are
 exported as `baud.HTMXSrc` (htmx 2.0.4) and `baud.HyperscriptSrc` (_hyperscript
@@ -74,10 +74,11 @@ templ actions() {
 ```
 
 `PageProps` defaults assets to `assets/baud.css` / `assets/baud._hs`-relative hrefs;
-override `CSSHref`/`HSHref` for other mount points. The demo serves both from
-embedded bytes (`baudui.CSS`, `baudui.Behaviors` in the root package) — see
-`demo/server.go`. Note the root package embeds `dist/baud.css`, so run `just css`
-before building anything that imports it.
+override `CSSHref`/`HSHref` for other mount points. The root package embeds the
+committed sources, so a plain `go get` builds with no pre-step: mount
+`baudui.CSS()` / `baudui.HS()` in handlers (see `demo/server.go`) or write them to
+disk at build time (see `cmd/render`). `just css` still emits `dist/baud.css` if
+you want the bundle as a file.
 
 ## The class-swap contract
 
@@ -219,8 +220,8 @@ correct ARIA roles. "behavior" = a `_="install …"` hyperscript behavior from
 | recipe | does |
 |---|---|
 | `just generate` | `templ generate` (`*_templ.go` is gitignored) |
-| `just css` | concatenate layered sources → `dist/baud.css` |
-| `just build` | generate + css + `go build ./...` |
+| `just css` | concatenate layered sources → `dist/baud.css` (convenience artifact; nothing else needs it) |
+| `just build` | generate + `go build ./...` |
 | `just run` | run the fleetctl demo console (`cmd/demo`) |
 | `just render` | write the static showcase to `dist/site` (`cmd/render`) |
 | `just lint` | gofmt check + `go vet` |

@@ -50,9 +50,9 @@ func render(out string) error {
 		}
 	}
 
-	// Copy the embedded assets next to the pages (relative hrefs).
-	if err := os.WriteFile(filepath.Join(out, "baud.css"), baudui.CSS, 0o644); err != nil {
+	// Write the embedded assets next to the pages (relative hrefs).
+	if err := os.WriteFile(filepath.Join(out, "baud.css"), baudui.CSS(), 0o644); err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(out, "baud._hs"), baudui.Behaviors, 0o644)
+	return os.WriteFile(filepath.Join(out, "baud._hs"), baudui.HS(), 0o644)
 }
