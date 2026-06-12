@@ -1,0 +1,54 @@
+/* ============================================================
+   baud/ui — data table (@layer components)
+   Lifted nearly verbatim from design/baud-components.css
+   ("data table"): sticky --bg-raised UPPERCASE header, --row
+   rows, hover --bg-hover, selected row --sel + 2px accent inset
+   bar + ▌ row mark, right-aligned numeric columns, opt-in
+   zebra/lines variants, tone-coded threshold cells. Sort is
+   htmx (th hx-get) — no client styling state here. Fixed px
+   (arrow size/offset, inset bar, cell max-width) are design-spec
+   constants, not density-driven. Owned by feat/datatable — do
+   not edit in parallel.
+   ============================================================ */
+@layer components {
+  .dt { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .dt th {
+    position: sticky; top: 0; z-index: 2;
+    height: var(--row); padding: 0 var(--pad);
+    background: var(--bg-raised);
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg-muted);
+    text-align: left; white-space: nowrap;
+    border-bottom: 1px var(--border-style, solid) var(--border-strong);
+  }
+  .dt th.sortable { cursor: pointer; user-select: none; }
+  .dt th.sortable:hover { color: var(--fg); }
+  .dt th.sorted { color: var(--accent); }
+  .dt th .sort-arrow { font-size: 9px; margin-left: 3px; }
+  .dt td {
+    height: var(--row); padding: 0 var(--pad);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
+    border-bottom: 1px var(--border-style, solid) color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .dt .num { text-align: right; }
+  .dt th.num { text-align: right; }
+  .dt tbody tr { cursor: default; }
+  .dt tbody tr:hover td { background: var(--bg-hover); }
+  .dt tbody tr.sel td { background: var(--sel); }
+  .dt tbody tr.sel td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
+  .dt-zebra tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--bg-raised) 50%, transparent); }
+  .dt-zebra tbody tr:hover td { background: var(--bg-hover); }
+  .dt-zebra tbody tr.sel td { background: var(--sel); }
+  .dt-lines td, .dt-lines th { border-right: 1px var(--border-style, solid) color-mix(in srgb, var(--border) 55%, transparent); }
+  .dt-lines td:last-child, .dt-lines th:last-child { border-right: none; }
+  .dt .row-mark { color: var(--fg-faint); width: 1%; }
+  .dt tr.sel .row-mark { color: var(--accent); }
+
+  /* tone-coded threshold cells (DataTableProps.CellTone hook) */
+  .dt td.tone-ok { color: var(--ok); }
+  .dt td.tone-warn { color: var(--warn); }
+  .dt td.tone-err { color: var(--err); }
+  .dt td.tone-info { color: var(--info); }
+  .dt td.tone-accent { color: var(--accent); }
+  .dt td.tone-faint { color: var(--fg-faint); }
+}

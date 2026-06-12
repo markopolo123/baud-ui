@@ -1,0 +1,82 @@
+package baud
+
+// DataTable is the flagship data grid (design/README.md "Data"): sticky
+// --bg-raised UPPERCASE header, --row rows, hover --bg-hover, selected row
+// --sel + 2px accent inset bar + ▌ row mark, right-aligned numeric columns,
+// opt-in zebra/lines variants, tone-coded threshold cells. Sorting is pure
+// htmx — sortable headers hx-get the next sort state and swap the tbody
+// fragment; there is no client logic and no hyperscript here.
+templ DataTable(p DataTableProps) {
+	<table
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ "dt", templ.KV("dt-zebra", p.Zebra), templ.KV("dt-lines", p.Lines) }
+	>
+		@DataTableHead(p, false)
+		@DataTableBody(p)
+	</table>
+}
+
+// DataTableHead is the header fragment (id <ID>-head). Servers answering a
+// sort round-trip render it with oob=true after the body fragment so htmx
+// swaps it out-of-band — the ▲/▼ indicator, aria-sort and the flipped
+// hx-get URLs follow the new sort state. Sortable headers are keyboard
+// operable: tabindex=0 with the hx-trigger including Enter.
+templ DataTableHead(p DataTableProps, oob bool) {
+	<thead
+		if p.ID != "" {
+			id={ p.headID() }
+		}
+		if oob {
+			hx-swap-oob="outerHTML"
+		}
+	>
+		<tr>
+			<th class="row-mark" aria-hidden="true"></th>
+			for _, c := range p.Columns {
+				<th
+					scope="col"
+					data-key={ c.Key }
+					class={ p.thClass(c) }
+					if p.sortable(c) {
+						hx-get={ p.sortURL(c) }
+						hx-target={ "#" + p.bodyID() }
+						hx-swap="outerHTML"
+						hx-trigger="click, keyup[key=='Enter']"
+						tabindex="0"
+					}
+					if p.sorted(c) {
+						aria-sort={ p.ariaSort() }
+					}
+				>
+					{ c.Label }
+					if p.sorted(c) {
+						<span class="sort-arrow" aria-hidden="true">{ p.arrow() }</span>
+					}
+				</th>
+			}
+		</tr>
+	</thead>
+}
+
+// DataTableBody is the tbody fragment (id <ID>-body) — exactly what the
+// sort round-trip swaps, so servers re-render this and nothing more.
+// Selection is server state: the row whose Key matches p.Selected carries
+// .sel and the ▌ row mark.
+templ DataTableBody(p DataTableProps) {
+	<tbody
+		if p.ID != "" {
+			id={ p.bodyID() }
+		}
+	>
+		for _, r := range p.Rows {
+			<tr class={ templ.KV("sel", p.isSelected(r)) }>
+				<td class="row-mark" aria-hidden="true">{ p.mark(r) }</td>
+				for i, c := range p.Columns {
+					<td class={ p.tdClass(c, r.cell(i)) }>{ r.cell(i) }</td>
+				}
+			</tr>
+		}
+	</tbody>
+}

@@ -26,5 +26,6 @@ func Sections() []SheetSection {
 		{Title: "Tabs — underline · boxed", Body: SheetTabs()},
 		{Title: "Select — native · menu · combobox", Body: SheetSelect()},
 		{Title: "Data — pagination & diff", Body: SheetDataExtras()},
+		{Title: "Data — table (htmx sort)", Body: SheetDataTable()},
 	}
 }
