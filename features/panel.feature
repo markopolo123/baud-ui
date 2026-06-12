@@ -62,7 +62,8 @@ Feature: Panel, StatusBar and Toolbar structure components
 
   Scenario: toolbar preserves its children order
     When I render a toolbar of a button "deploy" and an input
-    Then exactly 1 element matches "div.toolbar[role=toolbar]"
+    Then exactly 1 element matches "div.toolbar"
+    And no element matches "div.toolbar[role]"
     And exactly 1 element matches "div.toolbar > button.btn"
     And exactly 1 element matches "div.toolbar > span.input-wrap"
     And the first element child of "div.toolbar" is "button.btn"
