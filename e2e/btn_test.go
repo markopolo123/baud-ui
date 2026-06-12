@@ -8,21 +8,6 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-// computedStyle resolves one computed-style property on the first element
-// matching the locator.
-func computedStyle(t *testing.T, l playwright.Locator, prop string) string {
-	t.Helper()
-	v, err := l.Evaluate(`(el, prop) => getComputedStyle(el)[prop]`, prop)
-	if err != nil {
-		t.Fatalf("computed style %q: %v", prop, err)
-	}
-	s, ok := v.(string)
-	if !ok {
-		t.Fatalf("computed style %q: got %T(%v), want string", prop, v, v)
-	}
-	return s
-}
-
 func assertStyle(t *testing.T, l playwright.Locator, prop, want, what string) {
 	t.Helper()
 	if got := computedStyle(t, l, prop); got != want {

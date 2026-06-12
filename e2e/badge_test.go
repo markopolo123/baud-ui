@@ -12,26 +12,6 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-// computedStyleSel returns the computed style property of the first element
-// matching selector.
-func computedStyleSel(t *testing.T, page playwright.Page, selector, prop string) string {
-	t.Helper()
-	v, err := page.Evaluate(fmt.Sprintf(
-		`() => { const el = document.querySelector(%q); return el ? getComputedStyle(el)[%q] : "MISSING"; }`,
-		selector, prop))
-	if err != nil {
-		t.Fatalf("computed %s of %q: %v", prop, selector, err)
-	}
-	s, ok := v.(string)
-	if !ok {
-		t.Fatalf("computed %s of %q: non-string %v", prop, selector, v)
-	}
-	if s == "MISSING" {
-		t.Fatalf("no element matches %q", selector)
-	}
-	return s
-}
-
 // parseColor parses Chromium computed-colour serializations:
 // "rgb(R, G, B)", "rgba(R, G, B, A)" and "color(srgb r g b / a)".
 // Channels are returned on the 0–255 scale, alpha 0–1.

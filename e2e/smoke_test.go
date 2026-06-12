@@ -6,41 +6,10 @@
 package e2e
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/playwright-community/playwright-go"
-
-	"github.com/markopolo123/baud-ui/demo"
 )
-
-// startDemo starts the real demo handler on a random port.
-func startDemo(t *testing.T) *httptest.Server {
-	t.Helper()
-	srv := httptest.NewServer(demo.NewMux())
-	t.Cleanup(srv.Close)
-	return srv
-}
-
-// startBrowser launches headless chromium and returns an open page.
-func startBrowser(t *testing.T) playwright.Page {
-	t.Helper()
-	pw, err := playwright.Run()
-	if err != nil {
-		t.Fatalf("playwright: %v (run `just install-browsers` first)", err)
-	}
-	t.Cleanup(func() { pw.Stop() })
-	browser, err := pw.Chromium.Launch()
-	if err != nil {
-		t.Fatalf("launch chromium: %v", err)
-	}
-	t.Cleanup(func() { browser.Close() })
-	page, err := browser.NewPage()
-	if err != nil {
-		t.Fatalf("new page: %v", err)
-	}
-	return page
-}
 
 func TestSheetSmoke(t *testing.T) {
 	srv := startDemo(t)
