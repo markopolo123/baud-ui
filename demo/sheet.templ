@@ -1,0 +1,34 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetPage is the kitchen-sink component sheet. Sections come from the
+// registry in registry.go; the tweaks panel swaps root mode classes only.
+templ SheetPage(o Opts) {
+	@baud.Page(baud.PageProps{Title: "baud/ui — component sheet", CSSHref: o.CSSHref, HSHref: o.HSHref}) {
+		@baud.Shell(baud.ShellProps{TopBar: sheetTopBar(o), StatusBar: statusNote("SHEET")}) {
+			<div class="sheet-wrap vstack gap-3">
+				for _, s := range Sections() {
+					<section class="sheet-section">
+						<h2 class="sheet-h">{ s.Title }</h2>
+						@s.Body
+					</section>
+				}
+			</div>
+			@tweaksPanel()
+		}
+	}
+}
+
+templ sheetTopBar(o Opts) {
+	<span class="brand">
+		<span class="brand-name">baud/ui</span>
+		<span class="brand-sub">component sheet — templ · htmx · hyperscript</span>
+	</span>
+	<span class="fill"></span>
+	<a class="brand-sub" href={ o.AppHref }>fleetctl demo</a>
+}
+
+templ statusNote(mode string) {
+	<span class="sb-note"><span class="sb-mode">{ mode }</span> <span>baud/ui 0.1.0 — foundation</span></span>
+}

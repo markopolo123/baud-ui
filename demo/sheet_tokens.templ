@@ -1,0 +1,24 @@
+package demo
+
+// colorTokens are the ~20 semantic theme vars; chips are colored purely by
+// CSS rules keyed on data-token, so the swatches track root-class swaps.
+var colorTokens = []string{
+	"bg-app", "bg-panel", "bg-raised", "bg-hover", "bg-active", "bg-input",
+	"border", "border-strong",
+	"fg", "fg-muted", "fg-faint",
+	"accent", "accent-2", "on-accent",
+	"ok", "warn", "err", "info",
+	"sel", "shadow",
+}
+
+// SheetTokens renders the theme swatch strip from the token names.
+templ SheetTokens() {
+	<div class="sheet-row">
+		for _, t := range colorTokens {
+			<div class="swatch">
+				<span class="swatch-chip" data-token={ t }></span>
+				<span class="swatch-name">{ "--" + t }</span>
+			</div>
+		}
+	</div>
+}

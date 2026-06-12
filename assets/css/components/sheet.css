@@ -1,0 +1,99 @@
+/* ============================================================
+   baud/ui — component sheet + demo chrome (@layer components)
+   Sheet sections, token swatches, tweaks panel, demo placeholders.
+   Owned by wave 0 (foundation).
+   ============================================================ */
+@layer components {
+  /* ---------- sheet scaffolding ---------- */
+  .sheet-wrap { padding: calc(var(--pad) * 2); }
+  .sheet-section { display: flex; flex-direction: column; gap: var(--gap); }
+  .sheet-h {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-faint);
+    display: flex; align-items: center; gap: var(--gap);
+  }
+  .sheet-h::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .sheet-row { display: flex; align-items: center; gap: var(--gap); flex-wrap: wrap; }
+
+  /* ---------- token swatches ---------- */
+  .swatch { display: flex; flex-direction: column; gap: calc(var(--gap) * 0.5); width: 11ch; }
+  .swatch-chip { height: calc(var(--row) + var(--pad)); border: 1px var(--border-style, solid) var(--border); }
+  .swatch-name { font-size: var(--fs-sm); color: var(--fg-muted); }
+
+  .swatch-chip[data-token="bg-app"] { background: var(--bg-app); }
+  .swatch-chip[data-token="bg-panel"] { background: var(--bg-panel); }
+  .swatch-chip[data-token="bg-raised"] { background: var(--bg-raised); }
+  .swatch-chip[data-token="bg-hover"] { background: var(--bg-hover); }
+  .swatch-chip[data-token="bg-active"] { background: var(--bg-active); }
+  .swatch-chip[data-token="bg-input"] { background: var(--bg-input); }
+  .swatch-chip[data-token="border"] { background: var(--border); }
+  .swatch-chip[data-token="border-strong"] { background: var(--border-strong); }
+  .swatch-chip[data-token="fg"] { background: var(--fg); }
+  .swatch-chip[data-token="fg-muted"] { background: var(--fg-muted); }
+  .swatch-chip[data-token="fg-faint"] { background: var(--fg-faint); }
+  .swatch-chip[data-token="accent"] { background: var(--accent); }
+  .swatch-chip[data-token="accent-2"] { background: var(--accent-2); }
+  .swatch-chip[data-token="on-accent"] { background: var(--on-accent); }
+  .swatch-chip[data-token="ok"] { background: var(--ok); }
+  .swatch-chip[data-token="warn"] { background: var(--warn); }
+  .swatch-chip[data-token="err"] { background: var(--err); }
+  .swatch-chip[data-token="info"] { background: var(--info); }
+  .swatch-chip[data-token="sel"] { background: var(--sel); }
+  .swatch-chip[data-token="shadow"] { background: var(--shadow); }
+
+  /* ---------- tweaks panel (sheet only) ---------- */
+  .tweaks {
+    position: fixed; right: calc(var(--gap) * 2); bottom: calc(var(--rh) + var(--gap) * 2);
+    z-index: 80;
+    display: flex; flex-direction: column; gap: var(--gap);
+    padding: var(--pad);
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 10px 30px var(--shadow);
+  }
+  .tweaks-h {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-faint);
+  }
+  .tweak-row { display: flex; align-items: center; gap: calc(var(--gap) * 0.5); }
+  .tweak-label {
+    width: 9ch;
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg-muted);
+  }
+  .tweak-btn {
+    height: calc(var(--rh) - var(--pad));
+    padding: 0 var(--pad);
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--fg-faint);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+  }
+  .tweak-btn:hover { color: var(--fg); background: var(--bg-hover); }
+  .tweak-btn.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  /* ---------- demo placeholders ---------- */
+  .demo-main-panes { height: 100%; }
+  .pane-demo { height: calc(var(--row) * 8); border: 1px var(--border-style, solid) var(--border); background: var(--bg-panel); }
+  .pane-box { padding: var(--pad); background: var(--bg-panel); }
+  .pane-box-title {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-muted);
+  }
+  .pane-box-note { font-size: var(--fs-sm); color: var(--fg-faint); }
+  .demo-nav { color: var(--fg-muted); }
+  .demo-nav-h {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-faint);
+  }
+  .demo-nav-note { font-size: var(--fs-sm); color: var(--fg-faint); }
+  .sb-note { display: flex; align-items: center; gap: var(--gap); padding: 0 calc(var(--pad) * 1.5); }
+  .sb-mode {
+    display: flex; align-items: center; align-self: stretch;
+    padding: 0 calc(var(--pad) * 1.5);
+    margin-left: calc(var(--pad) * -1.5);
+    background: var(--accent); color: var(--on-accent);
+    font-weight: 700; letter-spacing: 0.08em;
+  }
+}

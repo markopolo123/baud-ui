@@ -1,0 +1,19 @@
+package demo
+
+import "github.com/a-h/templ"
+
+// SheetSection is one section of the component sheet.
+type SheetSection struct {
+	Title string
+	Body  templ.Component
+}
+
+// Sections is the component-sheet registry, rendered in order.
+// Each component wave adds a demo/sheet_<name>.templ file and registers it
+// here — this one line is the only expected merge-conflict point.
+func Sections() []SheetSection {
+	return []SheetSection{
+		{Title: "Tokens", Body: SheetTokens()},
+		{Title: "Layout — panes", Body: SheetLayout()},
+	}
+}

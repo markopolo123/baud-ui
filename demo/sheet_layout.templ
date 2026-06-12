@@ -1,0 +1,18 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetLayout demos the panes foundation: a resizable vertical split nested
+// with a rows split. The e2e smoke test asserts the Panes behavior applied
+// the grid template on the outer element.
+templ SheetLayout() {
+	@baud.Panes(baud.PanesProps{Template: "32ch 1fr", Resizable: true, ID: "sheet-panes", Class: "pane-demo"},
+		placeholderPane("32ch", "drag the gutter — size persists"),
+		nestedRows())
+}
+
+templ nestedRows() {
+	@baud.PanesRows(baud.PanesProps{Template: "1fr 1fr"},
+		placeholderPane("1fr", "nested data-panes-rows"),
+		placeholderPane("1fr", "static split"))
+}
