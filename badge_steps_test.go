@@ -2,13 +2,10 @@ package baudui_test
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/cucumber/godog"
-	"golang.org/x/net/html"
 
 	"github.com/markopolo123/baud-ui/baud"
 )
@@ -51,24 +48,6 @@ func (s *scenarioState) renderPulsingDot(tone string) error {
 
 // ---- assertion steps -----------------------------------------------------
 
-// elementHasText asserts the element's collapsed text content.
-func (s *scenarioState) elementHasText(selector, want string) error {
-	n, err := s.one(selector)
-	if err != nil {
-		return err
-	}
-	var sb strings.Builder
-	walk(n, func(c *html.Node) {
-		if c.Type == html.TextNode {
-			sb.WriteString(c.Data)
-		}
-	})
-	if got := strings.TrimSpace(sb.String()); got != want {
-		return fmt.Errorf("element %q text = %q, want %q", selector, got, want)
-	}
-	return nil
-}
-
 // registerBadgeSteps wires the Badge/Dot steps into the shared suite.
 func registerBadgeSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a badge with tone "([^"]*)" and variant "([^"]*)" labelled "([^"]*)"$`, s.renderBadge)
@@ -78,5 +57,4 @@ func registerBadgeSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a default dot$`, s.renderDefaultDot)
 	sc.When(`^I render a pulsing dot with tone "([^"]*)"$`, s.renderPulsingDot)
 
-	sc.Then(`^the element "([^"]*)" has text "([^"]*)"$`, s.elementHasText)
 }
