@@ -30,5 +30,6 @@ func Sections() []SheetSection {
 		{Title: "Tree — fleet navigator", Body: SheetTree()},
 		{Title: "Toasts — OOB notification stack", Body: SheetToast()},
 		{Title: "Feedback — progress · spinner · states · confirm", Body: SheetFeedback()},
+		{Title: "Overlays — popover · tooltip", Body: SheetPopover()},
 	}
 }

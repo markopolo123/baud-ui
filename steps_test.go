@@ -360,4 +360,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerTreeSteps(sc, s)
 	registerToastSteps(sc, s)
 	registerFeedbackSteps(sc, s)
+	registerPopoverSteps(sc, s)
 }

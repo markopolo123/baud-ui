@@ -1,0 +1,43 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetPopover demos the overlay pair: two quick-action popovers (two so
+// the e2e suite can prove the one-at-a-time rule — opening one is an
+// outside click for the other) and the pure-CSS tooltip matrix — a
+// multi-line aligned tip and a one-liner on tip-under prose hosts, a
+// plain tip on a wrapped badge, and a focusable button host proving
+// tips show on :focus-visible too. The e2e suite drives these with
+// mouse and keyboard.
+templ SheetPopover() {
+	<div class="sheet-row">
+		@baud.Popover(baud.PopoverProps{ID: "pop-actions", Label: "Actions", Glyph: "▾", Title: "Quick actions"}) {
+			<button type="button" class="menu-item"><span>Flush cache</span>@baud.Kbd("f")</button>
+			<button type="button" class="menu-item"><span>Drain traffic</span>@baud.Kbd("d")</button>
+			<button type="button" class="menu-item"><span>Maintenance mode</span></button>
+		}
+		@baud.Popover(baud.PopoverProps{ID: "pop-deploy", Label: "Deploy", Glyph: "▾", Title: "Deploy target"}) {
+			<button type="button" class="menu-item"><span>prod — eu-west</span></button>
+			<button type="button" class="menu-item"><span>staging — us-east</span></button>
+		}
+	</div>
+	<div class="sheet-row">
+		<span id="tip-prose">
+			Latency is
+			<span id="tip-latency" { baud.TipUnder("p99 = 312ms\np95 = 104ms\np50 =  22ms")... }>over SLO</span>
+			and the error budget is
+			<span id="tip-budget" { baud.TipUnder("38.2% of 30d budget consumed")... }>burning</span>.
+			Hover a
+			<span id="tip-badge" { baud.Tip("works on any element")... }>
+				@baud.Badge(baud.BadgeProps{Tone: "info"}) {
+					badge
+				}
+			</span>
+			too.
+		</span>
+	</div>
+	<div class="sheet-row">
+		<button type="button" class="btn" id="tip-key-anchor">tab from here</button>
+		<button type="button" class="btn" id="tip-key" { baud.Tip("shown on focus-visible")... }>keyboard tip</button>
+	</div>
+}

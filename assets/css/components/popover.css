@@ -1,0 +1,59 @@
+/* ============================================================
+   baud/ui — popover + tooltip (@layer components)
+   .pop-wrap/.popover anchored quick-actions panel lifted from
+   design/baud-components.css ("popover" block); [data-tip]
+   pure-CSS tooltip lifted from design/baud-extras.css
+   ("tooltip" block), .tip class renamed to the [data-tip]
+   attribute per the data-* component philosophy. Raw colours
+   converted to tokens. Remaining px are structural constants
+   from the design CSS (280px panel, 10px/8px panel pad/gap,
+   4px/5px anchor offsets, 3px/7px tip pad, 4px arrow, shadow
+   geometry, underline offset).
+   Owned by wave 4 (feat/popover-tooltip) — do not edit in
+   parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- popover ---------- */
+  .pop-wrap { position: relative; display: inline-flex; }
+  .pop-wrap > .popover { display: none; }
+  .pop-wrap.open > .popover { display: flex; }
+  .popover {
+    position: absolute; top: calc(100% + 4px); left: 0; z-index: 70;
+    width: 280px;
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 12px 36px var(--shadow);
+    padding: 10px;
+    flex-direction: column; gap: 8px;
+  }
+
+  /* ---------- tooltip (pure CSS, data-tip attribute) ---------- */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute; left: 50%; bottom: calc(100% + 5px); transform: translateX(-50%);
+    background: var(--bg-raised); color: var(--fg);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 3px 7px; font-size: var(--fs-sm); font-family: var(--font-mono);
+    white-space: pre; pointer-events: none; opacity: 0; z-index: 90;
+  }
+  [data-tip]::before {
+    /* arrow: solid border triangle is structural, not a hairline */
+    content: ""; position: absolute; left: 50%; bottom: calc(100% + 1px); transform: translateX(-50%);
+    border: 4px solid transparent; border-top-color: var(--border-strong);
+    pointer-events: none; opacity: 0; z-index: 90;
+  }
+  [data-tip]:hover::after, [data-tip]:hover::before,
+  [data-tip]:focus-visible::after, [data-tip]:focus-visible::before { opacity: 1; }
+  /* the 150ms show delay rides the opacity transition, so it is
+     reduced-motion-gated: with reduced motion the tip flips instantly */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-tip]::after, [data-tip]::before { transition: opacity 0.08s ease-in 0.15s; }
+  }
+  .tip-under {
+    text-decoration: underline dotted var(--fg-faint);
+    text-underline-offset: 3px;
+    cursor: help;
+  }
+}
