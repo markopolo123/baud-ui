@@ -158,6 +158,24 @@ func (s *scenarioState) treeRow(label string) (*html.Node, error) {
 // treeRowHasGlyph compares the row's branch glyph text, ignoring the
 // trailing alignment pad leaves carry in place of the ▸/▾ slot (the
 // disclosure glyph itself is CSS content, so it never appears here).
+// treeRowHasExactGlyph compares the row's branch glyph text verbatim,
+// INCLUDING the two-space alignment pad that keeps sibling labels aligned
+// (mutation-tested per gatekeeper review of #21).
+func (s *scenarioState) treeRowHasExactGlyph(label, glyph string) error {
+	row, err := s.treeRow(label)
+	if err != nil {
+		return err
+	}
+	g := treeFirstByClass(row, "tree-glyph")
+	if g == nil {
+		return fmt.Errorf("tree row %q has no .tree-glyph", label)
+	}
+	if got := textContent(g); got != glyph {
+		return fmt.Errorf("tree row %q exact glyph = %q, want %q", label, got, glyph)
+	}
+	return nil
+}
+
 func (s *scenarioState) treeRowHasGlyph(label, glyph string) error {
 	row, err := s.treeRow(label)
 	if err != nil {
@@ -203,6 +221,7 @@ func registerTreeSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a tree from:$`, s.renderTree)
 	sc.When(`^I render a tree children fragment with prefix "([^"]*)" from:$`, s.renderTreeChildren)
 	sc.Then(`^the tree row labeled "([^"]*)" has glyph "([^"]*)"$`, s.treeRowHasGlyph)
+	sc.Then(`^the tree row labeled "([^"]*)" has exact glyph text "([^"]*)"$`, s.treeRowHasExactGlyph)
 	sc.Then(`^the tree row labeled "([^"]*)" has no meta$`, s.treeRowHasNoMeta)
 	sc.Then(`^the tree row labeled "([^"]*)" is the selected row$`, s.treeRowIsSelected)
 }

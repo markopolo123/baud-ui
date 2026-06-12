@@ -161,3 +161,13 @@ Feature: Tree — box-drawing branches, disclosure, lazy htmx children
     And the tree row labeled "edge-cache-1" has glyph "   ├─"
     And the tree row labeled "edge-cache-2" has glyph "   └─"
     And the element "span.tree-meta" has text "warm"
+
+  Scenario: leaf glyphs keep the two-space alignment pad
+    When I render a tree from:
+      """
+      prod>
+        core
+        batch
+      """
+    Then the tree row labeled "core" has exact glyph text "├─  "
+    And the tree row labeled "batch" has exact glyph text "└─  "
