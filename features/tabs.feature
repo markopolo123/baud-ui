@@ -50,6 +50,17 @@ Feature: Tabs — underline & boxed variants, htmx & local switching
     And the element "div.tabs" has attribute "_" equal to "install Tabs"
     And no element matches "div.tabs[data-tabs-local]"
 
+  Scenario: htmx tabs with nav hrefs degrade to real links
+    When I render htmx nav tabs "5m=/demo/tabs?range=5m|/?tab=5m,1h=/demo/tabs?range=1h|/?tab=1h" targeting "range-pane"
+    Then exactly 2 elements match "div.tabs > a.tab[role=tab]"
+    And no element matches "button.tab"
+    And the element "a.tab.is-active" has attribute "href" equal to "/?tab=5m"
+    And the element "a.tab.is-active" has attribute "hx-get" equal to "/demo/tabs?range=5m"
+    And exactly 2 elements match "a.tab[hx-target=#range-pane]"
+    And exactly 2 elements match "a.tab[aria-controls=range-pane]"
+    And exactly 1 element matches "a.tab[aria-selected=true][tabindex=0]"
+    And exactly 1 element matches "a.tab[aria-selected=false][tabindex=-1]"
+
   Scenario: local mode wires tabs to their pre-rendered panels via hyperscript
     When I render local tabs "pods=pane-pods,events=pane-events" with active index 0
     Then the element "div.tabs" has attribute "data-tabs-local" equal to "true"
