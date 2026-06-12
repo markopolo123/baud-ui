@@ -104,3 +104,113 @@ behavior PaletteKey
     send baud:palette to document.body
   end
 end
+
+-- TagInput: key=value chips with hidden form inputs and a filtered
+-- suggestion menu. Purely-local UI: Enter adds a chip from the input text,
+-- Backspace on an empty input pops the last chip, ✕ removes its chip, and
+-- typing filters the data-tag menu items (already-added tags are hidden).
+-- Chips made here mirror baud/taginput.templ's tagChip exactly — each one
+-- carries an <input type=hidden> named by my @data-name so forms keep
+-- submitting correctly. The menu shows while I have .open (and the menu is
+-- not .empty); pair with MenuDismiss for outside-click/Esc dismissal.
+behavior TagInput
+  on focusin[target.matches('.tags-input')]
+    add .open to me
+    send baud:tagsFilter to me
+  end
+  on input[target.matches('.tags-input')]
+    add .open to me
+    send baud:tagsFilter to me
+  end
+  on keydown[key == 'Enter' and target.matches('.tags-input')]
+    halt the event
+    set q to target.value.trim()
+    if q is not ''
+      send baud:tagsAdd(tag: q) to me
+    end
+  end
+  on keydown[key == 'Backspace' and target.matches('.tags-input')]
+    if target.value is ''
+      set chip to the last <.tag-chip/> in me
+      if chip is not null
+        remove chip
+        send baud:tagsFilter to me
+      end
+    end
+  end
+  on click(target)
+    if target.matches('.x-btn')
+      remove the closest <.tag-chip/> to target
+      send baud:tagsFilter to me
+    else
+      set item to target.closest('.tags-menu-item')
+      if item is not null
+        send baud:tagsAdd(tag: item.getAttribute('data-tag')) to me
+      end
+      add .open to me
+      call (the first <.tags-input/> in me).focus()
+    end
+  end
+  on baud:tagsAdd(tag)
+    set inp to the first <.tags-input/> in me
+    set inp.value to ''
+    repeat for h in <input[type=hidden]/> in me
+      if h.value is tag
+        send baud:tagsFilter to me
+        exit
+      end
+    end
+    make a <span.tag-chip/> called chip
+    if tag.includes('=')
+      set key to tag.split('=')[0]
+      make a <span.tag-k/> called keyEl
+      set keyEl.textContent to key + '='
+      put keyEl at the end of chip
+      make a <span.tag-v/> called valEl
+      set valEl.textContent to tag.slice(key.length + 1)
+      put valEl at the end of chip
+    else
+      make a <span.tag-v/> called valEl
+      set valEl.textContent to tag
+      put valEl at the end of chip
+    end
+    make a <button.x-btn/> called xb
+    call xb.setAttribute('type', 'button')
+    call xb.setAttribute('aria-label', 'remove ' + tag)
+    set xb.textContent to '✕'
+    put xb at the end of chip
+    make an <input/> called hid
+    call hid.setAttribute('type', 'hidden')
+    call hid.setAttribute('name', @data-name)
+    call hid.setAttribute('value', tag)
+    put hid at the end of chip
+    put chip before inp
+    send baud:tagsFilter to me
+  end
+  on baud:tagsFilter
+    set menu to the first <.tags-menu/> in me
+    if menu is null then exit end
+    set q to (the first <.tags-input/> in me).value.toLowerCase()
+    set shown to 0
+    repeat for item in <.tags-menu-item/> in me
+      set tag to item.getAttribute('data-tag')
+      set dup to false
+      repeat for h in <input[type=hidden]/> in me
+        if h.value is tag
+          set dup to true
+        end
+      end
+      if dup or (q is not '' and not tag.toLowerCase().includes(q))
+        set item.hidden to true
+      else
+        set item.hidden to false
+        increment shown
+      end
+    end
+    if shown is 0
+      add .empty to menu
+    else
+      remove .empty from menu
+    end
+  end
+end

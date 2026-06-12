@@ -1,0 +1,54 @@
+package baud
+
+// TagInput renders the chip row + text input + suggestion menu. All
+// behaviour is local UI in the TagInput hyperscript behavior
+// (assets/baud._hs): Enter adds a chip from the input text, Backspace on an
+// empty input pops the last chip, ✕ removes its chip, and typing filters
+// the suggestion menu (already-added tags are hidden). The menu opens by
+// adding .open to this root and dismisses via the shared MenuDismiss
+// (outside click + Esc). Each chip carries a hidden input named Name so
+// forms submit the tags with zero client logic involved.
+templ TagInput(p TagInputProps) {
+	<span class="tags" data-name={ p.Name } _="install TagInput install MenuDismiss">
+		<span class="tags-wrap">
+			for _, t := range p.Values {
+				@tagChip(p.Name, t)
+			}
+			<input
+				class="tags-input"
+				type="text"
+				if p.ID != "" {
+					id={ p.ID }
+				}
+				if p.Placeholder != "" {
+					placeholder={ p.Placeholder }
+				}
+				autocomplete="off"
+			/>
+		</span>
+		if len(p.Suggestions) > 0 {
+			<div class="tags-menu">
+				for _, sug := range p.Suggestions {
+					<button type="button" class="tags-menu-item" data-tag={ sug }>
+						<span class="tags-menu-tag">{ sug }</span>
+						<span class="tags-menu-meta">add</span>
+					</button>
+				}
+			</div>
+		}
+	</span>
+}
+
+// tagChip is one chip: faint "key=" span, value span, ✕ remove button and
+// the hidden form input. The TagInput behavior makes this same structure
+// for chips added client-side — keep the two in lockstep.
+templ tagChip(name, tag string) {
+	<span class="tag-chip">
+		if tagKey(tag) != "" {
+			<span class="tag-k">{ tagKey(tag) }</span>
+		}
+		<span class="tag-v">{ tagVal(tag) }</span>
+		<button type="button" class="x-btn" aria-label={ "remove " + tag }>✕</button>
+		<input type="hidden" name={ name } value={ tag }/>
+	</span>
+}

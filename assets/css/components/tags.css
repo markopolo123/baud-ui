@@ -1,0 +1,67 @@
+/* ============================================================
+   baud/ui — tag input (@layer components)
+   Lifted from design/baud-extras.css ("tag input" block). The
+   suggestion menu lifts the design .menu/.menu-item rules under
+   tags-scoped class names so parallel menu owners don't collide;
+   .x-btn (design baud-tokens.css) is scoped under .tag-chip for
+   the same reason. Chip tint = the shared accent color-mix
+   technique. Owned by feat/taginput — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  .tags { position: relative; display: block; min-width: 0; }
+
+  .tags-wrap {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 3px;
+    min-height: var(--rh); padding: 2px var(--pad);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    cursor: text; position: relative;
+  }
+  .tags-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: calc(var(--row) - 4px); padding: 0 2px 0 6px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border: 1px var(--border-style, solid) color-mix(in srgb, var(--accent) 40%, transparent);
+    color: var(--fg); font-size: var(--fs-sm); white-space: nowrap;
+  }
+  .tag-chip .tag-k { color: var(--fg-faint); }
+  .tag-chip .x-btn { color: var(--fg-faint); padding: 0 2px; font-size: var(--fs-sm); }
+  .tag-chip .x-btn:hover { color: var(--err); }
+
+  .tags-input {
+    flex: 1; min-width: 80px;
+    background: none; border: none; outline: none;
+    color: var(--fg); font: inherit;
+    height: calc(var(--row) - 2px);
+  }
+  .tags-input::placeholder { color: var(--fg-faint); }
+  /* chips present ⇒ the placeholder hint retires (design parity) */
+  .tags-wrap:has(.tag-chip) .tags-input::placeholder { color: transparent; }
+
+  /* ---------- suggestion menu (design .menu, tags-scoped) ---------- */
+  .tags-menu {
+    position: absolute; top: calc(100% + 2px); left: 0; min-width: 100%;
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 10px 30px var(--shadow); z-index: 60;
+    max-height: 290px; overflow: auto; padding: 2px 0;
+    display: none;
+  }
+  /* .open is toggled by the TagInput behavior; .empty means every
+     suggestion is filtered out or already added */
+  .tags.open > .tags-menu:not(.empty) { display: block; }
+
+  .tags-menu-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    width: 100%; height: var(--row); padding: 0 9px;
+    color: var(--fg-muted); text-align: left; white-space: nowrap;
+  }
+  .tags-menu-item[hidden] { display: none; }
+  .tags-menu-item:hover { background: var(--bg-hover); color: var(--fg); }
+  .tags-menu-item .tags-menu-meta { color: var(--fg-faint); font-size: var(--fs-sm); }
+}
