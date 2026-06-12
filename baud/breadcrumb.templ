@@ -1,0 +1,25 @@
+package baud
+
+// Breadcrumb renders a labelled nav wrapping an ordered crumb list.
+// Non-current crumbs are faint links; the last crumb is the current page
+// (bold, aria-current="page", not a link). The › separators live inside
+// each li and are aria-hidden — purely presentational. Server-rendered
+// CSS only: no htmx, no hyperscript.
+templ Breadcrumb(p BreadcrumbProps) {
+	<nav aria-label="breadcrumb">
+		<ol class="crumbs">
+			for i, c := range p.Items {
+				<li>
+					if i > 0 {
+						<span class="crumb-sep" aria-hidden="true">›</span>
+					}
+					if i == len(p.Items)-1 {
+						<span class="crumb cur" aria-current="page">{ c.Label }</span>
+					} else {
+						<a class="crumb" href={ templ.SafeURL(c.Href) }>{ c.Label }</a>
+					}
+				</li>
+			}
+		</ol>
+	</nav>
+}

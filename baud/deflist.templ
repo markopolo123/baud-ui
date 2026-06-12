@@ -1,0 +1,24 @@
+package baud
+
+// DefList is a semantic definition list on a max-content/1fr CSS grid.
+// p.Rows render first as plain dt/dd pairs; the children block follows
+// for rich-value rows composed with DefItem. Purely presentational —
+// no client behaviour.
+templ DefList(p DefListProps) {
+	<dl class={ "dl", templ.KV("dl-lines", p.Lines) }>
+		for _, r := range p.Rows {
+			<dt class="dl-k">{ r.Key }</dt>
+			<dd class="dl-v">{ r.Value }</dd>
+		}
+		{ children... }
+	</dl>
+}
+
+// DefItem is one DefList row whose value is the templ children block —
+// the rich-value escape hatch (badges, progress, links, …).
+templ DefItem(key string) {
+	<dt class="dl-k">{ key }</dt>
+	<dd class="dl-v">
+		{ children... }
+	</dd>
+}
