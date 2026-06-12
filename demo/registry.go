@@ -21,5 +21,6 @@ func Sections() []SheetSection {
 		{Title: "Choice — checkbox · radio · toggle", Body: SheetChoice()},
 		{Title: "Structure — deflist & breadcrumb", Body: SheetDefList()},
 		{Title: "TagInput", Body: SheetTagInput()},
+		{Title: "Structure — panel · statusbar · toolbar", Body: SheetPanel()},
 	}
 }

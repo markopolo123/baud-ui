@@ -1,0 +1,70 @@
+package demo
+
+import (
+	"fmt"
+
+	"github.com/markopolo123/baud-ui/baud"
+)
+
+// SheetPanel demos the structure trio: Panel without/with the actions slot
+// (the second one scrolls a long log body), Toolbar composition glue, and
+// the standalone StatusBar cell strip. The shell footer of every demo page
+// also renders demoStatusBar — the real StatusBar component inside the
+// data-statusbar slot.
+templ SheetPanel() {
+	<div id="panel-demos">
+		@baud.Panes(baud.PanesProps{Template: "1fr 1.4fr", Class: "pane-demo"},
+			panelPlainDemo(),
+			panelLogDemo())
+	</div>
+	<div class="sheet-row" id="toolbar-demo">
+		@baud.Toolbar() {
+			@baud.Btn(baud.BtnProps{Label: "deploy", Variant: baud.BtnPrimary, Glyph: "▸"})
+			@baud.Btn(baud.BtnProps{Label: "restart"})
+			@baud.Input(baud.InputProps{Placeholder: "filter…", Prefix: "⌕"})
+			@baud.Btn(baud.BtnProps{Label: "halt", Variant: baud.BtnDanger})
+		}
+	</div>
+	<div id="statusbar-demo">
+		@baud.StatusBar([]baud.StatusCell{
+			{Text: "NORMAL", Mode: true},
+			{Text: "fleet.go"},
+			{Text: "main ↑2"},
+			{Spring: true},
+			{Text: "utf-8"},
+			{Text: "ln 128:14"},
+		})
+	</div>
+}
+
+templ panelPlainDemo() {
+	@baud.Panel(baud.PanelProps{ID: "panel-plain", Title: "navigator"}) {
+		<span>panel body — no actions slot</span>
+	}
+}
+
+templ panelLogDemo() {
+	@baud.Panel(baud.PanelProps{ID: "panel-log", Title: "log tail", Actions: panelLogActions()}) {
+		for i := 0; i < 40; i++ {
+			<div>{ fmt.Sprintf("%03d  ingest-gw  accepted batch seq=%04d", i, i*7) }</div>
+		}
+	}
+}
+
+templ panelLogActions() {
+	@baud.Btn(baud.BtnProps{Label: "pause", Variant: baud.BtnGhost})
+	@baud.Kbd("f")
+}
+
+// demoStatusBar renders the real StatusBar component into the shell's
+// data-statusbar slot on both demo pages (the statusbar is load-bearing
+// in this aesthetic — always render it).
+templ demoStatusBar(mode string) {
+	@baud.StatusBar([]baud.StatusCell{
+		{Text: mode, Mode: true},
+		{Text: "baud/ui 0.1.0"},
+		{Spring: true},
+		{Text: "t-gruvbox"},
+		{Text: "d-dense"},
+	})
+}
