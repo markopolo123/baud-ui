@@ -1,0 +1,36 @@
+package baud
+
+// Panes tiles a region like tmux. The grid template ships as a data
+// attribute; the Panes hyperscript behavior applies it (htmx-swapped panes
+// self-init via hyperscript's htmx:load hook). Without a client runtime the
+// grid degrades to a static stack. When Resizable, 7px gutter separators are
+// rendered server-side between panes and the template gains matching 7px
+// tracks — no client-side DOM injection.
+templ Panes(p PanesProps, panes ...templ.Component) {
+	<div
+		if p.Class != "" {
+			class={ p.Class }
+		}
+		if p.Rows {
+			data-panes-rows={ p.templateAttr() }
+		} else {
+			data-panes={ p.templateAttr() }
+		}
+		if p.ID != "" {
+			data-panes-id={ p.ID }
+		}
+		_={ p.installAttr() }
+	>
+		for i, pane := range panes {
+			if i > 0 && p.Resizable {
+				<div class="split-gutter" role="separator" aria-orientation={ p.gutterOrientation() }></div>
+			}
+			@pane
+		}
+	</div>
+}
+
+// PanesRows is the horizontal-split variant (data-panes-rows).
+templ PanesRows(p PanesProps, panes ...templ.Component) {
+	@Panes(rows(p), panes...)
+}

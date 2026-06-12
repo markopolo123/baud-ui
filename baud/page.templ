@@ -1,0 +1,27 @@
+package baud
+
+// Page is the document wrapper: links the CSS bundle, loads the baud._hs
+// behaviors file BEFORE the _hyperscript library (remotely-loaded behaviors
+// must be defined before hyperscript boots), then htmx + _hyperscript from
+// pinned CDNs. Root mode classes live on <body>; swapping them is the only
+// theme/density/border/type switching mechanism.
+templ Page(p PageProps) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ p.title() }</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link rel="stylesheet" href={ FontsHref }/>
+			<link rel="stylesheet" href={ p.cssHref() }/>
+			<script type="text/hyperscript" src={ p.hsHref() }></script>
+			<script src={ HTMXSrc }></script>
+			<script src={ HyperscriptSrc }></script>
+		</head>
+		<body class={ p.RootClasses() } _="install PaletteKey">
+			{ children... }
+		</body>
+	</html>
+}
