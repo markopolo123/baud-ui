@@ -1,0 +1,25 @@
+package baud
+
+// Field stacks an UPPERCASE --fs-sm label, a control slot (the templ
+// children block) and a hint line. A non-empty Error flips the hint to
+// "✗ message" in --err; set Error on the wrapped Input as well so the
+// control border matches. The label is a real <label for=…> — pass the
+// control's id via For so screen readers associate them.
+templ Field(p FieldProps) {
+	<div class={ "field", templ.KV(p.Class, p.Class != "") }>
+		if p.Label != "" {
+			<label
+				class="field-label"
+				if p.For != "" {
+					for={ p.For }
+				}
+			>{ p.Label }</label>
+		}
+		{ children... }
+		if p.Error != "" {
+			<span class="field-hint err">{ "✗ " + p.Error }</span>
+		} else if p.Hint != "" {
+			<span class="field-hint">{ p.Hint }</span>
+		}
+	</div>
+}

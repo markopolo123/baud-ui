@@ -1,0 +1,52 @@
+/* ============================================================
+   baud/ui — field + input primitives (@layer components)
+   Lifted from design/baud-tokens.css ("inputs" block).
+   Owned by wave 1 (feat/field-input) — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- input ---------- */
+  .input-wrap {
+    display: flex; align-items: center;
+    gap: calc(var(--gap) * 0.8);
+    height: var(--rh);
+    padding: 0 var(--pad);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+  }
+  .input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .input-wrap.err { border-color: var(--err); }
+  .input-wrap.err:focus-within {
+    border-color: var(--err);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 35%, transparent);
+  }
+  .input-wrap .affix {
+    color: var(--fg-faint);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+  .input {
+    flex: 1; min-width: 0; height: 100%;
+    background: none; border: none; outline: none;
+    color: var(--fg); font: inherit;
+  }
+  .input::placeholder { color: var(--fg-faint); }
+  .input:disabled { cursor: not-allowed; }
+  .input-wrap:has(> .input:disabled) { opacity: 0.42; }
+
+  /* ---------- field ---------- */
+  .field {
+    display: flex; flex-direction: column;
+    gap: calc(var(--gap) * 0.5);
+    min-width: 0;
+  }
+  .field-label {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .field-hint { font-size: var(--fs-sm); color: var(--fg-faint); }
+  .field-hint.err { color: var(--err); }
+}
