@@ -1,0 +1,49 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetDefList demos the DefList options matrix (plain rows, lined rows,
+// rich DefItem value) and the Breadcrumb trail (multi-crumb + single-crumb
+// edge case). The structure is load-bearing: e2e/deflist_test.go targets
+// .dl / .dl.dl-lines / .crumbs for computed-style assertions.
+templ SheetDefList() {
+	<div class="sheet-row">
+		@baud.DefList(baud.DefListProps{Rows: []baud.KV{
+			{Key: "host", Value: "db-04.prod"},
+			{Key: "region", Value: "eu-west-1"},
+			{Key: "kernel", Value: "6.8.0-41"},
+			{Key: "uptime", Value: "41d 6h 12m"},
+		}})
+		@linedDefListDemo()
+	</div>
+	<div class="sheet-row">
+		@baud.Breadcrumb(baud.BreadcrumbProps{Items: []baud.Crumb{
+			{Label: "prod", Href: "#prod"},
+			{Label: "core", Href: "#core"},
+			{Label: "ingest-gw"},
+		}})
+		@baud.Breadcrumb(baud.BreadcrumbProps{Items: []baud.Crumb{
+			{Label: "prod"},
+		}})
+	</div>
+}
+
+// linedDefListDemo mixes plain KV rows with a rich badge value through the
+// DefItem children slot, under the lines (hairline rules) variant.
+templ linedDefListDemo() {
+	@baud.DefList(baud.DefListProps{Lines: true, Rows: []baud.KV{
+		{Key: "cpu", Value: "72.4%"},
+		{Key: "mem", Value: "18.2 / 32.0 GiB"},
+		{Key: "disk", Value: "412 GiB free"},
+	}}) {
+		@deflistStatusRow()
+	}
+}
+
+templ deflistStatusRow() {
+	@baud.DefItem("status") {
+		@baud.Badge(baud.BadgeProps{Tone: "ok", Dot: true}) {
+			healthy
+		}
+	}
+}
