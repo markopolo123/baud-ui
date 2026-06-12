@@ -1,0 +1,42 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetSelect demos the select matrix: the native baseline (plain,
+// selected value, disabled), the enhanced SelectMenu (selected, empty +
+// placeholder, disabled, right-aligned), and both combobox modes — the
+// client-side ComboboxFilter and the /api/combobox hx-get round-trip.
+// The e2e suite drives these with mouse and keyboard.
+templ SheetSelect() {
+	<div class="sheet-row">
+		@baud.Select(baud.SelectProps{ID: "sel-native", Name: "region", Value: "us-east", Width: "18ch", Options: sheetRegions()})
+		@baud.Select(baud.SelectProps{ID: "sel-native-disabled", Name: "region-locked", Value: "eu-west", Width: "18ch", Disabled: true, Options: sheetRegions()})
+		@baud.Select(baud.SelectProps{ID: "sel-native-mixed", Name: "region-mixed", Width: "18ch", Options: []baud.SelectOption{
+			{Value: "eu-west"}, {Value: "us-east", Disabled: true}, {Value: "ap-south"},
+		}})
+	</div>
+	<div class="sheet-row">
+		@baud.SelectMenu(baud.SelectMenuProps{ID: "sel-env", Name: "env", Value: "prod", Width: "16ch", Options: []baud.SelectOption{
+			{Value: "dev"}, {Value: "staging"}, {Value: "prod"},
+		}})
+		@baud.SelectMenu(baud.SelectMenuProps{ID: "sel-empty", Name: "owner", Placeholder: "pick owner", Width: "16ch", Options: []baud.SelectOption{
+			{Value: "core"}, {Value: "infra"}, {Value: "data"},
+		}})
+		@baud.SelectMenu(baud.SelectMenuProps{ID: "sel-locked", Name: "tier", Value: "gold", Disabled: true, Width: "16ch", Options: []baud.SelectOption{
+			{Value: "gold"}, {Value: "free"},
+		}})
+		@baud.SelectMenu(baud.SelectMenuProps{ID: "sel-right", Name: "sort", Value: "cpu", AlignRight: true, Width: "14ch", Options: []baud.SelectOption{
+			{Value: "cpu"}, {Value: "mem"}, {Value: "name"},
+		}})
+	</div>
+	<div class="sheet-row">
+		@baud.Combobox(baud.ComboboxProps{ID: "cb-client", Name: "host", Placeholder: "search hosts…", Width: "30ch", Options: comboHosts})
+		@baud.Combobox(baud.ComboboxProps{ID: "cb-server", Name: "q", Placeholder: "search hosts (server)…", Width: "30ch", SearchURL: "/api/combobox", Options: comboHosts})
+	</div>
+}
+
+func sheetRegions() []baud.SelectOption {
+	return []baud.SelectOption{
+		{Value: "eu-west"}, {Value: "us-east"}, {Value: "ap-south"},
+	}
+}
