@@ -29,5 +29,6 @@ func Sections() []SheetSection {
 		{Title: "Data — table (htmx sort)", Body: SheetDataTable()},
 		{Title: "Tree — fleet navigator", Body: SheetTree()},
 		{Title: "Toasts — OOB notification stack", Body: SheetToast()},
+		{Title: "Feedback — progress · spinner · states · confirm", Body: SheetFeedback()},
 	}
 }

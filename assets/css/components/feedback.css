@@ -1,0 +1,78 @@
+/* ============================================================
+   baud/ui — feedback: progress · spinner · panel states ·
+   confirm input (@layer components)
+   Lifted nearly verbatim from design/baud-extras.css (progress/
+   spinner, states sections). Remaining px are design-spec
+   structural constants (skeleton bar height, optical
+   letter-spacing, small gaps). Adaptations: the prog bar tones
+   are scoped classes instead of the prototype's tone-*
+   utilities; the spinner's braille frames are a discrete
+   ::before content animation (the JS the prototype used is
+   banned here) — reduced motion pins the static first frame;
+   the confirm rows are component glue for the prototype's
+   inline styles. Owned by wave 4 (feedback) — do not edit from
+   other branches.
+   ============================================================ */
+@layer components {
+  /* ---------- progress ---------- */
+  .prog { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .prog-label { color: var(--fg-muted); font-size: var(--fs-sm); min-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+  .prog-bar { letter-spacing: -0.5px; }
+  .prog-bar.tone-accent { color: var(--accent); }
+  .prog-bar.tone-warn   { color: var(--warn); }
+  .prog-bar.tone-ok     { color: var(--ok); }
+  .prog-bar.tone-err    { color: var(--err); }
+  .prog-bar.tone-info   { color: var(--info); }
+  .prog-bar .prog-rest  { color: var(--fg-faint); }
+  .prog-pct { color: var(--fg-muted); font-size: var(--fs-sm); min-width: 42px; text-align: right; }
+
+  /* ---------- spinner ----------
+     Braille frames ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ at 80ms = one 0.8s loop. content is a
+     discrete-animatable property in modern Chromium, so the frames cycle
+     with zero client logic; step-end holds each frame for its full
+     segment. Outside the no-preference media query (or with animations
+     unsupported) the static first frame renders. */
+  .spinner { display: inline-block; width: 1.2ch; text-align: center; color: var(--accent); }
+  .spinner::before { content: "⠋"; }
+  @media (prefers-reduced-motion: no-preference) {
+    .spinner::before { animation: baud-spin 0.8s step-end infinite; }
+    @keyframes baud-spin {
+      0%   { content: "⠋"; }
+      10%  { content: "⠙"; }
+      20%  { content: "⠹"; }
+      30%  { content: "⠸"; }
+      40%  { content: "⠼"; }
+      50%  { content: "⠴"; }
+      60%  { content: "⠦"; }
+      70%  { content: "⠧"; }
+      80%  { content: "⠇"; }
+      90%, 100% { content: "⠏"; }
+    }
+  }
+
+  /* ---------- panel states ---------- */
+  .pstate {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 22px 12px; text-align: center; color: var(--fg-faint);
+  }
+  .pstate-glyph { font-size: calc(var(--fs) * 1.6); line-height: 1; }
+  .pstate-title { color: var(--fg-muted); font-weight: 600; }
+  .pstate-sub { font-size: var(--fs-sm); max-width: 320px; }
+  .pstate-act { margin-top: 4px; }
+  .pstate.err .pstate-glyph, .pstate.err .pstate-title { color: var(--err); }
+  .skel-row { display: flex; gap: 8px; align-items: center; height: var(--row); padding: 0 var(--pad); }
+  .skel-cell { height: 9px; background: var(--bg-active); flex: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .skel-cell { animation: baud-skel-fade 1.1s ease-in-out infinite alternate; }
+    .skel-row:nth-child(2) .skel-cell { animation-delay: 0.12s; }
+    .skel-row:nth-child(3) .skel-cell { animation-delay: 0.24s; }
+    .skel-row:nth-child(4) .skel-cell { animation-delay: 0.36s; }
+    .skel-row:nth-child(5) .skel-cell { animation-delay: 0.48s; }
+    @keyframes baud-skel-fade { from { opacity: 1; } to { opacity: 0.35; } }
+  }
+
+  /* ---------- confirm input ---------- */
+  .confirm { display: flex; flex-direction: column; gap: var(--gap); }
+  .confirm-row { display: flex; align-items: center; gap: var(--gap); }
+  .confirm-expect { color: var(--err); user-select: all; }
+}

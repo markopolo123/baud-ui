@@ -1,0 +1,79 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetFeedback demos the feedback group: the Progress tone matrix
+// (auto accent/warn/ok at 50/90/100 + a forced err tone), the Spinner,
+// all four PanelStates in panels, and the ConfirmInput destructive guard.
+// The ids are load-bearing: e2e/feedback_test.go asserts tone computed
+// colours on #fb-prog-*, frame cycling on #fb-spinner, skeleton animation
+// under #fb-skel, glyph colours under #fb-empty/#fb-error, and drives the
+// #fb-confirm-input guard.
+templ SheetFeedback() {
+	<div class="sheet-row">
+		<div class="vstack gap-1 fill">
+			<span id="fb-prog-50">
+				@baud.Progress(baud.ProgressProps{Label: "rebalance", Value: 50})
+			</span>
+			<span id="fb-prog-90">
+				@baud.Progress(baud.ProgressProps{Label: "disk db-04", Value: 90})
+			</span>
+			<span id="fb-prog-100">
+				@baud.Progress(baud.ProgressProps{Label: "sync", Value: 100})
+			</span>
+			<span id="fb-prog-err">
+				@baud.Progress(baud.ProgressProps{Label: "quota", Value: 64, Tone: "err"})
+			</span>
+		</div>
+		<span id="fb-spinner" class="hstack gap-1">
+			@baud.Spinner()
+			<span>fetching units…</span>
+		</span>
+	</div>
+	<div class="sheet-row">
+		@baud.Panel(baud.PanelProps{Title: "skeleton", ID: "fb-skel", Class: "fill"}) {
+			@baud.PanelState(baud.PanelStateProps{Kind: baud.StateSkeleton})
+		}
+		@baud.Panel(baud.PanelProps{Title: "loading", ID: "fb-loading", Class: "fill"}) {
+			@baud.PanelState(baud.PanelStateProps{
+				Kind:  baud.StateLoading,
+				Title: "loading units",
+				Sub:   "$ fleetctl get units --watch",
+			})
+		}
+		@baud.Panel(baud.PanelProps{Title: "empty", ID: "fb-empty", Class: "fill"}) {
+			@baud.PanelState(baud.PanelStateProps{
+				Kind:   baud.StateEmpty,
+				Title:  "no units",
+				Sub:    "try widening the filter",
+				Action: feedbackEmptyAction(),
+			})
+		}
+		@baud.Panel(baud.PanelProps{Title: "error", ID: "fb-error", Class: "fill"}) {
+			@baud.PanelState(baud.PanelStateProps{
+				Kind:   baud.StateError,
+				Title:  "fetch failed",
+				Sub:    "upstream timed out after 5s",
+				Action: feedbackRetryAction(),
+			})
+		}
+	</div>
+	<div class="sheet-row">
+		<div id="fb-confirm" class="fill">
+			@baud.ConfirmInput(baud.ConfirmInputProps{
+				Expect:      "db-04",
+				ActionLabel: "decommission",
+				Name:        "unit",
+				ID:          "fb-confirm-input",
+			})
+		</div>
+	</div>
+}
+
+templ feedbackEmptyAction() {
+	@baud.Btn(baud.BtnProps{Label: "clear filters", Variant: baud.BtnGhost})
+}
+
+templ feedbackRetryAction() {
+	@baud.Btn(baud.BtnProps{Label: "retry", Glyph: "↻"})
+}

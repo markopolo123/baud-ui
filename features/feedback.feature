@@ -124,8 +124,8 @@ Feature: Feedback components — Progress, Spinner, PanelState, ConfirmInput
     When I render a confirm input expecting "db-04" with action "decommission"
     Then the element "span.field-hint" has text "type db-04 to confirm"
     And the element "span.confirm-expect" has text "db-04"
-    And exactly 1 element matches "div.confirm input.input[data-confirm=db-04]"
-    And exactly 1 element matches "div.confirm button.btn.btn-danger[disabled]"
+    And exactly 1 element matches "div.confirm > div.confirm-row > span.input-wrap > input.input[data-confirm=db-04]"
+    And exactly 1 element matches "div.confirm > div.confirm-row > button.btn.btn-danger[disabled]"
     And the element "button.btn-danger" has text "decommission"
     And the element "input.input" has attribute "placeholder" equal to "db-04"
 

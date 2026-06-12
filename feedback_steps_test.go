@@ -94,7 +94,7 @@ func (s *scenarioState) renderNamedConfirmInput(expect, name string) error {
 // compare against the element's own data-confirm attribute, and toggle the
 // action button's disabled attribute.
 func (s *scenarioState) confirmComparisonWired() error {
-	n, err := s.one("div.confirm input.input")
+	n, err := s.one("input.input[data-confirm]")
 	if err != nil {
 		return err
 	}

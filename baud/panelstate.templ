@@ -1,0 +1,46 @@
+package baud
+
+// PanelState fills a panel body with one of four states (design/README.md
+// "Feedback"): skeleton (animated --bg-active bars, hidden from AT),
+// loading (spinner + cmd hint), empty (∅ + title + sub + optional action)
+// and error (✗ in --err + message + retry action, announced via
+// role=alert). Skeleton/spinner loops are reduced-motion gated in CSS.
+templ PanelState(p PanelStateProps) {
+	if p.Kind == StateSkeleton {
+		<div class="pstate-skel" aria-hidden="true">
+			for _, row := range skelRows {
+				<div class="skel-row">
+					for _, w := range row {
+						<span class="skel-cell" style={ skelWidth(w) }></span>
+					}
+				</div>
+			}
+		</div>
+	} else {
+		<div
+			class={ "pstate", templ.KV("err", p.Kind == StateError) }
+			if p.Kind == StateError {
+				role="alert"
+			}
+		>
+			<span class="pstate-glyph">
+				if p.Kind == StateLoading {
+					@Spinner()
+				} else {
+					{ p.glyph() }
+				}
+			</span>
+			if p.Title != "" {
+				<span class="pstate-title">{ p.Title }</span>
+			}
+			if p.Sub != "" {
+				<span class="pstate-sub">{ p.Sub }</span>
+			}
+			if p.Action != nil {
+				<span class="pstate-act">
+					@p.Action
+				</span>
+			}
+		</div>
+	}
+}
