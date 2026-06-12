@@ -23,8 +23,8 @@ func registerPaletteSteps(sc *godog.ScenarioContext, s *scenarioState) {
 
 // paletteParseCommands parses a command spec: comma-separated commands,
 // each "cat|label|kbd|target". A target starting with "/" is an Href,
-// any other non-empty target is an Action (a hyperscript handler), and
-// an empty target leaves the row inert.
+// any other non-empty target is an Action (an opaque command id rendered
+// as data-cmd), and an empty target leaves the row inert.
 func paletteParseCommands(spec string) []baud.PaletteCommand {
 	var cmds []baud.PaletteCommand
 	for _, part := range strings.Split(spec, ",") {

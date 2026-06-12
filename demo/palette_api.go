@@ -10,16 +10,14 @@ import (
 // paletteCommands is the in-memory command fixture the live ⌘K palette
 // searches over. Row order is load-bearing for e2e/palette_test.go:
 // row 0 is the navigation row ↵ exercises, "deploy canary build" is the
-// only "deploy" match and its action writes into #pal-action-out.
+// only "deploy" match; action rows carry opaque command ids that the
+// sheet's #pal-action-out listener renders on baud:paletteCmd.
 var paletteCommands = []baud.PaletteCommand{
 	{Category: "go", Label: "go to fleet console", Kbd: "g f", Href: "/"},
 	{Category: "go", Label: "go to component sheet", Kbd: "g s", Href: "/sheet"},
-	{Category: "fleet", Label: "deploy canary build", Kbd: "⌘D",
-		Action: "on click put 'canary deployed' into #pal-action-out"},
-	{Category: "fleet", Label: "restart ingest workers",
-		Action: "on click put 'ingest restarted' into #pal-action-out"},
-	{Category: "fleet", Label: "drain batch-runner",
-		Action: "on click put 'batch-runner drained' into #pal-action-out"},
+	{Category: "fleet", Label: "deploy canary build", Kbd: "⌘D", Action: "deploy-canary"},
+	{Category: "fleet", Label: "restart ingest workers", Action: "restart-ingest"},
+	{Category: "fleet", Label: "drain batch-runner", Action: "drain-batch-runner"},
 	{Category: "view", Label: "tail ingest logs", Kbd: "g l", Href: "/sheet"},
 }
 

@@ -214,9 +214,10 @@ func TestPaletteServerFilterSwap(t *testing.T) {
 }
 
 // TestPaletteKeyboardActivate: ↑↓ move the --sel + accent-inset highlight
-// and aria-activedescendant over the row list, ↵ on an action row runs
-// its visible hyperscript and closes the palette, ↵ on an anchor row
-// navigates.
+// and aria-activedescendant over the row list, ↵ on an action row
+// dispatches its opaque data-cmd as baud:paletteCmd to <body> (the
+// sheet's #pal-action-out listener renders it — end-to-end event flow)
+// and closes the palette, ↵ on an anchor row navigates.
 func TestPaletteKeyboardActivate(t *testing.T) {
 	page := paletteOpenSheet(t)
 	paletteSummon(t, page)
@@ -251,15 +252,24 @@ func TestPaletteKeyboardActivate(t *testing.T) {
 		t.Fatalf("aria-activedescendant after ↑↓↓ = %q, want pal-live-cmd-2", got)
 	}
 
-	// ↵ runs the row's hyperscript action — visibly — and closes.
+	// the action row never carries live hyperscript — only the opaque id.
+	if got := paletteAttr(t, page, "#pal-live-cmd-2", "data-cmd"); got != "deploy-canary" {
+		t.Errorf("action row data-cmd = %q, want deploy-canary", got)
+	}
+	if got := paletteAttr(t, page, "#pal-live-cmd-2", "_"); got != "" {
+		t.Errorf("action row _ attribute = %q, want absent (no live script on rows)", got)
+	}
+
+	// ↵ dispatches baud:paletteCmd(cmd) to <body>; the sheet's
+	// #pal-action-out listener renders the id — the full event flow.
 	if err := page.Keyboard().Press("Enter"); err != nil {
 		t.Fatalf("press Enter: %v", err)
 	}
 	if _, err := page.WaitForFunction(
-		`() => document.querySelector('#pal-action-out').textContent === 'canary deployed'`, nil,
+		`() => document.querySelector('#pal-action-out').textContent === 'deploy-canary'`, nil,
 	); err != nil {
 		out, _ := page.Locator("#pal-action-out").TextContent()
-		t.Fatalf("action never ran (#pal-action-out = %q): %v", out, err)
+		t.Fatalf("baud:paletteCmd never reached #pal-action-out (= %q): %v", out, err)
 	}
 	if got := computedStyleSel(t, page, "#pal-live", "display"); got != "none" {
 		t.Errorf("overlay display after action ↵ = %v, want none", got)

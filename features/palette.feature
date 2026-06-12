@@ -5,7 +5,8 @@ Feature: CommandPalette — ⌘K overlay with a server-filtered htmx command lis
   column + label + right-aligned Kbd shortcut chips; typing fires a
   debounced hx-get that swaps the PaletteResults fragment into the
   listbox; ↑↓ move the .hl highlight (--sel + accent inset bar), ↵
-  activates (anchor rows navigate, action rows run their hyperscript),
+  activates (anchor rows navigate; action rows carry an opaque data-cmd
+  id the behavior dispatches as baud:paletteCmd to body — never executed),
   Esc/backdrop click closes and restores focus. ARIA follows the
   combobox/listbox pattern (aria-activedescendant on the input,
   role=option rows). Command spec format in steps:
@@ -68,10 +69,11 @@ Feature: CommandPalette — ⌘K overlay with a server-filtered htmx command lis
     Then exactly 1 element matches "a.palette-item[role=option][href=/sheet]"
     And no element matches "button.palette-item"
 
-  Scenario: action commands are buttons carrying their hyperscript handler
-    When I render a palette with id "pal" searching "/api/palette" with commands "fleet|deploy canary|⌘D|on click put 'done' into #out"
+  Scenario: action commands are buttons carrying the opaque command id, never live script
+    When I render a palette with id "pal" searching "/api/palette" with commands "fleet|deploy canary|⌘D|deploy-canary"
     Then exactly 1 element matches "button.palette-item[role=option][type=button]"
-    And the element "button.palette-item" has attribute "_" equal to "on click put 'done' into #out"
+    And the element "button.palette-item" has attribute "data-cmd" equal to "deploy-canary"
+    And no element matches ".palette-item[_]"
     And no element matches "a.palette-item"
 
   # ---- result fragment (the hx-get response body) --------------------------

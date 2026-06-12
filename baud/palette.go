@@ -8,7 +8,7 @@ import (
 // PaletteCommand is one command palette row: a faint UPPERCASE category
 // column, the label, and right-aligned Kbd shortcut chips. Exactly one of
 // Href/Action decides activation: Href rows are real anchors that
-// navigate, Action rows are buttons carrying the hyperscript handler.
+// navigate, Action rows are buttons carrying the command id as data-cmd.
 type PaletteCommand struct {
 	// Category fills the fixed-width faint UPPERCASE left column.
 	Category string
@@ -19,8 +19,11 @@ type PaletteCommand struct {
 	Kbd string
 	// Href makes the row an anchor navigating there on activation.
 	Href string
-	// Action makes the row a button carrying this hyperscript handler
-	// (e.g. "on click put 'done' into #out"). Ignored when Href is set.
+	// Action is an OPAQUE COMMAND ID: it makes the row a button rendered
+	// with data-cmd, and on activation the Palette behavior dispatches it
+	// as a baud:paletteCmd event (detail.cmd) to <body>. The value is
+	// never executed — safe for dynamic data; consumers subscribe to the
+	// event and switch on the id. Ignored when Href is set.
 	Action string
 }
 

@@ -8,15 +8,17 @@ import "github.com/markopolo123/baud-ui/baud"
 // keyboard choreography, and the live ⌘K one (#pal-live, fixed overlay,
 // invisible until PaletteKey announces baud:palette) wired to the
 // /api/palette hx-get filter (demo/palette_api.go). #pal-anchor gives the
-// focus-restore e2e a focusable opener; action rows write into
-// #pal-action-out so ↵ activation is visible.
+// focus-restore e2e a focusable opener; #pal-action-out subscribes to the
+// baud:paletteCmd event the Palette behavior dispatches to <body> on
+// action-row activation and renders the opaque command id (the listener
+// is library-constant hyperscript — no consumer data in `_`).
 templ SheetPalette() {
 	<div class="sheet-row">
 		@baud.Palette(baud.PaletteProps{ID: "pal-static", Static: true, Highlight: 1, Commands: paletteCommands})
 	</div>
 	<div class="sheet-row">
 		<button type="button" class="btn" id="pal-anchor">⌘K opens the palette</button>
-		<span class="field-hint" id="pal-action-out">∅ no action run yet</span>
+		<span class="field-hint" id="pal-action-out" _="on baud:paletteCmd(cmd) from body set my textContent to cmd">∅ no action run yet</span>
 	</div>
 	@baud.Palette(baud.PaletteProps{ID: "pal-live", SearchURL: "/api/palette", Commands: paletteCommands})
 }

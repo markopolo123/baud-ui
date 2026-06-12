@@ -62,8 +62,10 @@ templ PaletteResults(p PaletteResultsProps) {
 // paletteRow is one command row. Focus never moves here (tabindex=-1):
 // the input keeps focus and points aria-activedescendant at the
 // highlighted row's id. Href rows are real anchors so ↵ (the behavior
-// clicks the .hl row) navigates; Action rows are buttons whose
-// hyperscript handler runs on that same click.
+// clicks the .hl row) navigates; Action rows are buttons carrying the
+// opaque command id as data-cmd — the Palette behavior dispatches it as
+// baud:paletteCmd to <body> on that same click. Consumer data NEVER
+// lands in a live `_` attribute.
 templ paletteRow(id string, c PaletteCommand, hl bool) {
 	if c.Href != "" {
 		<a
@@ -85,7 +87,7 @@ templ paletteRow(id string, c PaletteCommand, hl bool) {
 			tabindex="-1"
 			aria-selected={ selAriaSelected(hl) }
 			if c.Action != "" {
-				_={ c.Action }
+				data-cmd={ c.Action }
 			}
 		>
 			@paletteRowBody(c)
