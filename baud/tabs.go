@@ -11,6 +11,14 @@ type Tab struct {
 	// Href is the htmx-mode pane URL: the tab issues hx-get={Href} into the
 	// shared TabsProps.Target panel. Ignored in local mode.
 	Href string
+	// NavHref is the htmx-mode progressive-enhancement URL. When set the
+	// tab renders as a real <a href={NavHref}> still carrying the hx-get
+	// wiring: with scripting on, htmx intercepts the click and swaps the
+	// pane; with scripting off, the browser navigates and the server
+	// renders the page with that pane active — panes beyond the default
+	// stay reachable (graceful degradation). Anchors activate on Enter
+	// (not Space, unlike buttons). Ignored in local mode.
+	NavHref string
 	// Panel is the local-mode id of the pre-rendered TabPanel this tab
 	// controls (aria-controls + hidden-attribute swap). Ignored in htmx mode.
 	Panel string

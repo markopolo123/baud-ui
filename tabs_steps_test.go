@@ -52,6 +52,22 @@ func (s *scenarioState) renderHTMXTabs(spec, target string) error {
 	}))
 }
 
+// renderHTMXNavTabs parses "label=hxHref|navHref,…" — htmx tabs that
+// also carry the progressive-enhancement NavHref (anchor mode).
+func (s *scenarioState) renderHTMXNavTabs(spec, target string) error {
+	var tabs []baud.Tab
+	for _, part := range strings.Split(spec, ",") {
+		label, hrefs, _ := strings.Cut(part, "=")
+		hx, nav, _ := strings.Cut(hrefs, "|")
+		tabs = append(tabs, baud.Tab{Label: label, Href: hx, NavHref: nav})
+	}
+	return s.render(baud.Tabs(baud.TabsProps{
+		ID:     "demo-tabs",
+		Tabs:   tabs,
+		Target: target,
+	}))
+}
+
 func (s *scenarioState) renderLocalTabs(spec string, active int) error {
 	var tabs []baud.Tab
 	for _, part := range strings.Split(spec, ",") {
@@ -102,6 +118,7 @@ func registerTabsSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render underline tabs with counts "([^"]*)"$`, s.renderUnderlineTabsWithCounts)
 	sc.When(`^I render boxed tabs with counts "([^"]*)"$`, s.renderBoxedTabsWithCounts)
 	sc.When(`^I render htmx tabs "([^"]*)" targeting "([^"]*)"$`, s.renderHTMXTabs)
+	sc.When(`^I render htmx nav tabs "([^"]*)" targeting "([^"]*)"$`, s.renderHTMXNavTabs)
 	sc.When(`^I render local tabs "([^"]*)" with active index (\d+)$`, s.renderLocalTabs)
 	sc.When(`^I render an active tab panel "([^"]*)"$`, s.renderActiveTabPanel)
 	sc.When(`^I render an active tab panel "([^"]*)" labelled by "([^"]*)"$`, s.renderLabelledActiveTabPanel)
