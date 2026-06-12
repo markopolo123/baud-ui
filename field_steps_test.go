@@ -66,17 +66,6 @@ func fieldWith(fp baud.FieldProps, ip baud.InputProps) templ.Component {
 
 // ---- assertion steps ----------------------------------------------------
 
-func (s *scenarioState) elementHasText(selector, want string) error {
-	n, err := s.one(selector)
-	if err != nil {
-		return err
-	}
-	if got := strings.TrimSpace(textContent(n)); got != want {
-		return fmt.Errorf("element %q text = %q, want %q", selector, got, want)
-	}
-	return nil
-}
-
 func (s *scenarioState) inputPrecededByAffix(text string) error {
 	return s.inputAdjacentAffix(text, true)
 }
@@ -131,16 +120,6 @@ func hasClass(n *html.Node, class string) bool {
 	return false
 }
 
-func textContent(n *html.Node) string {
-	var b strings.Builder
-	walk(n, func(m *html.Node) {
-		if m.Type == html.TextNode {
-			b.WriteString(m.Data)
-		}
-	})
-	return b.String()
-}
-
 // registerFieldSteps wires the Field/Input steps onto the shared state.
 func registerFieldSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render an input with id "([^"]*)" and placeholder "([^"]*)"$`, s.renderInputIDPlaceholder)
@@ -152,7 +131,6 @@ func registerFieldSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a field labelled "([^"]*)" for id "([^"]*)" with hint "([^"]*)"$`, s.renderFieldWithHint)
 	sc.When(`^I render a field labelled "([^"]*)" for id "([^"]*)" with error "([^"]*)"$`, s.renderFieldWithError)
 
-	sc.Then(`^the element "([^"]*)" has text "([^"]*)"$`, s.elementHasText)
 	sc.Then(`^the input is immediately preceded by an affix with text "([^"]*)"$`, s.inputPrecededByAffix)
 	sc.Then(`^the input is immediately followed by an affix with text "([^"]*)"$`, s.inputFollowedByAffix)
 }

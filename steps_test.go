@@ -137,6 +137,17 @@ func (s *scenarioState) elementHasAttr(selector, name, value string) error {
 	return nil
 }
 
+func (s *scenarioState) elementHasText(selector, want string) error {
+	n, err := s.one(selector)
+	if err != nil {
+		return err
+	}
+	if got := strings.TrimSpace(textContent(n)); got != want {
+		return fmt.Errorf("element %q text = %q, want %q", selector, got, want)
+	}
+	return nil
+}
+
 // behaviorsScriptFirst asserts the text/hyperscript behaviors script appears
 // in the head before the _hyperscript library script (a documented
 // requirement for remotely-loaded behaviors).
@@ -305,6 +316,17 @@ func attrVal(n *html.Node, key string) string {
 	return v
 }
 
+// textContent concatenates all text nodes under n.
+func textContent(n *html.Node) string {
+	var b strings.Builder
+	walk(n, func(m *html.Node) {
+		if m.Type == html.TextNode {
+			b.WriteString(m.Data)
+		}
+	})
+	return b.String()
+}
+
 // InitializeScenario registers the step definitions.
 func InitializeScenario(sc *godog.ScenarioContext) {
 	s := &scenarioState{}
@@ -321,6 +343,7 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.Then(`^no element matches "([^"]*)"$`, s.noneMatch)
 	sc.Then(`^the element "([^"]*)" has classes "([^"]*)"$`, s.elementHasClasses)
 	sc.Then(`^the element "([^"]*)" has attribute "([^"]*)" equal to "([^"]*)"$`, s.elementHasAttr)
+	sc.Then(`^the element "([^"]*)" has text "([^"]*)"$`, s.elementHasText)
 	sc.Then(`^the behaviors script comes before the hyperscript library script$`, s.behaviorsScriptFirst)
 
 	registerBtnSteps(sc, s)

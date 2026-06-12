@@ -45,3 +45,7 @@ Feature: App shell and layout foundation
     And the element "div[data-panes]" has attribute "data-panes" equal to "42ch 7px 1fr"
     And the element "div[data-panes]" has attribute "data-panes-id" equal to "demo"
     And the element "div[data-panes]" has attribute "_" equal to "install Panes install Resizable"
+
+  Scenario: resizable panes keep functional tracks intact when widening
+    When I render resizable panes "minmax(0, 1fr) 1fr" with id "mm" and 2 panes
+    Then the element "div[data-panes]" has attribute "data-panes" equal to "minmax(0, 1fr) 7px 1fr"

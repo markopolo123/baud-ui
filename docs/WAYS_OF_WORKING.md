@@ -63,4 +63,6 @@ merged (components depend on foundation; demo depends on components).
 - No `.js` files or inline script logic — client behaviour is hyperscript only
   (`assets/baud._hs` behaviors or inline `_=` attributes).
 - Component-sheet section present and rendering.
+- Generic test helpers live ONLY in steps_test.go / e2e/helpers_test.go — component
+  files define component-prefixed helpers only.
 - CI green. No drive-by changes outside the component's scope.
