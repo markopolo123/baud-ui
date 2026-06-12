@@ -1,0 +1,31 @@
+/* ============================================================
+   baud/ui — base (@layer base)
+   Resets, document defaults, selection, scrollbars, focus.
+   ============================================================ */
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    min-width: 1240px; /* desktop only — hard floor, horizontal scroll below */
+    background: var(--bg-app);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--fs);
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+    overflow: auto;
+  }
+
+  ::selection { background: var(--accent); color: var(--on-accent); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg-app); }
+  ::-webkit-scrollbar-thumb { background: var(--bg-active); border: 2px solid var(--bg-app); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--fg-faint); }
+  ::-webkit-scrollbar-corner { background: var(--bg-app); }
+
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+  :focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+}

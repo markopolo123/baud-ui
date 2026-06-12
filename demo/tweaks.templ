@@ -1,0 +1,22 @@
+package demo
+
+// tweaksPanel switches theme/density/border/type by swapping classes on the
+// document body — hyperscript only, works on the static render.
+templ tweaksPanel() {
+	<aside class="tweaks" aria-label="display tweaks">
+		<span class="tweaks-h">tweaks</span>
+		for _, g := range tweakGroups() {
+			<div class="tweak-row">
+				<span class="tweak-label">{ g.Label }</span>
+				for _, o := range g.Options {
+					<button
+						type="button"
+						class={ "tweak-btn", g.Class, templ.KV("is-active", isDefault(o.Value)) }
+						data-tweak={ o.Value }
+						_={ tweakHS(g, o.Value) }
+					>{ o.Label }</button>
+				}
+			</div>
+		}
+	</aside>
+}

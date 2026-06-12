@@ -1,0 +1,106 @@
+-- baud/ui client behaviors. This file is ALL of the client logic: there is
+-- no JavaScript in this project. Components opt in via _="install X".
+-- Load this file with <script type="text/hyperscript" src=…> placed BEFORE
+-- the _hyperscript library tag so the behaviors exist when elements install.
+
+-- Panes: apply the grid template from data-panes / data-panes-rows.
+-- htmx-swapped panes self-init via hyperscript's built-in htmx:load hook.
+behavior Panes
+  init
+    if @data-panes-rows
+      set my *grid-template-rows to @data-panes-rows
+    end
+    if @data-panes
+      set my *grid-template-columns to @data-panes
+    end
+  end
+end
+
+-- Resizable: opt-in drag-resize on server-rendered .split-gutter cells.
+-- Recomputes the parent grid template in px while dragging; persists it to
+-- localStorage keyed by data-panes-id (and restores it on init — install
+-- Panes BEFORE Resizable so the persisted template wins).
+behavior Resizable
+  init
+    if @data-panes-id
+      set saved to localStorage.getItem('baud-panes:' + @data-panes-id)
+      if saved
+        if @data-panes-rows
+          set my *grid-template-rows to saved
+        else
+          set my *grid-template-columns to saved
+        end
+      end
+    end
+  end
+  on pointerdown(target, clientX, clientY)
+    if not target.matches('.split-gutter') then exit end
+    halt the event
+    add .drag to target
+    set isRows to (@data-panes-rows is not null)
+    set kids to Array.from(my.children)
+    set sizes to []
+    repeat for kid in kids
+      if isRows
+        append kid.getBoundingClientRect().height to sizes
+      else
+        append kid.getBoundingClientRect().width to sizes
+      end
+    end
+    set iPrev to kids.indexOf(target.previousElementSibling)
+    set iNext to kids.indexOf(target.nextElementSibling)
+    set a to sizes[iPrev]
+    set b to sizes[iNext]
+    set startPos to clientX
+    if isRows then set startPos to clientY end
+    set tpl to ''
+    repeat until event pointerup from document
+      wait for pointermove(clientX, clientY) or pointerup(clientX, clientY) from document
+      if it.type is 'pointermove'
+        set pos to clientX
+        if isRows then set pos to clientY end
+        set delta to pos - startPos
+        set na to Math.max(0, a + delta)
+        set nb to Math.max(0, b - delta)
+        set tpl to ''
+        repeat for kid in kids index i
+          if kid.matches('.split-gutter')
+            set tpl to tpl + ' 7px'
+          else if i is iPrev
+            set tpl to tpl + ' ' + na + 'px'
+          else if i is iNext
+            set tpl to tpl + ' ' + nb + 'px'
+          else
+            set tpl to tpl + ' ' + sizes[i] + 'px'
+          end
+        end
+        set tpl to tpl.trim()
+        if isRows
+          set my *grid-template-rows to tpl
+        else
+          set my *grid-template-columns to tpl
+        end
+      end
+    end
+    remove .drag from target
+    if @data-panes-id and tpl is not ''
+      call localStorage.setItem('baud-panes:' + @data-panes-id, tpl)
+    end
+  end
+end
+
+-- MenuDismiss: close (drop the open state of) the element on outside click
+-- or Escape.
+behavior MenuDismiss
+  on click from elsewhere remove .open from me end
+  on keyup[key == 'Escape'] from window remove .open from me end
+end
+
+-- PaletteKey: cmd/ctrl-K announces the command palette (palette UI is a
+-- later wave; it listens for baud:palette on body).
+behavior PaletteKey
+  on keydown[(metaKey or ctrlKey) and key == 'k'] from window
+    halt the event
+    send baud:palette to document.body
+  end
+end

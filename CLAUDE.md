@@ -13,8 +13,11 @@ HTML, `data-*` attribute components, token-driven CSS, no class soup.
   do not apply here — recorded once, do not revisit.
 - UI: `templ` for components, `htmx` for server round-trips (sort/filter/pagination/
   palette), `_hyperscript` for purely-local behaviour (menu toggle, tab switch, copy).
-- **Sanctioned JS exception:** `assets/js/baud.js` (<3KB min+gz) for pane grids/resize,
-  palette keys, menu dismiss — required by the design spec. Consumers still write no JS.
+- **No JavaScript, full stop.** Client behaviour ships as _hyperscript behaviors in
+  `assets/baud._hs`, loaded via `<script type="text/hyperscript" src=…>` placed BEFORE
+  the _hyperscript library tag (remotely-loaded behaviors must be defined before
+  hyperscript boots). Components opt in via `_="install BehaviorName"` attributes.
+  NO `.js` files or inline `<script>` logic anywhere — PRs adding them are rejected.
 - Dev deps via `go tool` (templ, etc.). Tasks via `just` — the only sanctioned entry
   point for build/test/lint/run/e2e. A command run twice belongs in the justfile.
 - Assets embedded (`embed`) — demo builds to one binary.
@@ -25,8 +28,11 @@ HTML, `data-*` attribute components, token-driven CSS, no class soup.
 - `assets/css/` — layered CSS sources (`tokens.css`, `base.css`, `components/*.css`,
   `utilities.css`); `just css` concatenates → `dist/baud.css`. Parallel agents own
   distinct files — never edit a CSS file another in-flight branch owns.
-- `assets/js/baud.js` — the tiny JS bundle
-- `cmd/demo/` — fleetctl demo console + component-sheet server
+- `assets/baud._hs` — the hyperscript behaviors file (Panes, Resizable, MenuDismiss,
+  PaletteKey, …) — the only client logic in the project
+- `demo/` — fleetctl demo console + component sheet (importable package; the sheet
+  registry lives in `demo/registry.go`, sections in `demo/sheet_<component>.templ`)
+- `cmd/demo/` — thin HTTP server wrapper around `demo/`
 - `cmd/render/` — static renderer: writes component sheet (all themes × densities) to
   `dist/site/` for GitHub Pages
 - `features/` — godog `.feature` files
@@ -58,7 +64,7 @@ HTML, `data-*` attribute components, token-driven CSS, no class soup.
 - CSS in `@layer theme, base, components, utilities`.
 - Semantic HTML, correct ARIA roles, every interactive component keyboard-operable.
 - Desktop only: `min-width: 1240px`, no mobile layout.
-- No SPA framework. No hand-written JS beyond `baud.js`.
+- No SPA framework. No JavaScript at all — hyperscript behaviors only.
 
 ## Git workflow — enforced
 

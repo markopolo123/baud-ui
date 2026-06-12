@@ -1,0 +1,42 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// AppPage is the fleetctl demo console placeholder. The real console (panel
+// strip, sortable DataTable, tree nav, log tail, overlays) is wave 5; this
+// skeleton proves the shell + panes foundation.
+templ AppPage(o Opts) {
+	@baud.Page(baud.PageProps{Title: "fleetctl — baud/ui demo", CSSHref: o.CSSHref, HSHref: o.HSHref}) {
+		@baud.Shell(baud.ShellProps{TopBar: appTopBar(o), Nav: appNav(), StatusBar: statusNote("FLEET")}) {
+			@baud.Panes(baud.PanesProps{Template: "1.4fr 1fr", Resizable: true, ID: "fleet-main", Class: "demo-main-panes"},
+				placeholderPane("fleet table", "sortable DataTable lands in wave 3"),
+				placeholderPane("log tail", "fleetctl console lands in wave 5"))
+		}
+	}
+}
+
+templ appTopBar(o Opts) {
+	<span class="brand">
+		<span class="brand-name">fleetctl</span>
+		<span class="brand-sub">prod · eu-west-1</span>
+	</span>
+	<span class="fill"></span>
+	<a class="brand-sub" href={ o.SheetHref }>component sheet</a>
+}
+
+templ appNav() {
+	<div class="vstack gap-1 demo-nav">
+		<span class="demo-nav-h">navigator</span>
+		<span>regions</span>
+		<span>services</span>
+		<span>incidents</span>
+		<span class="demo-nav-note">Tree component lands in wave 3</span>
+	</div>
+}
+
+templ placeholderPane(title, note string) {
+	<div class="pane-box vstack gap-1">
+		<span class="pane-box-title">{ title }</span>
+		<span class="pane-box-note">{ note }</span>
+	</div>
+}

@@ -1,0 +1,91 @@
+/* ============================================================
+   baud/ui — shell + panes (@layer components)
+   App frame grid, pane tiling, split gutters, brand.
+   Owned by wave 0 (foundation) — later waves add their own
+   components/<area>.css files; never edit this one in parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- app shell ---------- */
+  [data-shell] {
+    display: grid;
+    grid-template-columns: var(--nav-w, 28ch) 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100dvh;
+    min-width: 0;
+    min-height: 0;
+    background: var(--bg-app);
+  }
+  /* data-nav is optional; without it the shell collapses to one column */
+  [data-shell]:not(:has(> [data-nav])) { grid-template-columns: 1fr; }
+
+  [data-shell] > [data-topbar],
+  [data-shell] > [data-statusbar] { grid-column: 1 / -1; }
+
+  [data-shell] > [data-topbar] {
+    display: flex; align-items: center;
+    gap: calc(var(--gap) * 1.6);
+    height: calc(var(--rh) + var(--pad));
+    padding: 0 calc(var(--pad) * 1.6);
+    background: var(--bg-panel);
+    border-bottom: 1px var(--border-style, solid) var(--border-strong);
+    white-space: nowrap;
+  }
+
+  [data-shell] > [data-nav] {
+    min-height: 0; overflow: auto;
+    padding: var(--pad);
+    background: var(--bg-panel);
+    border-right: 1px var(--border-style, solid) var(--border);
+  }
+
+  /* main is the only scroll container of the frame */
+  [data-shell] > main {
+    min-width: 0; min-height: 0; overflow: auto;
+  }
+
+  [data-shell] > [data-statusbar] {
+    display: flex; align-items: stretch;
+    height: var(--rh);
+    background: var(--bg-raised);
+    border-top: 1px var(--border-style, solid) var(--border-strong);
+    font-size: var(--fs-sm);
+    color: var(--fg-muted);
+    overflow: hidden; white-space: nowrap;
+  }
+
+  .b-shade [data-shell] > [data-topbar] { border-bottom-color: transparent; background: var(--bg-raised); }
+  .b-shade [data-shell] > [data-nav] { border-right-color: transparent; background: var(--bg-raised); }
+
+  /* ---------- brand (topbar) ---------- */
+  .brand { display: flex; align-items: baseline; gap: var(--gap); white-space: nowrap; }
+  .brand-name { font-weight: 700; color: var(--accent); letter-spacing: 0.04em; }
+  .brand-sub { font-size: var(--fs-sm); color: var(--fg-faint); }
+
+  /* ---------- panes ---------- */
+  /* Grid template is applied by the Panes hyperscript behavior from the
+     data-panes / data-panes-rows value. Without it (no client runtime) the
+     grid degrades to a static single-column stack — by design. */
+  [data-panes], [data-panes-rows] {
+    display: grid;
+    min-width: 0; min-height: 0;
+  }
+  [data-panes] > *, [data-panes-rows] > * {
+    min-width: 0; min-height: 0; overflow: auto;
+  }
+
+  /* ---------- split gutter (resizable panes) ---------- */
+  .split-gutter {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    user-select: none;
+    touch-action: none;
+    overflow: hidden;
+    cursor: col-resize;
+  }
+  .split-gutter::after { content: "\22EE"; color: var(--fg-faint); font-size: var(--fs-sm); }
+  .split-gutter:hover, .split-gutter.drag { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .split-gutter:hover::after, .split-gutter.drag::after { color: var(--accent); }
+  [data-panes-rows] > .split-gutter { cursor: row-resize; }
+  [data-panes-rows] > .split-gutter::after { content: "\22EF"; }
+}

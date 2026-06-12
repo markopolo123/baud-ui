@@ -1,0 +1,28 @@
+package baud
+
+// Shell builds the whole app frame: topbar + optional nav + main + statusbar
+// on a CSS grid (see components/shell.css). main — the templ children block —
+// is the only scroll container. The statusbar is load-bearing in this
+// aesthetic: the slot always renders.
+templ Shell(p ShellProps) {
+	<div data-shell>
+		<header data-topbar>
+			if p.TopBar != nil {
+				@p.TopBar
+			}
+		</header>
+		if p.Nav != nil {
+			<aside data-nav>
+				@p.Nav
+			</aside>
+		}
+		<main>
+			{ children... }
+		</main>
+		<footer data-statusbar>
+			if p.StatusBar != nil {
+				@p.StatusBar
+			}
+		</footer>
+	</div>
+}
