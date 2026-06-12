@@ -1,0 +1,35 @@
+package baud
+
+// Popover is the anchored quick-actions overlay: a btn-styled trigger and
+// a 280px panel positioned under it. The panel content is the children
+// block (typically .menu-item buttons); Title adds a .field-label header.
+// ARIA: the trigger carries aria-expanded and points
+// aria-controls at the panel — the panel itself is a dialog-less popup of
+// regular focusable controls, so it carries no overlay role.
+templ Popover(p PopoverProps) {
+	<span
+		class={ "pop-wrap", templ.KV("open", p.Open), templ.KV(p.Class, p.Class != "") }
+		id={ p.ID }
+		_={ popoverWrapHS }
+	>
+		<button
+			type="button"
+			class="btn pop-trigger"
+			aria-expanded={ popAriaExpanded(p.Open) }
+			aria-controls={ p.panelID() }
+			disabled?={ p.Disabled }
+			_={ popoverTriggerHS }
+		>
+			if p.Glyph != "" {
+				<span class="btn-glyph">{ p.Glyph }</span>
+			}
+			{ p.Label }
+		</button>
+		<div class="popover" id={ p.panelID() }>
+			if p.Title != "" {
+				<span class="field-label">{ p.Title }</span>
+			}
+			{ children... }
+		</div>
+	</span>
+}
