@@ -20,13 +20,48 @@ type PanesProps struct {
 
 // templateAttr returns the data-panes value. When resizable, 7px gutter
 // tracks are interleaved between the authored tracks so the grid template
-// matches the server-rendered gutter elements. Note: tracks containing
-// spaces (e.g. minmax(0, 1fr)) are not supported in resizable templates.
+// matches the server-rendered gutter elements. Tracks are split at
+// top-level whitespace only, so functional tracks containing spaces —
+// e.g. minmax(0, 1fr) — stay intact as single tracks. Note: repeat(N, …)
+// also counts as ONE track here; resizable templates must author one
+// track per pane, so expand repeats by hand.
 func (p PanesProps) templateAttr() string {
 	if !p.Resizable {
 		return p.Template
 	}
-	return strings.Join(strings.Fields(p.Template), " 7px ")
+	return strings.Join(splitTracks(p.Template), " 7px ")
+}
+
+// splitTracks tokenizes a grid template into tracks, splitting at
+// whitespace outside parentheses so minmax(...)/repeat(...) survive whole.
+func splitTracks(template string) []string {
+	var tracks []string
+	depth, start := 0, -1
+	for i := 0; i < len(template); i++ {
+		switch template[i] {
+		case '(':
+			depth++
+		case ')':
+			if depth > 0 {
+				depth--
+			}
+		case ' ', '\t', '\n', '\r':
+			if depth == 0 {
+				if start >= 0 {
+					tracks = append(tracks, template[start:i])
+					start = -1
+				}
+				continue
+			}
+		}
+		if start < 0 {
+			start = i
+		}
+	}
+	if start >= 0 {
+		tracks = append(tracks, template[start:])
+	}
+	return tracks
 }
 
 // installAttr is the hyperscript install list. Order matters: Panes must
