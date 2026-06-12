@@ -19,6 +19,7 @@ func Sections() []SheetSection {
 		{Title: "Primitives — badge & dot", Body: SheetBadge()},
 		{Title: "Field / Input", Body: SheetField()},
 		{Title: "Choice — checkbox · radio · toggle", Body: SheetChoice()},
+		{Title: "DatePicker", Body: SheetDatePicker()},
 		{Title: "Structure — deflist & breadcrumb", Body: SheetDefList()},
 		{Title: "TagInput", Body: SheetTagInput()},
 		{Title: "Structure — panel · statusbar · toolbar", Body: SheetPanel()},
