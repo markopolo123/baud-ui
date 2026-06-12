@@ -353,4 +353,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerTagInputSteps(sc, s)
 	registerPanelSteps(sc, s)
 	registerDatePickerSteps(sc, s)
+	registerTabsSteps(sc, s)
 }
