@@ -32,5 +32,6 @@ func Sections() []SheetSection {
 		{Title: "Feedback — progress · spinner · states · confirm", Body: SheetFeedback()},
 		{Title: "Overlays — popover · tooltip", Body: SheetPopover()},
 		{Title: "Overlays — modal & drawer", Body: SheetOverlay()},
+		{Title: "Overlays — command palette (⌘K · htmx filter)", Body: SheetPalette()},
 	}
 }

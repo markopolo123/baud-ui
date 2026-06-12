@@ -1,0 +1,22 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetPalette hosts two palettes: a statically-open inert one (#pal-static,
+// row 1 pre-highlighted) so styling — accent border, --sel + accent inset
+// highlight, faint UPPERCASE category column — is assertable without
+// keyboard choreography, and the live ⌘K one (#pal-live, fixed overlay,
+// invisible until PaletteKey announces baud:palette) wired to the
+// /api/palette hx-get filter (demo/palette_api.go). #pal-anchor gives the
+// focus-restore e2e a focusable opener; action rows write into
+// #pal-action-out so ↵ activation is visible.
+templ SheetPalette() {
+	<div class="sheet-row">
+		@baud.Palette(baud.PaletteProps{ID: "pal-static", Static: true, Highlight: 1, Commands: paletteCommands})
+	</div>
+	<div class="sheet-row">
+		<button type="button" class="btn" id="pal-anchor">⌘K opens the palette</button>
+		<span class="field-hint" id="pal-action-out">∅ no action run yet</span>
+	</div>
+	@baud.Palette(baud.PaletteProps{ID: "pal-live", SearchURL: "/api/palette", Commands: paletteCommands})
+}

@@ -33,5 +33,6 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /demo/toast", handleToast)
 	mux.HandleFunc("GET /demo/modal", handleModalDemo)
 	mux.HandleFunc("GET /demo/drawer", handleDrawerDemo)
+	mux.HandleFunc("GET /api/palette", HandlePaletteSearch)
 	return mux
 }
