@@ -33,12 +33,12 @@ agents and gatekeeps their output. Humans audit asynchronously via PR history.
 
 | wave | scope | status |
 |---|---|---|
-| 0 | Foundation: module, justfile, CSS layer scaffold + token lift, baud.js, shell/panes/stacks, godog + playwright harnesses, demo server skeleton, component-sheet skeleton, `cmd/render`, CI + Pages workflows | pending |
-| 1 | Primitives: Btn/BtnGroup/Kbd · Badge/Dot · Field/Input · Checkbox/Radio/Toggle | pending |
-| 2 | Form controls: Select · Combobox · DatePicker · TagInput; Structure: Panel · Tabs · Breadcrumb · DefList · StatusBar · Toolbar | pending |
-| 3 | Data: DataTable (htmx sort) · Tree · Pagination · DiffViewer | pending |
-| 4 | Overlays: Modal · Drawer · CommandPalette · Popover · Tooltip · Toasts; Feedback: Progress · Spinner · PanelState · ConfirmInput | pending |
-| 5 | fleetctl demo console (acceptance test) · theme-mapping recipe README · pixel pass vs prototype | pending |
+| 0 | Foundation: module, justfile, CSS layer scaffold + token lift, `baud._hs` behaviors, shell/panes/stacks, godog + playwright harnesses, demo server skeleton, component-sheet skeleton, `cmd/render`, CI + Pages workflows | merged |
+| 1 | Primitives: Btn/BtnGroup/Kbd · Badge/Dot · Field/Input · Checkbox/Radio/Toggle | merged |
+| 2 | Form controls: Select · Combobox · DatePicker · TagInput; Structure: Panel · Tabs · Breadcrumb · DefList · StatusBar · Toolbar | merged |
+| 3 | Data: DataTable (htmx sort) · Tree · Pagination · DiffViewer | merged |
+| 4 | Overlays: Modal · Drawer · CommandPalette · Popover · Tooltip · Toasts; Feedback: Progress · Spinner · PanelState · ConfirmInput | merged |
+| 5 | fleetctl demo console (acceptance test) · theme-mapping recipe README · pixel pass vs prototype | merged (acceptance punch-list landed separately) |
 
 Within a wave, builders run in parallel. A wave starts only when the previous wave is
 merged (components depend on foundation; demo depends on components).
