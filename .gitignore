@@ -1,0 +1,5 @@
+dist/
+.worktrees/
+*.zip
+*_templ.go
+node_modules/

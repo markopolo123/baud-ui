@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>baud/ui — dense terminal components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="baud-tokens.css" />
+<link rel="stylesheet" href="baud-components.css" />
+<link rel="stylesheet" href="baud-extras.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="baud-shared.jsx"></script>
+<script type="text/babel" src="baud-widgets.jsx"></script>
+<script type="text/babel" src="baud-pickers.jsx"></script>
+<script type="text/babel" src="baud-extras.jsx"></script>
+<script type="text/babel" src="baud-sheet-extras.jsx"></script>
+<script type="text/babel" src="baud-sheet.jsx"></script>
+<script type="text/babel" src="baud-app.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const THEMES = [
+  { value: 't-gruvbox', label: 'Gruvbox Dark' },
+  { value: 't-mocha', label: 'Catppuccin Mocha' },
+  { value: 't-sollight', label: 'Solarized Light' },
+];
+const MONO_FONTS = {
+  jetbrains: "'JetBrains Mono', monospace",
+  plexmono: "'IBM Plex Mono', monospace",
+};
+
+function App() {
+  const [tweaks, setTweak] = useTweaks({
+    theme: 't-gruvbox',
+    density: 'd-dense',
+    borders: 'b-line',
+    typeMode: 'f-mono',
+    monoFont: 'jetbrains',
+  });
+  const [view, setView] = useState(() => localStorage.getItem('baud-view') || 'app');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const { toasts, push, dismiss } = useToasts();
+
+  useEffect(() => { localStorage.setItem('baud-view', view); }, [view]);
+
+  useEffect(() => {
+    const h = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, []);
+
+  const commands = useMemo(() => [
+    { id: 'v-app', cat: 'view', label: 'Switch to demo console', keys: ['g', 'a'], run: () => setView('app') },
+    { id: 'v-sheet', cat: 'view', label: 'Switch to component sheet', keys: ['g', 's'], run: () => setView('sheet') },
+    ...THEMES.map((t) => ({ id: t.value, cat: 'theme', label: `Theme: ${t.label}`, run: () => setTweak('theme', t.value) })),
+    { id: 'd-ultra', cat: 'density', label: 'Density: ultra', run: () => setTweak('density', 'd-ultra') },
+    { id: 'd-dense', cat: 'density', label: 'Density: dense', run: () => setTweak('density', 'd-dense') },
+    { id: 'd-cozy', cat: 'density', label: 'Density: cozy', run: () => setTweak('density', 'd-cozy') },
+    { id: 'a-deploy', cat: 'fleet', label: 'Deploy ingest-gw v2.14.1', keys: ['d'], run: () => push('ok', 'Deploy queued: ingest-gw v2.14.1') },
+    { id: 'a-drain', cat: 'fleet', label: 'Drain region eu-west-1', run: () => push('warn', 'Draining traffic from eu-west-1') },
+    { id: 'a-ack', cat: 'incident', label: 'Acknowledge INC-2291', keys: ['a'], run: () => push('info', 'INC-2291 acknowledged by you') },
+  ], [setTweak]);
+
+  const rootClass = [
+    'baud-root', tweaks.theme, tweaks.density, tweaks.typeMode,
+    tweaks.borders === 'b-shade' ? 'b-shade' : tweaks.borders === 'b-ascii' ? 'b-ascii' : '',
+  ].join(' ');
+
+  return (
+    <div className={rootClass} style={{ '--font-mono': MONO_FONTS[tweaks.monoFont] }}>
+      {/* prototype switcher bar */}
+      <div className="app-top" style={{ background: 'var(--bg-raised)' }}>
+        <span className="brand">
+          <span className="brand-name">baud/ui</span>
+          <span className="brand-sub">templ · htmx · hyperscript — UI prototype</span>
+        </span>
+        <span style={{ flex: 1 }}></span>
+        <Tabs boxed value={view} onChange={setView} items={[
+          { id: 'app', label: 'Demo console' },
+          { id: 'sheet', label: 'Component sheet' },
+        ]} />
+        <Btn variant="ghost" kbd="⌘K" onClick={() => setPaletteOpen(true)}>Palette</Btn>
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        {view === 'sheet'
+          ? <div data-screen-label="Component sheet" style={{ overflow: 'auto' }}><SheetView push={push} /></div>
+          : <AppView push={push} openPalette={() => setPaletteOpen(true)} />}
+      </div>
+
+      <StatusBar cells={[
+        { id: 'mode', mode: true, content: view === 'app' ? 'FLEET' : 'SHEET' },
+        { id: 'theme', content: THEMES.find((t) => t.value === tweaks.theme).label.toLowerCase() },
+        { id: 'conn', content: <React.Fragment><Dot tone="ok" /> connected · 12ms</React.Fragment> },
+        { id: 'spring', spring: true },
+        { id: 'hint', content: <React.Fragment><Kbd>⌘K</Kbd> palette</React.Fragment> },
+        { id: 'ver', content: 'baud/ui 0.1.0-proto' },
+      ]} />
+
+      {paletteOpen ? (
+        <Palette
+          commands={commands}
+          onClose={() => setPaletteOpen(false)}
+          onRun={(c) => { setPaletteOpen(false); c.run && c.run(); }}
+        />
+      ) : null}
+
+      <Toasts items={toasts} onDismiss={dismiss} />
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Theme (iTerm2)">
+          <TweakRadio
+            label="Scheme"
+            value={tweaks.theme}
+            onChange={(v) => setTweak('theme', v)}
+            options={[
+              { value: 't-gruvbox', label: 'Gruvbox' },
+              { value: 't-mocha', label: 'Mocha' },
+              { value: 't-sollight', label: 'Sol Light' },
+            ]}
+          />
+        </TweakSection>
+        <TweakSection label="Type">
+          <TweakRadio
+            label="UI labels"
+            value={tweaks.typeMode}
+            onChange={(v) => setTweak('typeMode', v)}
+            options={[
+              { value: 'f-mono', label: 'All mono' },
+              { value: 'f-mix', label: 'Mono+sans' },
+            ]}
+          />
+          <TweakRadio
+            label="Mono face"
+            value={tweaks.monoFont}
+            onChange={(v) => setTweak('monoFont', v)}
+            options={[
+              { value: 'jetbrains', label: 'JetBrains' },
+              { value: 'plexmono', label: 'Plex Mono' },
+            ]}
+          />
+        </TweakSection>
+        <TweakSection label="Structure">
+          <TweakRadio
+            label="Density"
+            value={tweaks.density}
+            onChange={(v) => setTweak('density', v)}
+            options={[
+              { value: 'd-ultra', label: 'Ultra' },
+              { value: 'd-dense', label: 'Dense' },
+              { value: 'd-cozy', label: 'Cozy' },
+            ]}
+          />
+          <TweakRadio
+            label="Borders"
+            value={tweaks.borders}
+            onChange={(v) => setTweak('borders', v)}
+            options={[
+              { value: 'b-line', label: 'Hairline' },
+              { value: 'b-shade', label: 'Shade' },
+              { value: 'b-ascii', label: 'ASCII' },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
