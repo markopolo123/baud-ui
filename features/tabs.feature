@@ -58,8 +58,8 @@ Feature: Tabs — underline & boxed variants, htmx & local switching
     And the element "a.tab.is-active" has attribute "hx-get" equal to "/demo/tabs?range=5m"
     And exactly 2 elements match "a.tab[hx-target=#range-pane]"
     And exactly 2 elements match "a.tab[aria-controls=range-pane]"
-    And exactly 1 element matches "a.tab[aria-selected=true][tabindex=0]"
-    And exactly 1 element matches "a.tab[aria-selected=false][tabindex=-1]"
+    And exactly 2 elements match "a.tab[tabindex=0]"
+    And no element matches "a.tab[tabindex=-1]"
 
   Scenario: local mode wires tabs to their pre-rendered panels via hyperscript
     When I render local tabs "pods=pane-pods,events=pane-events" with active index 0

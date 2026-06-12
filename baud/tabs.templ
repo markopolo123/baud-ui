@@ -31,7 +31,7 @@ templ Tabs(p TabsProps) {
 					class={ "tab", templ.KV("is-active", i == p.ActiveIndex) }
 					role="tab"
 					aria-selected={ p.selected(i) }
-					tabindex={ p.tabindex(i) }
+					tabindex="0"
 					if p.controls(t) != "" {
 						aria-controls={ p.controls(t) }
 					}

@@ -500,6 +500,21 @@ func TestFleetctlTabsNoJS(t *testing.T) {
 		t.Fatalf("default fleet pane missing under js-off")
 	}
 
+	// Keyboard reachability without scripting: roving tabindex is
+	// hyperscript, so anchor tabs must all sit in the native tab order.
+	if err := page.Locator("#fleet-tabs-tab-0").Focus(); err != nil {
+		t.Fatalf("focus active tab: %v", err)
+	}
+	if err := page.Keyboard().Press("Tab"); err != nil {
+		t.Fatalf("press Tab: %v", err)
+	}
+	active, err := page.Evaluate(`() => document.activeElement && document.activeElement.id`)
+	if err != nil {
+		t.Fatalf("read activeElement: %v", err)
+	}
+	if active != "fleet-tabs-tab-1" {
+		t.Fatalf("js-off Tab from tab 0 landed on %v, want fleet-tabs-tab-1 (inactive tabs must be keyboard-reachable)", active)
+	}
 	if err := page.Locator("#fleet-tabs-tab-1").Click(); err != nil {
 		t.Fatalf("click incidents tab link: %v", err)
 	}

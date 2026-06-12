@@ -17,7 +17,10 @@ type Tab struct {
 	// pane; with scripting off, the browser navigates and the server
 	// renders the page with that pane active — panes beyond the default
 	// stay reachable (graceful degradation). Anchors activate on Enter
-	// (not Space, unlike buttons). Ignored in local mode.
+	// (not Space, unlike buttons) and always carry tabindex=0 instead of
+	// roving — roving is hyperscript, and the anchors must stay
+	// keyboard-reachable with scripting off (the Tabs behavior re-imposes
+	// roving on arrow use). Ignored in local mode.
 	NavHref string
 	// Panel is the local-mode id of the pre-rendered TabPanel this tab
 	// controls (aria-controls + hidden-attribute swap). Ignored in htmx mode.
