@@ -1,0 +1,28 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetToast demos the toast two ways. The static grid renders one Sticky
+// toast per tone in normal flow (Sticky keeps them on the sheet for
+// styling/screenshots; only the #toasts region is position-fixed) — the
+// e2e suite asserts tone-bar tokens and ✕ dismissal on these. The trigger
+// row drives the live htmx flow: each button hx-gets /demo/toast
+// (demo/toast_api.go) with hx-swap="none" and the response's hx-swap-oob
+// fragment lands in the page-level #toasts region (baud/page.templ
+// renders it on every document). The 600ms trigger exists so the e2e
+// suite can assert a real auto-dismiss without 4s waits.
+templ SheetToast() {
+	<div id="toast-static-demo" class="vstack gap-2">
+		@baud.Toast(baud.ToastProps{Tone: "ok", Title: "Deployed ingest-gw v2.14.1", Body: "rollout complete on 12 pods", Sticky: true})
+		@baud.Toast(baud.ToastProps{Tone: "err", Title: "Connection lost", Body: "eu-west-1 etcd quorum unreachable", Sticky: true})
+		@baud.Toast(baud.ToastProps{Tone: "warn", Title: "p99 latency above SLO", Sticky: true})
+		@baud.Toast(baud.ToastProps{Tone: "info", Title: "Maintenance window", Body: "eu-west-1 rotates certs at 02:00", Sticky: true})
+	</div>
+	<div id="toast-trigger-demo" class="hstack gap-2">
+		<button type="button" id="toast-btn-ok" class="btn" hx-get="/demo/toast?tone=ok" hx-swap="none">toast ✓ ok</button>
+		<button type="button" id="toast-btn-err" class="btn" hx-get="/demo/toast?tone=err" hx-swap="none">toast ✗ err</button>
+		<button type="button" id="toast-btn-warn" class="btn" hx-get="/demo/toast?tone=warn" hx-swap="none">toast ▲ warn</button>
+		<button type="button" id="toast-btn-info" class="btn" hx-get="/demo/toast?tone=info" hx-swap="none">toast ℹ info</button>
+		<button type="button" id="toast-btn-short" class="btn" hx-get="/demo/toast?tone=ok&ms=600" hx-swap="none">toast ✓ (600ms)</button>
+	</div>
+}

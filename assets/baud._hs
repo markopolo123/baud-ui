@@ -420,6 +420,32 @@ behavior ComboboxFilter
   end
 end
 
+-- Toast: notification lifecycle, installed on each .toast. Auto-dismisses
+-- after @data-toast-ms milliseconds (0 = sticky, never auto-removed; the
+-- attribute is data-driven so tests use short honest intervals). The
+-- cheap hover pause: mouseenter/mouseleave track a .toast-hover class and
+-- the countdown re-arms while it is set, so a toast never vanishes under
+-- the pointer. ✕ removes immediately. Server-pushed toasts (htmx OOB
+-- swaps into #toasts) self-install via hyperscript's htmx:load hook.
+behavior Toast
+  init
+    set dwell to 4000
+    if @data-toast-ms then set dwell to (@data-toast-ms as Int) end
+    if dwell > 0
+      wait dwell
+      repeat while I match .toast-hover
+        wait dwell
+      end
+      remove me
+    end
+  end
+  on mouseenter add .toast-hover to me end
+  on mouseleave remove .toast-hover from me end
+  on click(target)
+    if target.matches('.x-btn') then remove me end
+  end
+end
+
 -- ParseHealth: parse-health sentinel. KEEP THIS THE LAST BEHAVIOR IN THE
 -- FILE — a _hyperscript parse error anywhere above aborts the whole file
 -- before this definition exists, so the install on <body> silently

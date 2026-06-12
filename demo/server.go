@@ -30,5 +30,6 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /demo/pagination", handlePagination)
 	mux.HandleFunc("GET /demo/datatable", handleDataTableSort)
 	mux.HandleFunc("GET /demo/tree", treeChildren)
+	mux.HandleFunc("GET /demo/toast", handleToast)
 	return mux
 }
