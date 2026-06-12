@@ -48,8 +48,9 @@ merged (components depend on foundation; demo depends on components).
 - One CSS source file per component area under `assets/css/components/`; bundle via
   `just css`. Builders never touch files owned by another in-flight branch.
 - The component sheet is one page but sectioned; builders append their own section
-  file (`cmd/demo/sheet_<component>.templ`) and register it in one shared registry —
-  the registry line is the only expected merge-conflict point and is trivial.
+  file (`demo/sheet_<component>.templ`) and register it in the shared registry
+  (`demo/registry.go`) — the registry line is the only expected merge-conflict point
+  and is trivial.
 
 ## Review checklist (reviewer agent + arbiter)
 
@@ -59,5 +60,7 @@ merged (components depend on foundation; demo depends on components).
 - No raw hex/px in component CSS; no border-radius; tokens resolve in all 3 themes.
 - Semantic HTML + ARIA per design spec; htmx round-trips for server state, hyperscript
   only for local UI.
+- No `.js` files or inline script logic — client behaviour is hyperscript only
+  (`assets/baud._hs` behaviors or inline `_=` attributes).
 - Component-sheet section present and rendering.
 - CI green. No drive-by changes outside the component's scope.
