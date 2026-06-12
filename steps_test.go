@@ -363,4 +363,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerPopoverSteps(sc, s)
 	registerOverlaySteps(sc, s)
 	registerPaletteSteps(sc, s)
+	registerFleetctlSteps(sc, s)
 }
