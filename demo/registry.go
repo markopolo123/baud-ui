@@ -18,5 +18,6 @@ func Sections() []SheetSection {
 		{Title: "Primitives — buttons & kbd", Body: SheetBtns()},
 		{Title: "Primitives — badge & dot", Body: SheetBadge()},
 		{Title: "Field / Input", Body: SheetField()},
+		{Title: "Choice — checkbox · radio · toggle", Body: SheetChoice()},
 	}
 }

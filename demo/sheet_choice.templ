@@ -1,0 +1,26 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetChoice demos the choice primitives matrix: checkbox off/on/disabled,
+// a radio group sharing one name, and the segmented toggle with a selected
+// segment. Real inputs underneath — the e2e suite drives these with mouse
+// and keyboard and asserts the accent presentation per theme.
+templ SheetChoice() {
+	<div class="sheet-row">
+		@baud.Checkbox(baud.ChoiceProps{ID: "chk-telemetry", Name: "telemetry", Label: "telemetry"})
+		@baud.Checkbox(baud.ChoiceProps{ID: "chk-restart", Name: "auto-restart", Label: "auto-restart", Checked: true})
+		@baud.Checkbox(baud.ChoiceProps{ID: "chk-legacy", Name: "legacy", Label: "legacy mode", Disabled: true})
+		@baud.Checkbox(baud.ChoiceProps{ID: "chk-pinned", Name: "pinned", Label: "pinned", Checked: true, Disabled: true})
+	</div>
+	<div class="sheet-row">
+		@baud.Radio(baud.ChoiceProps{ID: "rad-eu", Name: "sheet-region", Value: "eu-west", Label: "eu-west", Checked: true})
+		@baud.Radio(baud.ChoiceProps{ID: "rad-us", Name: "sheet-region", Value: "us-east", Label: "us-east"})
+		@baud.Radio(baud.ChoiceProps{ID: "rad-ap", Name: "sheet-region", Value: "ap-south", Label: "ap-south"})
+	</div>
+	<div class="sheet-row">
+		@baud.Toggle(baud.ToggleProps{Name: "sheet-view", Value: "table", Options: []baud.ToggleOption{
+			{Value: "table"}, {Value: "json"}, {Value: "raw"},
+		}})
+	</div>
+}
