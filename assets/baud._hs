@@ -111,9 +111,9 @@ behavior Tabs
     repeat for tb in tabs
       set tb's @tabindex to '-1'
     end
-    set next to tabs[j]
-    set next's @tabindex to '0'
-    call next.focus()
+    set focusTab to tabs[j]
+    set focusTab's @tabindex to '0'
+    call focusTab.focus()
   end
   on click
     set tab to event.target.closest('[role="tab"]')
