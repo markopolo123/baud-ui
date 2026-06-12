@@ -446,6 +446,85 @@ behavior Toast
   end
 end
 
+-- Overlay: modal/drawer chrome (baud/modal.templ, baud/drawer.templ),
+-- installed on the .overlay backdrop root. htmx-injected overlays
+-- (hx-target="body" hx-swap="beforeend") self-init on swap via the
+-- htmx:load hook: they open immediately and are removed from the DOM on
+-- close. Static sheet overlays (.overlay-static) stay in the DOM and
+-- toggle .open instead — open one with `send baud:overlayOpen to it`.
+-- Opening stashes the focus owner (:opener), force-drops any other
+-- overlay (one at a time — no focus games for the loser), and moves
+-- focus to the first focusable inside. Esc, backdrop click and any
+-- [data-overlay-close] control close and restore :opener focus; Tab is
+-- trapped in a cycle over the focusable descendants.
+behavior Overlay
+  init
+    if I do not match .overlay-static
+      send baud:overlayOpen to me
+    end
+    -- honest "listeners attached" signal for tests (cf .resizable-ready)
+    add .overlay-ready to me
+  end
+  on baud:overlayOpen
+    repeat for o in Array.from(document.querySelectorAll('.overlay'))
+      if o is not me
+        if o.matches('.overlay-static')
+          remove .open from o
+        else
+          remove o
+        end
+      end
+    end
+    set :opener to document.activeElement
+    add .open to me
+    set f to me.querySelector('[autofocus]')
+    if f is null
+      set f to me.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    end
+    if f is not null then call f.focus() end
+  end
+  on baud:overlayClose
+    -- a removed (or already-closed static) overlay must not steal focus
+    -- when a window-level Esc fires later
+    if me.isConnected is false then exit end
+    if I match .overlay-static
+      if I do not match .open then exit end
+      remove .open from me
+    end
+    if :opener is not null
+      if :opener.isConnected then call :opener.focus() end
+    end
+    if I do not match .overlay-static then remove me end
+  end
+  on keyup[key == 'Escape'] from window
+    send baud:overlayClose to me
+  end
+  on click(target)
+    if target is me
+      send baud:overlayClose to me
+    else if target.closest('[data-overlay-close]') is not null
+      send baud:overlayClose to me
+    end
+  end
+  on keydown[key == 'Tab']
+    set els to Array.from(me.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    if els.length is 0 then halt the event end
+    set firstEl to els[0]
+    set lastEl to els[els.length - 1]
+    if event.shiftKey
+      if document.activeElement is firstEl or document.activeElement is me
+        halt the event
+        call lastEl.focus()
+      end
+    else
+      if document.activeElement is lastEl
+        halt the event
+        call firstEl.focus()
+      end
+    end
+  end
+end
+
 -- ParseHealth: parse-health sentinel. KEEP THIS THE LAST BEHAVIOR IN THE
 -- FILE — a _hyperscript parse error anywhere above aborts the whole file
 -- before this definition exists, so the install on <body> silently

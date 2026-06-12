@@ -1,0 +1,52 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetOverlay demos Modal + Drawer in both delivery modes. The structure
+// is load-bearing for e2e/overlay_test.go: #ov-open-modal / #ov-open-drawer
+// toggle the static always-in-DOM overlays #ov-modal / #ov-drawer (class
+// toggle via baud:overlayOpen); #ov-load-modal / #ov-load-drawer hx-get the
+// /demo/modal and /demo/drawer fragments (demo/overlay_api.go) appended to
+// <body> and removed again on close.
+templ SheetOverlay() {
+	<div class="sheet-row">
+		<button type="button" id="ov-open-modal" class="btn" _="on click send baud:overlayOpen to #ov-modal">static modal</button>
+		<button type="button" id="ov-open-drawer" class="btn" _="on click send baud:overlayOpen to #ov-drawer">static drawer</button>
+		<button type="button" id="ov-load-modal" class="btn" hx-get="/demo/modal" hx-target="body" hx-swap="beforeend">htmx modal</button>
+		<button type="button" id="ov-load-drawer" class="btn" hx-get="/demo/drawer" hx-target="body" hx-swap="beforeend">htmx drawer</button>
+	</div>
+	@baud.Modal(baud.ModalProps{ID: "ov-modal", Title: "deploy fleet", Static: true, Footer: ovStaticModalFooter()}) {
+		<span>deploy 12 services to prod? rolling restart, no downtime expected.</span>
+	}
+	@baud.Drawer(baud.DrawerProps{ID: "ov-drawer", Title: "api-core · v2.4.1", Static: true}) {
+		<span>8 pods · eu-west-1</span>
+		<span class="tone-faint">last deploy 2h ago · image sha 4f9c21d</span>
+	}
+}
+
+templ ovStaticModalFooter() {
+	<button type="button" class="btn" data-overlay-close>cancel</button>
+	@baud.Btn(baud.BtnProps{Label: "deploy", Variant: baud.BtnPrimary})
+}
+
+// ovDemoModal is the GET /demo/modal htmx fragment: the destructive
+// confirm dialog from the fleetctl console.
+templ ovDemoModal() {
+	@baud.Modal(baud.ModalProps{ID: "demo-modal", Title: "kill pod", Footer: ovDemoModalFooter()}) {
+		<span>terminate ingest-gw-7c4f? the scheduler will reschedule it on the next healthy node.</span>
+	}
+}
+
+templ ovDemoModalFooter() {
+	<button type="button" class="btn" data-overlay-close>cancel</button>
+	@baud.Btn(baud.BtnProps{Label: "kill pod", Variant: baud.BtnDanger})
+}
+
+// ovDemoDrawer is the GET /demo/drawer htmx fragment: the service detail
+// drawer from the fleetctl console.
+templ ovDemoDrawer() {
+	@baud.Drawer(baud.DrawerProps{ID: "demo-drawer", Title: "ingest-gw · v2.4.1"}) {
+		<span>12 pods · eu-west-1 · cpu 41.2% · mem 63.8%</span>
+		<span class="tone-faint">last deploy 2h ago</span>
+	}
+}

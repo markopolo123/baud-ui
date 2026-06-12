@@ -1,0 +1,44 @@
+package baud
+
+// Modal — centered overlay dialog (design/README.md "Overlays"): 540px at
+// 9vh inside the fixed .overlay backdrop, strong border + deep --shadow,
+// header title per the type rules with the ✕ close glyph, body children
+// slot and optional right-aligned footer actions. The Overlay behavior
+// (assets/baud._hs) supplies the client contract: focus trap + restore,
+// Esc / backdrop / [data-overlay-close] dismiss, one overlay at a time;
+// htmx-injected instances are removed from the DOM on close, Static ones
+// toggle .open instead.
+templ Modal(p ModalProps) {
+	<div
+		id={ p.ID }
+		class={ overlayClasses("", p.Static) }
+		_="install Overlay"
+	>
+		<div
+			class="modal"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={ overlayTitleID(p.ID) }
+		>
+			@overlayHeader(p.ID, p.Title)
+			<div class="modal-bd">
+				{ children... }
+			</div>
+			if p.Footer != nil {
+				<footer class="modal-ft">
+					@p.Footer
+				</footer>
+			}
+		</div>
+	</div>
+}
+
+// overlayHeader is the strip Modal and Drawer share: the labelling title
+// span and the ✕ close glyph button (a real button, keyboard-operable;
+// the Overlay behavior closes on its data-overlay-close marker).
+templ overlayHeader(id, title string) {
+	<header class="modal-hd">
+		<span class="modal-title" id={ overlayTitleID(id) }>{ title }</span>
+		<button type="button" class="x-btn" aria-label="close" data-overlay-close>✕</button>
+	</header>
+}
