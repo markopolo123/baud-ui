@@ -1,0 +1,74 @@
+/* ============================================================
+   baud/ui — modal & drawer overlays (@layer components)
+   Lifted from design/baud-components.css (modal / drawer / palette
+   overlays section). Additions over the design source: the
+   .overlay-static class-toggle variant (the always-in-DOM sheet
+   instances stay display:none until .open), the .drawer-bd body
+   slot (the prototype inlined these styles on .panel-bd), the
+   header-scoped .x-btn recipe (design/baud-tokens.css), and the
+   ~160ms entrance animations behind prefers-reduced-motion per the
+   design animation policy. Fixed pixel sizes/paddings are design-
+   spec constants, not density-driven; border style flows through
+   --border-style so b-ascii dashes automatically.
+   Owned by wave 4 (modal-drawer) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  /* ---------- backdrop ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: color-mix(in srgb, var(--shadow) 60%, transparent);
+    display: flex; align-items: flex-start; justify-content: center;
+  }
+  /* static sheet variant: in the DOM from first render, shown by the
+     Overlay behavior toggling .open */
+  .overlay.overlay-static:not(.open) { display: none; }
+
+  /* ---------- modal ---------- */
+  .modal {
+    margin-top: 9vh; width: 540px; max-width: 92vw;
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 24px 60px var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .modal-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    height: calc(var(--rh) + 4px); padding: 0 10px;
+    border-bottom: 1px var(--border-style, solid) var(--border);
+  }
+  .modal-title {
+    font-family: var(--font-ui); font-size: var(--fs); font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .modal-hd .x-btn { color: var(--fg-faint); padding: 0 2px; font-size: var(--fs); }
+  .modal-hd .x-btn:hover { color: var(--err); }
+  .modal-bd { padding: 12px 10px; display: flex; flex-direction: column; gap: 10px; }
+  .modal-ft {
+    display: flex; justify-content: flex-end; gap: var(--gap);
+    padding: 8px 10px;
+    border-top: 1px var(--border-style, solid) var(--border);
+    background: var(--bg-raised);
+  }
+
+  /* ---------- drawer ---------- */
+  .overlay.drawer-wrap { background: color-mix(in srgb, var(--shadow) 45%, transparent); }
+  .drawer {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 420px; max-width: 90vw;
+    background: var(--bg-panel);
+    border-left: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: -18px 0 50px var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .drawer-bd {
+    flex: 1; min-height: 0; overflow: auto;
+    padding: 12px 10px; display: flex; flex-direction: column; gap: 10px;
+  }
+
+  /* ---------- entrances (animation policy: ~160ms, motion-gated) ------ */
+  @media (prefers-reduced-motion: no-preference) {
+    .modal { animation: modal-in 0.16s ease-out; }
+    @keyframes modal-in { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .drawer { animation: drawer-in 0.16s ease-out; }
+    @keyframes drawer-in { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+  }
+}

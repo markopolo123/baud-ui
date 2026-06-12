@@ -1,0 +1,28 @@
+package baud
+
+// Drawer — right-side overlay dialog (design/README.md "Overlays"): 420px,
+// full height, strong left border + deep --shadow, sliding in from the
+// right inside the .drawer-wrap backdrop tint. Header chrome (.modal-hd,
+// title, ✕ close) is shared with Modal; the body is the scrollable
+// .drawer-bd children slot. Close behaviour is identical to Modal via the
+// same Overlay behavior: focus trap + restore, Esc / backdrop /
+// [data-overlay-close] dismiss, one overlay at a time.
+templ Drawer(p DrawerProps) {
+	<div
+		id={ p.ID }
+		class={ overlayClasses("drawer-wrap", p.Static) }
+		_="install Overlay"
+	>
+		<div
+			class="drawer"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={ overlayTitleID(p.ID) }
+		>
+			@overlayHeader(p.ID, p.Title)
+			<div class="drawer-bd">
+				{ children... }
+			</div>
+		</div>
+	</div>
+}
