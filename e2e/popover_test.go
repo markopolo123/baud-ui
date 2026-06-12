@@ -138,9 +138,6 @@ func TestPopoverOpenDismiss(t *testing.T) {
 	if got := computedStyleSel(t, page, panel, "display"); got != "none" {
 		t.Fatalf("panel display = %v before opening, want none", got)
 	}
-	if got := popoverAttr(t, page, trigger, "aria-haspopup"); got != "true" {
-		t.Errorf("trigger aria-haspopup = %q, want true", got)
-	}
 	if got := popoverAttr(t, page, trigger, "aria-controls"); got != "pop-actions-panel" {
 		t.Errorf("trigger aria-controls = %q, want pop-actions-panel", got)
 	}
