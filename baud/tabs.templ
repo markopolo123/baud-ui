@@ -1,0 +1,59 @@
+package baud
+
+// Tabs renders the strip: an ARIA tablist of real <button role=tab>
+// elements. Enter/Space activate natively (they are buttons); the Tabs
+// hyperscript behavior adds ←/→ roving focus and the is-active /
+// aria-selected swap on activation, plus the local-mode panel swap when
+// data-tabs-local is set. In htmx mode each tab carries hx-get/hx-target
+// so the server renders the pane into the shared target panel.
+templ Tabs(p TabsProps) {
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ "tabs", p.variantClass() }
+		role="tablist"
+		if !p.htmx() {
+			data-tabs-local="true"
+		}
+		_="install Tabs"
+	>
+		for i, t := range p.Tabs {
+			<button
+				type="button"
+				if p.tabID(i) != "" {
+					id={ p.tabID(i) }
+				}
+				class={ "tab", templ.KV("is-active", i == p.ActiveIndex) }
+				role="tab"
+				aria-selected={ p.selected(i) }
+				tabindex={ p.tabindex(i) }
+				if p.controls(t) != "" {
+					aria-controls={ p.controls(t) }
+				}
+				if p.htmx() && t.Href != "" {
+					hx-get={ t.Href }
+					hx-target={ "#" + p.Target }
+				}
+			>
+				{ t.Label }
+				if t.Count != nil {
+					@Badge(BadgeProps{}) {
+						{ t.count() }
+					}
+				}
+			</button>
+		}
+	</div>
+}
+
+// TabPanel is one tab pane: role=tabpanel, hidden until its tab activates.
+// Local mode pre-renders one per tab (ids matching Tab.Panel); htmx mode
+// renders a single always-active panel (id matching TabsProps.Target) whose
+// content the server round-trip replaces. tabindex=0 keeps panes without
+// focusable content reachable from the keyboard, per the ARIA tabs pattern.
+templ TabPanel(id string, active bool) {
+	<div id={ id } class="tab-panel" role="tabpanel" tabindex="0" hidden?={ !active }>
+		{ children... }
+	</div>
+}
