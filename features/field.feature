@@ -42,7 +42,7 @@ Feature: Field and Input primitives
     When I render a field labelled "Hostname" for id "host" with hint "fqdn preferred"
     Then exactly 1 element matches "div.field > label.field-label[for=host]"
     And the element "label.field-label" has text "Hostname"
-    And exactly 1 element matches "div.field span.input-wrap > input.input[id=host]"
+    And exactly 1 element matches "div.field > span.input-wrap > input.input[id=host]"
 
   Scenario: field hint renders on the hint line
     When I render a field labelled "Hostname" for id "host" with hint "fqdn preferred"
@@ -54,5 +54,5 @@ Feature: Field and Input primitives
     When I render a field labelled "Hostname" for id "host" with error "host unreachable"
     Then exactly 1 element matches "div.field > span.field-hint.err"
     And the element "span.field-hint.err" has text "✗ host unreachable"
-    And exactly 1 element matches "div.field span.input-wrap.err > input.input[id=host]"
+    And exactly 1 element matches "div.field > span.input-wrap.err > input.input[id=host]"
     And exactly 1 element matches "div.field > span.field-hint"
