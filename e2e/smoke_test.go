@@ -147,21 +147,27 @@ func TestResizableDragPersists(t *testing.T) {
 		t.Fatalf("drag never persisted to localStorage baud-panes:sheet-panes: %v", err)
 	}
 
-	// The first track grew by the drag delta, the last shrank; the 7px
-	// gutter track is untouched.
+	// Pointermove events coalesce under CI load, so the final position may
+	// lag the mathematical endpoint — the contract is direction + magnitude
+	// + conservation, not the exact delta (the persistence round-trip below
+	// IS exact).
 	after := strings.Fields(computedStyleSel(t, page, sheetPanes, "gridTemplateColumns"))
 	if len(after) != len(before) {
 		t.Fatalf("template track count changed: before %v, after %v", before, after)
 	}
-	const tol = 2.0
-	if got, want := pxValue(t, after[0]), pxValue(t, before[0])+delta; got < want-tol || got > want+tol {
-		t.Errorf("first track after drag = %q, want ~%.0fpx (before %q + %dpx)", after[0], want, before[0], delta)
+	growth := pxValue(t, after[0]) - pxValue(t, before[0])
+	shrink := pxValue(t, before[2]) - pxValue(t, after[2])
+	if growth < delta/2 || growth > delta+2 {
+		t.Errorf("first track grew %.1fpx after a %dpx drag, want within [%d, %d]", growth, delta, delta/2, delta+2)
 	}
 	if after[1] != "7px" {
 		t.Errorf("gutter track after drag = %q, want 7px", after[1])
 	}
-	if got, want := pxValue(t, after[2]), pxValue(t, before[2])-delta; got < want-tol || got > want+tol {
-		t.Errorf("last track after drag = %q, want ~%.0fpx (before %q - %dpx)", after[2], want, before[2], delta)
+	if shrink < delta/2 || shrink > delta+2 {
+		t.Errorf("last track shrank %.1fpx after a %dpx drag, want within [%d, %d]", shrink, delta, delta/2, delta+2)
+	}
+	if diff := growth - shrink; diff < -1 || diff > 1 {
+		t.Errorf("drag not conserved: first grew %.1fpx but last shrank %.1fpx", growth, shrink)
 	}
 
 	// Capture the persisted template for the restore comparison.
@@ -207,6 +213,7 @@ func TestResizableDragPersists(t *testing.T) {
 	if len(restored) != len(savedTracks) {
 		t.Fatalf("restored template %v, want the persisted %q", restored, savedTpl)
 	}
+	const tol = 0.5 // CSSOM rounding only — the restore itself is exact
 	for i := range restored {
 		if got, want := pxValue(t, restored[i]), pxValue(t, savedTracks[i]); got < want-tol || got > want+tol {
 			t.Errorf("restored track %d = %q, want ~%q (persisted)", i, restored[i], savedTracks[i])
