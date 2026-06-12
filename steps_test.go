@@ -324,4 +324,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.Then(`^the behaviors script comes before the hyperscript library script$`, s.behaviorsScriptFirst)
 
 	registerBtnSteps(sc, s)
+	registerBadgeSteps(sc, s)
 }

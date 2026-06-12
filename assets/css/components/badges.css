@@ -1,0 +1,57 @@
+/* ============================================================
+   baud/ui — badges & dots (@layer components)
+   Lifted from design/baud-tokens.css. Tints/outlines are color-mix
+   derivations of the base tone vars, so new themes only supply the
+   ~20 base vars. The round .dot is the one sanctioned circle in the
+   library; the in-badge dot stays a 5px square. Fixed pixel dot
+   dimensions are design-spec constants, not density-driven.
+   Owned by wave 1 (badge) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  /* ---------- badge ---------- */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    height: calc(var(--row) - 5px); padding: 0 6px;
+    font-family: var(--font-ui); font-size: var(--fs-sm);
+    font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    border: 1px var(--border-style, solid) transparent; white-space: nowrap;
+  }
+  .badge .badge-dot { width: 5px; height: 5px; background: currentColor; flex: none; }
+
+  /* tone text colour (scoped to badge/dot — not a global utility) */
+  .badge.tone-ok,      .dot.tone-ok      { color: var(--ok); }
+  .badge.tone-warn,    .dot.tone-warn    { color: var(--warn); }
+  .badge.tone-err,     .dot.tone-err     { color: var(--err); }
+  .badge.tone-info,    .dot.tone-info    { color: var(--info); }
+  .badge.tone-accent,  .dot.tone-accent  { color: var(--accent); }
+  .badge.tone-neutral, .dot.tone-neutral { color: var(--fg-muted); }
+
+  /* tint: 15% color-mix bg + 38% border — keep this exact technique */
+  .bd-tint.tone-ok     { background: color-mix(in srgb, var(--ok) 15%, transparent); border-color: color-mix(in srgb, var(--ok) 38%, transparent); }
+  .bd-tint.tone-warn   { background: color-mix(in srgb, var(--warn) 15%, transparent); border-color: color-mix(in srgb, var(--warn) 38%, transparent); }
+  .bd-tint.tone-err    { background: color-mix(in srgb, var(--err) 15%, transparent); border-color: color-mix(in srgb, var(--err) 38%, transparent); }
+  .bd-tint.tone-info   { background: color-mix(in srgb, var(--info) 15%, transparent); border-color: color-mix(in srgb, var(--info) 38%, transparent); }
+  .bd-tint.tone-accent { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: color-mix(in srgb, var(--accent) 38%, transparent); }
+  .bd-tint.tone-neutral { background: var(--bg-raised); border-color: var(--border-strong); }
+
+  .bd-outline { background: transparent; border-color: color-mix(in srgb, currentColor 55%, transparent); }
+
+  .bd-solid.tone-ok      { background: var(--ok); color: var(--bg-panel); }
+  .bd-solid.tone-warn    { background: var(--warn); color: var(--bg-panel); }
+  .bd-solid.tone-err     { background: var(--err); color: var(--bg-panel); }
+  .bd-solid.tone-info    { background: var(--info); color: var(--bg-panel); }
+  .bd-solid.tone-accent  { background: var(--accent); color: var(--on-accent); }
+  .bd-solid.tone-neutral { background: var(--fg-faint); color: var(--bg-panel); }
+
+  /* ---------- status dot ---------- */
+  /* The one sanctioned circle — boxes everywhere else stay square. */
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dot.pulse { animation: baud-pulse 1.6s ease-in-out infinite; }
+    @keyframes baud-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 50%, transparent); }
+      55% { box-shadow: 0 0 0 4px transparent; }
+    }
+  }
+}
