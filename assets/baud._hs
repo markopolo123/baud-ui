@@ -124,13 +124,13 @@ behavior TagInput
   end
   on keydown[key == 'Enter' and target.matches('.tags-input')]
     halt the event
-    set q to target.value.trim()
+    set q to event.target.value.trim()
     if q is not ''
       send baud:tagsAdd(tag: q) to me
     end
   end
   on keydown[key == 'Backspace' and target.matches('.tags-input')]
-    if target.value is ''
+    if event.target.value is ''
       set chip to the last <.tag-chip/> in me
       if chip is not null
         remove chip
