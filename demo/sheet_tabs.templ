@@ -1,0 +1,49 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetTabs demos both variants and both switching modes: an underline
+// strip with count badges swapping pre-rendered local panes (Tabs
+// hyperscript behavior), and a boxed strip whose tabs hx-get the
+// server-rendered range pane (GET /demo/tabs, demo/tabs_api.go) into one
+// shared tabpanel. The e2e suite drives both with mouse and keyboard.
+templ SheetTabs() {
+	<div id="tabs-local-demo" class="vstack gap-2">
+		@baud.Tabs(baud.TabsProps{ID: "tabs-under", Tabs: []baud.Tab{
+			{Label: "pods", Count: tabsCount(39), Panel: "pane-pods"},
+			{Label: "events", Count: tabsCount(7), Panel: "pane-events"},
+			{Label: "logs", Panel: "pane-logs"},
+			{Label: "env", Panel: "pane-env"},
+		}})
+		@baud.TabPanel("pane-pods", true) {
+			<span>39 pods running across 3 nodes</span>
+		}
+		@baud.TabPanel("pane-events", false) {
+			<span>7 events in the last hour</span>
+		}
+		@baud.TabPanel("pane-logs", false) {
+			<span>tailing ingest-gw logs</span>
+		}
+		@baud.TabPanel("pane-env", false) {
+			<span>14 env vars injected</span>
+		}
+	</div>
+	<div id="tabs-htmx-demo" class="vstack gap-2">
+		@baud.Tabs(baud.TabsProps{ID: "tabs-boxed", Variant: baud.TabsBoxed, Target: "tabs-range-pane", Tabs: []baud.Tab{
+			{Label: "5m", Href: "/demo/tabs?range=5m"},
+			{Label: "1h", Href: "/demo/tabs?range=1h"},
+			{Label: "1d", Href: "/demo/tabs?range=1d"},
+			{Label: "1w", Href: "/demo/tabs?range=1w"},
+		}})
+		@baud.TabPanel("tabs-range-pane", true) {
+			@TabsRangePane("5m")
+		}
+	</div>
+}
+
+// TabsRangePane is the server-rendered pane for the htmx tabs demo — the
+// initial render above and every GET /demo/tabs round-trip produce the
+// same fragment.
+templ TabsRangePane(rng string) {
+	<span>metrics window { rng } — { tabsSamples(rng) } samples</span>
+}

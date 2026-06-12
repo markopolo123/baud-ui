@@ -1,0 +1,62 @@
+/* ============================================================
+   baud/ui — tabs (@layer components)
+   Lifted from design/baud-components.css. Two variants: underline
+   (2px accent underline on the active tab) and boxed (bordered
+   strip, active = accent fill). Tabs are real <button role=tab>
+   elements (button resets live in base.css); count badges reuse
+   the Badge primitive, compacted to tab scale below. Fixed pixel
+   paddings/gaps are design-spec constants, not density-driven.
+   Owned by feat/tabs — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  .tabs { display: flex; align-items: stretch; }
+
+  /* ---------- underline ---------- */
+  .tabs-underline { border-bottom: 1px var(--border-style, solid) var(--border); gap: 2px; }
+  .tabs-underline .tab {
+    display: flex; align-items: center; gap: 6px;
+    height: calc(var(--rh) + 2px); padding: 0 10px;
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--fg-faint);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tabs-underline .tab:hover { color: var(--fg-muted); background: var(--bg-hover); }
+  .tabs-underline .tab.is-active { color: var(--fg); border-bottom-color: var(--accent); }
+
+  /* ---------- boxed ---------- */
+  .tabs-boxed { border: 1px var(--border-style, solid) var(--border-strong); }
+  .tabs-boxed .tab {
+    display: flex; align-items: center; gap: 6px;
+    height: calc(var(--rh) - 2px); padding: 0 10px;
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--fg-faint);
+    border-right: 1px var(--border-style, solid) var(--border-strong);
+  }
+  .tabs-boxed .tab:last-child { border-right: none; }
+  .tabs-boxed .tab:hover { color: var(--fg); background: var(--bg-hover); }
+  .tabs-boxed .tab.is-active { background: var(--accent); color: var(--on-accent); }
+
+  /* ---------- count badge: the Badge primitive at tab scale ---------- */
+  .tab .badge {
+    height: auto; padding: 0 4px; line-height: 1.5;
+    font-family: var(--font-mono); letter-spacing: 0;
+    background: var(--bg-active); color: var(--fg-muted); border-color: transparent;
+  }
+  /* design dims the badge into the accent fill with a translucent overlay —
+     derived from --on-accent so themes only supply base vars */
+  .tab.is-active .badge {
+    background: color-mix(in srgb, var(--on-accent) 20%, transparent);
+    color: inherit;
+  }
+  .tabs-underline .tab.is-active .badge { background: var(--bg-active); color: var(--fg); }
+
+  /* ---------- panes ---------- */
+  .tab-panel { min-width: 0; }
+  .tab-panel[hidden] { display: none; }
+
+  /* border-mode variants (b-ascii dashes via --border-style) */
+  .b-shade .tabs-boxed { border-color: transparent; background: var(--bg-raised); }
+  .b-shade .tabs-boxed .tab { border-right-color: var(--bg-panel); }
+}

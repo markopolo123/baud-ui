@@ -91,6 +91,57 @@ behavior Resizable
   end
 end
 
+-- Tabs: ARIA tabs widget, installed on the [role=tablist] strip. ←/→ rove
+-- focus across the [role=tab] buttons (wrapping, roving tabindex); ↵/Space
+-- activate natively because tabs are real <button>s, so activation is the
+-- click handler: swap is-active + aria-selected, and with data-tabs-local
+-- also swap the pre-rendered [role=tabpanel] panes via the hidden attribute
+-- (htmx strips instead hx-get their pane into the shared target panel).
+behavior Tabs
+  on keydown[key == 'ArrowRight' or key == 'ArrowLeft']
+    set tabs to Array.from(my.querySelectorAll('[role="tab"]'))
+    set i to tabs.indexOf(event.target)
+    if i is -1 then exit end
+    halt the event
+    if event.key is 'ArrowRight'
+      set j to ((i + 1) mod (tabs.length))
+    else
+      set j to (((i - 1) + (tabs.length)) mod (tabs.length))
+    end
+    repeat for tb in tabs
+      set tb's @tabindex to '-1'
+    end
+    set focusTab to tabs[j]
+    set focusTab's @tabindex to '0'
+    call focusTab.focus()
+  end
+  on click
+    set tab to event.target.closest('[role="tab"]')
+    if tab is null then exit end
+    repeat for tb in Array.from(my.querySelectorAll('[role="tab"]'))
+      if tb is tab
+        add .is-active to tb
+        set tb's @aria-selected to 'true'
+        set tb's @tabindex to '0'
+      else
+        remove .is-active from tb
+        set tb's @aria-selected to 'false'
+        set tb's @tabindex to '-1'
+      end
+      if @data-tabs-local
+        set panel to document.getElementById(tb.getAttribute('aria-controls'))
+        if panel is not null
+          if tb is tab
+            remove @hidden from panel
+          else
+            add @hidden to panel
+          end
+        end
+      end
+    end
+  end
+end
+
 -- MenuDismiss: close (drop the open state of) the element on outside click
 -- or Escape.
 behavior MenuDismiss
