@@ -32,6 +32,9 @@ behavior Resizable
         end
       end
     end
+    -- honest "listener attached" signal: pointerdown before this class
+    -- appears would be lost (DOM events do not queue for future listeners)
+    add .resizable-ready to me
   end
   on pointerdown(target, clientX, clientY)
     if not target.matches('.split-gutter') then exit end

@@ -116,6 +116,15 @@ func TestResizableDragPersists(t *testing.T) {
 	}
 	before := waitForPanesTemplate(t, page)
 
+	// Panes init done ≠ Resizable's pointerdown listener attached — a press
+	// dispatched before attach is lost (events don't queue for future
+	// listeners; bit us on slow CI). Wait for the behavior's init signal.
+	if err := page.Locator(sheetPanes + ".resizable-ready").WaitFor(playwright.LocatorWaitForOptions{
+		Timeout: playwright.Float(15000),
+	}); err != nil {
+		t.Fatalf("Resizable never signalled .resizable-ready: %v", err)
+	}
+
 	// Drag the gutter 120px to the right: pointer down on its centre,
 	// move in steps (the behavior tracks pointermove), release.
 	gutter := page.Locator(sheetPanes + " > .split-gutter")
