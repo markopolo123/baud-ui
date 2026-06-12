@@ -1,0 +1,82 @@
+/* ============================================================
+   baud/ui — choice controls (@layer components)
+   Checkbox / Radio (.cbx) and segmented Toggle (.tg), lifted
+   from design/baud-tokens.css. Real <input> elements underneath
+   (visually hidden, still focusable); glyphs and the accent
+   segment are painted by CSS from :checked — zero client logic.
+   Owned by feat/choice-controls — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- checkbox / radio ---------- */
+  .cbx {
+    position: relative;
+    display: inline-flex; align-items: center; gap: var(--gap);
+    cursor: pointer; user-select: none;
+    color: var(--fg);
+  }
+
+  /* the real input: visually hidden but focusable (never display:none) */
+  .cbx-input {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cbx-box { color: var(--fg-muted); white-space: pre; }
+  .cbx:hover .cbx-box { color: var(--accent); }
+
+  /* glyphs are ::before content keyed on input type + :checked */
+  .cbx-box::before { content: "[ ]"; }
+  .cbx-input:checked + .cbx-box::before { content: "[x]"; }
+  .cbx-input[type="radio"] + .cbx-box::before { content: "( )"; }
+  .cbx-input[type="radio"]:checked + .cbx-box::before { content: "(\2022)"; }
+
+  .cbx-input:checked + .cbx-box { color: var(--accent); font-weight: 700; }
+
+  /* focus ring lands on the glyph while the hidden input holds focus */
+  .cbx-input:focus-visible + .cbx-box {
+    outline: 1px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .cbx:has(.cbx-input:disabled) { opacity: 0.42; cursor: not-allowed; }
+
+  /* ---------- toggle (segmented radio strip) ---------- */
+  .tg {
+    display: inline-flex;
+    border: 1px var(--border-style, solid) var(--border-strong);
+    background: var(--bg-input);
+    user-select: none;
+  }
+  .tg-opt {
+    position: relative;
+    display: flex; align-items: center;
+    height: calc(var(--rh) - var(--pad));
+    padding: 0 calc(var(--pad) * 1.5);
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--fg-faint);
+    cursor: pointer;
+  }
+  .tg-opt:hover { color: var(--fg); }
+
+  .tg-input {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tg-opt:has(.tg-input:checked) { background: var(--accent); color: var(--on-accent); }
+  .tg-opt:has(.tg-input:focus-visible) {
+    outline: 1px solid var(--accent);
+    outline-offset: 1px;
+    z-index: 1;
+  }
+  .tg-opt:has(.tg-input:disabled) { opacity: 0.42; cursor: not-allowed; }
+
+  .b-shade .tg { border-color: transparent; background: var(--bg-raised); }
+}
