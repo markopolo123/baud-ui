@@ -132,9 +132,21 @@ func TestResizableDragPersists(t *testing.T) {
 	if err := mouse.Down(); err != nil {
 		t.Fatalf("mouse down: %v", err)
 	}
-	if err := mouse.Move(x+delta, y, playwright.MouseMoveOptions{Steps: playwright.Int(10)}); err != nil {
+	// The drag handler is interpreted hyperscript: under CI load the whole
+	// mouse sequence can finish before its listen loop starts, in which case
+	// every move (and the pointerup) is missed and nothing persists. The
+	// behavior adds .drag immediately before its listen loop — gate on it,
+	// then give the interpreter a beat to enter its first `wait for`.
+	if err := page.Locator(sheetPanes + " > .split-gutter.drag").WaitFor(playwright.LocatorWaitForOptions{
+		Timeout: playwright.Float(5000),
+	}); err != nil {
+		t.Fatalf("drag handler never signalled .drag after pointerdown: %v", err)
+	}
+	page.WaitForTimeout(300)
+	if err := mouse.Move(x+delta, y, playwright.MouseMoveOptions{Steps: playwright.Int(20)}); err != nil {
 		t.Fatalf("drag: %v", err)
 	}
+	page.WaitForTimeout(300)
 	if err := mouse.Up(); err != nil {
 		t.Fatalf("mouse up: %v", err)
 	}
