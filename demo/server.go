@@ -29,5 +29,6 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /demo/tabs", tabsPane)
 	mux.HandleFunc("GET /demo/pagination", handlePagination)
 	mux.HandleFunc("GET /demo/datatable", handleDataTableSort)
+	mux.HandleFunc("GET /demo/tree", treeChildren)
 	return mux
 }

@@ -357,4 +357,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerSelectSteps(sc, s)
 	registerPaginationSteps(sc, s)
 	registerDataTableSteps(sc, s)
+	registerTreeSteps(sc, s)
 }

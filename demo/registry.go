@@ -27,5 +27,6 @@ func Sections() []SheetSection {
 		{Title: "Select — native · menu · combobox", Body: SheetSelect()},
 		{Title: "Data — pagination & diff", Body: SheetDataExtras()},
 		{Title: "Data — table (htmx sort)", Body: SheetDataTable()},
+		{Title: "Tree — fleet navigator", Body: SheetTree()},
 	}
 }
