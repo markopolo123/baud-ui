@@ -1,12 +1,10 @@
 package baudui_test
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/cucumber/godog"
-	"golang.org/x/net/html"
 
 	"github.com/markopolo123/baud-ui/baud"
 )
@@ -25,8 +23,6 @@ func registerChoiceSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render a radio group named "([^"]*)" with options "([^"]*)" selecting "([^"]*)"$`, s.renderRadioGroup)
 	sc.When(`^I render a toggle named "([^"]*)" with options "([^"]*)" selecting "([^"]*)"$`, s.renderToggle)
 	sc.When(`^I render a toggle named "([^"]*)" with options "([^"]*)" selecting "([^"]*)" disabling "([^"]*)"$`, s.renderToggleDisabling)
-
-	sc.Then(`^the element "([^"]*)" has text "([^"]*)"$`, s.elementHasText)
 }
 
 // ---- render steps --------------------------------------------------------
@@ -82,23 +78,4 @@ func (s *scenarioState) renderToggleDisabling(name, options, selected, disabled 
 		opts = append(opts, baud.ToggleOption{Value: v, Disabled: v == disabled && disabled != ""})
 	}
 	return s.render(baud.Toggle(baud.ToggleProps{Name: name, Value: selected, Options: opts}))
-}
-
-// ---- assertion steps -----------------------------------------------------
-
-func (s *scenarioState) elementHasText(selector, want string) error {
-	n, err := s.one(selector)
-	if err != nil {
-		return err
-	}
-	var b strings.Builder
-	walk(n, func(c *html.Node) {
-		if c.Type == html.TextNode {
-			b.WriteString(c.Data)
-		}
-	})
-	if got := strings.TrimSpace(b.String()); got != want {
-		return fmt.Errorf("element %q text = %q, want %q", selector, got, want)
-	}
-	return nil
 }
