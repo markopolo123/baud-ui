@@ -62,6 +62,10 @@ merged (components depend on foundation; demo depends on components).
   only for local UI.
 - No `.js` files or inline script logic — client behaviour is hyperscript only
   (`assets/baud._hs` behaviors or inline `_=` attributes).
+- Any `assets/baud._hs` edit requires a full local e2e run — a _hyperscript
+  parse error silently kills every behavior in the file. ParseHealth must
+  remain the LAST behavior in the file: it is the sentinel that turns parse
+  errors into a loud `TestParseHealthSentinel` failure.
 - Component-sheet section present and rendering.
 - Generic test helpers live ONLY in steps_test.go / e2e/helpers_test.go — component
   files define component-prefixed helpers only.

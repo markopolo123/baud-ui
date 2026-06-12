@@ -9,58 +9,6 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-// Theme-resolved colours asserted below (from assets/css/tokens.css):
-//
-//	t-gruvbox --accent #fabd2f → rgb(250, 189, 47), --on-accent #1d2021 → rgb(29, 32, 33)
-//	t-mocha   --accent #89b4fa → rgb(137, 180, 250), --on-accent #11111b → rgb(17, 17, 27)
-const (
-	gruvAccent   = "rgb(250, 189, 47)"
-	gruvOnAccent = "rgb(29, 32, 33)"
-	mochaAccent  = "rgb(137, 180, 250)"
-	mochaOnAcc   = "rgb(17, 17, 27)"
-)
-
-func openSheet(t *testing.T) playwright.Page {
-	t.Helper()
-	srv := startDemo(t)
-	page := startBrowser(t)
-	if _, err := page.Goto(srv.URL+"/sheet", playwright.PageGotoOptions{
-		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
-	}); err != nil {
-		t.Fatalf("goto /sheet: %v", err)
-	}
-	return page
-}
-
-func isChecked(t *testing.T, page playwright.Page, sel string) bool {
-	t.Helper()
-	v, err := page.Locator(sel).IsChecked()
-	if err != nil {
-		t.Fatalf("IsChecked(%s): %v", sel, err)
-	}
-	return v
-}
-
-func computed(t *testing.T, page playwright.Page, sel, prop string) string {
-	t.Helper()
-	v, err := page.Locator(sel).Evaluate("(el, prop) => getComputedStyle(el)[prop]", prop)
-	if err != nil {
-		t.Fatalf("computed %s of %s: %v", prop, sel, err)
-	}
-	s, _ := v.(string)
-	return s
-}
-
-func activeID(t *testing.T, page playwright.Page) string {
-	t.Helper()
-	v, err := page.Evaluate("() => document.activeElement && document.activeElement.id")
-	if err != nil {
-		t.Fatalf("activeElement: %v", err)
-	}
-	s, _ := v.(string)
-	return s
-}
-
 // TestCheckboxClickAndGlyph: clicking the wrapping label toggles the real
 // input and the glyph turns accent (t-gruvbox), then mocha accent after a
 // root-class theme swap.

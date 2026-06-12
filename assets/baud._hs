@@ -118,6 +118,21 @@ behavior Tabs
     set focusTab's @tabindex to '0'
     call focusTab.focus()
   end
+  on keydown[key == 'Home' or key == 'End']
+    set tabs to Array.from(my.querySelectorAll('[role="tab"]'))
+    if tabs.indexOf(event.target) is -1 then exit end
+    halt the event
+    set j to 0
+    if event.key is 'End'
+      set j to (tabs.length) - 1
+    end
+    repeat for tb in tabs
+      set tb's @tabindex to '-1'
+    end
+    set focusTab to tabs[j]
+    set focusTab's @tabindex to '0'
+    call focusTab.focus()
+  end
   on click
     set tab to event.target.closest('[role="tab"]')
     if tab is null then exit end
@@ -199,7 +214,7 @@ behavior TagInput
       remove the closest <.tag-chip/> to target
       send baud:tagsFilter to me
     else
-      set item to target.closest('.tags-menu-item')
+      set item to target.closest('.menu-item')
       if item is not null
         send baud:tagsAdd(tag: item.getAttribute('data-tag')) to me
       end
@@ -248,7 +263,7 @@ behavior TagInput
     if menu is null then exit end
     set q to (the first <.tags-input/> in me).value.toLowerCase()
     set shown to 0
-    repeat for item in <.tags-menu-item/> in me
+    repeat for item in <.menu-item/> in me
       set tag to item.getAttribute('data-tag')
       set dup to false
       repeat for h in <input[type=hidden]/> in me
@@ -402,5 +417,17 @@ behavior ComboboxFilter
         end
       end
     end
+  end
+end
+
+-- ParseHealth: parse-health sentinel. KEEP THIS THE LAST BEHAVIOR IN THE
+-- FILE — a _hyperscript parse error anywhere above aborts the whole file
+-- before this definition exists, so the install on <body> silently
+-- no-ops and body[data-hs-ok] never appears. The e2e suite waits for
+-- that attribute (TestParseHealthSentinel), turning any parse error in
+-- this file into a loud test failure instead of silently dead behaviors.
+behavior ParseHealth
+  init
+    add @data-hs-ok to me
   end
 end

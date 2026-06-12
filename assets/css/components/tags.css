@@ -1,11 +1,12 @@
 /* ============================================================
    baud/ui — tag input (@layer components)
    Lifted from design/baud-extras.css ("tag input" block). The
-   suggestion menu lifts the design .menu/.menu-item rules under
-   tags-scoped class names so parallel menu owners don't collide;
-   .x-btn (design baud-tokens.css) is scoped under .tag-chip for
-   the same reason. Chip tint = the shared accent color-mix
-   technique. Owned by feat/taginput — do not edit in parallel.
+   suggestion menu reuses the canonical .menu/.menu-item rules
+   (selects.css owns those); only the .open/.empty display gating
+   and the meta span are tags-scoped here. .x-btn (design
+   baud-tokens.css) is scoped under .tag-chip to avoid collisions.
+   Chip tint = the shared accent color-mix technique.
+   Owned by feat/taginput — do not edit in parallel.
    ============================================================ */
 @layer components {
   .tags { position: relative; display: block; min-width: 0; }
@@ -43,25 +44,13 @@
   /* chips present ⇒ the placeholder hint retires (design parity) */
   .tags-wrap:has(.tag-chip) .tags-input::placeholder { color: transparent; }
 
-  /* ---------- suggestion menu (design .menu, tags-scoped) ---------- */
-  .tags-menu {
-    position: absolute; top: calc(100% + 2px); left: 0; min-width: 100%;
-    background: var(--bg-panel);
-    border: 1px var(--border-style, solid) var(--border-strong);
-    box-shadow: 0 10px 30px var(--shadow); z-index: 60;
-    max-height: 290px; overflow: auto; padding: 2px 0;
-    display: none;
-  }
+  /* ---------- suggestion menu ----------
+     The dropdown is the canonical .menu/.menu-item (selects.css owns
+     those rules). .tags-menu remains only to gate painting on the
+     TagInput behavior's .open/.empty state and to style the meta span. */
+  .tags-menu { display: none; }
   /* .open is toggled by the TagInput behavior; .empty means every
      suggestion is filtered out or already added */
   .tags.open > .tags-menu:not(.empty) { display: block; }
-
-  .tags-menu-item {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    width: 100%; height: var(--row); padding: 0 9px;
-    color: var(--fg-muted); text-align: left; white-space: nowrap;
-  }
-  .tags-menu-item[hidden] { display: none; }
-  .tags-menu-item:hover { background: var(--bg-hover); color: var(--fg); }
-  .tags-menu-item .tags-menu-meta { color: var(--fg-faint); font-size: var(--fs-sm); }
+  .tags-menu .tags-menu-meta { color: var(--fg-faint); font-size: var(--fs-sm); }
 }

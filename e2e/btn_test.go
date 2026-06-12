@@ -8,13 +8,6 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-func assertStyle(t *testing.T, l playwright.Locator, prop, want, what string) {
-	t.Helper()
-	if got := computedStyle(t, l, prop); got != want {
-		t.Errorf("%s: %s = %q, want %q", what, prop, got, want)
-	}
-}
-
 // TestBtnComputedStyles asserts the Btn/BtnGroup/Kbd visuals per variant in
 // the default t-gruvbox + d-dense modes, keyboard focus-visible, and that a
 // theme root-class swap re-resolves the variant tokens (t-mocha).

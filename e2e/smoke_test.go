@@ -44,6 +44,31 @@ func pxValue(t *testing.T, track string) float64 {
 	return v
 }
 
+// TestParseHealthSentinel: the ParseHealth behavior is the LAST definition
+// in assets/baud._hs and is installed on <body>; its init marks
+// body[data-hs-ok]. A _hyperscript parse error anywhere in the file kills
+// every definition after it silently, so the attribute appearing proves
+// the whole behaviors file parsed. If this fails, bisect the most recent
+// assets/baud._hs edit (watch for reserved words: next, meta, it, result,
+// target, …).
+func TestParseHealthSentinel(t *testing.T) {
+	srv := startDemo(t)
+	page := startBrowser(t)
+
+	if _, err := page.Goto(srv.URL+"/sheet", playwright.PageGotoOptions{
+		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
+	}); err != nil {
+		t.Fatalf("goto /sheet: %v", err)
+	}
+	if err := page.Locator("body[data-hs-ok]").WaitFor(playwright.LocatorWaitForOptions{
+		State:   playwright.WaitForSelectorStateAttached,
+		Timeout: playwright.Float(10000),
+	}); err != nil {
+		t.Fatalf("body[data-hs-ok] never appeared — assets/baud._hs likely has a parse error "+
+			"(ParseHealth, the last behavior in the file, never ran): %v", err)
+	}
+}
+
 func TestSheetSmoke(t *testing.T) {
 	srv := startDemo(t)
 	page := startBrowser(t)

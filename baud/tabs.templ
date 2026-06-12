@@ -52,8 +52,20 @@ templ Tabs(p TabsProps) {
 // renders a single always-active panel (id matching TabsProps.Target) whose
 // content the server round-trip replaces. tabindex=0 keeps panes without
 // focusable content reachable from the keyboard, per the ARIA tabs pattern.
-templ TabPanel(id string, active bool) {
-	<div id={ id } class="tab-panel" role="tabpanel" tabindex="0" hidden?={ !active }>
+// labelledBy is the id of the tab that controls this pane (TabsProps.tabID),
+// emitted as aria-labelledby; pass "" to omit it — e.g. the shared htmx
+// target pane, which has no single owning tab.
+templ TabPanel(id, labelledBy string, active bool) {
+	<div
+		id={ id }
+		class="tab-panel"
+		role="tabpanel"
+		tabindex="0"
+		if labelledBy != "" {
+			aria-labelledby={ labelledBy }
+		}
+		hidden?={ !active }
+	>
 		{ children... }
 	</div>
 }

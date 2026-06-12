@@ -66,11 +66,15 @@ func (s *scenarioState) renderLocalTabs(spec string, active int) error {
 }
 
 func (s *scenarioState) renderActiveTabPanel(id string) error {
-	return s.render(withChild{baud.TabPanel(id, true), textPane("pane body")})
+	return s.render(withChild{baud.TabPanel(id, "", true), textPane("pane body")})
 }
 
-func (s *scenarioState) renderInactiveTabPanel(id string) error {
-	return s.render(withChild{baud.TabPanel(id, false), textPane("pane body")})
+func (s *scenarioState) renderLabelledActiveTabPanel(id, tab string) error {
+	return s.render(withChild{baud.TabPanel(id, tab, true), textPane("pane body")})
+}
+
+func (s *scenarioState) renderInactiveTabPanel(id, tab string) error {
+	return s.render(withChild{baud.TabPanel(id, tab, false), textPane("pane body")})
 }
 
 // tabsFromSpec parses "pods,events" / "pods=39,events=7,logs" into Tabs —
@@ -100,5 +104,6 @@ func registerTabsSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render htmx tabs "([^"]*)" targeting "([^"]*)"$`, s.renderHTMXTabs)
 	sc.When(`^I render local tabs "([^"]*)" with active index (\d+)$`, s.renderLocalTabs)
 	sc.When(`^I render an active tab panel "([^"]*)"$`, s.renderActiveTabPanel)
-	sc.When(`^I render an inactive tab panel "([^"]*)"$`, s.renderInactiveTabPanel)
+	sc.When(`^I render an active tab panel "([^"]*)" labelled by "([^"]*)"$`, s.renderLabelledActiveTabPanel)
+	sc.When(`^I render an inactive tab panel "([^"]*)" labelled by "([^"]*)"$`, s.renderInactiveTabPanel)
 }
