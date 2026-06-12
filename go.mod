@@ -5,6 +5,7 @@ go 1.26.2
 require (
 	github.com/a-h/templ v0.3.1020
 	github.com/cucumber/godog v0.15.1
+	github.com/playwright-community/playwright-go v0.5700.1
 	golang.org/x/net v0.56.0
 )
 
@@ -15,8 +16,11 @@ require (
 	github.com/cli/browser v1.3.0 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
+	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
+	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gofrs/uuid v4.3.1+incompatible // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-memdb v1.3.4 // indirect
