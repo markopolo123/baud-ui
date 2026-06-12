@@ -1,0 +1,34 @@
+package baud
+
+// ConfirmInput is the destructive guard (design/README.md "Feedback"):
+// a "type <name> to confirm" hint, a real named <input> carrying the
+// expected value in data-confirm, and the danger Btn — disabled until the
+// typed value exactly matches. The comparison is inline hyperscript on the
+// input (confirmScript, confirm.go); a non-matching non-empty value flips
+// the err border while typing. The Btn is type=button (baud.Btn): wire the
+// actual destructive round-trip (hx-delete etc.) on it or submit the
+// enclosing form from it as the consumer sees fit.
+templ ConfirmInput(p ConfirmInputProps) {
+	<div class="confirm">
+		<span class="field-hint">type <span class="confirm-expect">{ p.Expect }</span> to confirm</span>
+		<div class="confirm-row">
+			<span class="input-wrap fill">
+				<input
+					class="input"
+					type="text"
+					name={ p.name() }
+					if p.ID != "" {
+						id={ p.ID }
+					}
+					placeholder={ p.Expect }
+					data-confirm={ p.Expect }
+					autocomplete="off"
+					spellcheck="false"
+					aria-label={ "type " + p.Expect + " to confirm" }
+					_={ confirmScript }
+				/>
+			</span>
+			@Btn(BtnProps{Label: p.ActionLabel, Variant: BtnDanger, Disabled: true})
+		</div>
+	</div>
+}

@@ -1,0 +1,36 @@
+package baud
+
+import "strconv"
+
+// Progress is the server-rendered ASCII progress bar (design/README.md
+// "Feedback"): ▰▰▰▱▱ glyphs (22 by default) + a right-aligned tabular-nums
+// percent. Go computes the bar string (progress.go); the tone class is
+// auto (accent → warn past 85% → ok at 100%) unless forced via Tone.
+// No client behaviour — updates are server round-trips. The filled run and
+// the faint rest span stay adjacent on one line: whitespace between them
+// would render inside the bar.
+templ Progress(p ProgressProps) {
+	<span
+		class="prog"
+		role="progressbar"
+		aria-valuemin="0"
+		aria-valuemax="100"
+		aria-valuenow={ strconv.Itoa(p.Percent()) }
+		if p.Label != "" {
+			aria-label={ p.Label }
+		}
+	>
+		if p.Label != "" {
+			<span class="prog-label">{ p.Label }</span>
+		}
+		<span class={ "prog-bar", "tone-" + p.tone() }>{ p.filled() }@progRest(p.rest())</span>
+		<span class="prog-pct">{ p.percentText() }</span>
+	</span>
+}
+
+// progRest renders the unfilled ▱ run in --fg-faint; a full bar has none.
+templ progRest(rest string) {
+	if rest != "" {
+		<span class="prog-rest">{ rest }</span>
+	}
+}

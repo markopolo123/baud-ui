@@ -1,0 +1,10 @@
+package baud
+
+// Spinner is the accent braille spinner (design/README.md "Feedback"):
+// frames ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ at 80ms. The markup is a single status span — the
+// frames are a pure-CSS discrete content animation on ::before
+// (components/feedback.css), so there is no client logic at all and the
+// static first frame survives both reduced motion and disabled scripting.
+templ Spinner() {
+	<span class="spinner" role="status" aria-label="loading"></span>
+}
