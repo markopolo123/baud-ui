@@ -104,6 +104,7 @@ const selectMenuBehaviors = "install MenuDismiss install SelectKeys install Sele
 
 // selectTriggerHS toggles the menu and mirrors the open state onto
 // aria-expanded — local UI, so hyperscript, inline because it is trivial.
-const selectTriggerHS = "on click toggle .open on closest .select then " +
-	"if closest .select matches .open then set @aria-expanded to 'true' " +
+const selectTriggerHS = "on click set root to closest .select then " +
+	"toggle .open on root then " +
+	"if root.matches('.open') then set @aria-expanded to 'true' " +
 	"else set @aria-expanded to 'false'"

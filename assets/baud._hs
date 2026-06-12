@@ -292,10 +292,10 @@ behavior SelectKeys
       set i to Math.max(i - 1, 0)
     end
     if cur is not null then remove .hl-row from cur end
-    set next to items[i]
-    add .hl-row to next
-    if ctl is not null then call ctl.setAttribute('aria-activedescendant', next.id) end
-    call next.scrollIntoView({block: 'nearest'})
+    set nxt to items[i]
+    add .hl-row to nxt
+    if ctl is not null then call ctl.setAttribute('aria-activedescendant', nxt.id) end
+    call nxt.scrollIntoView({block: 'nearest'})
   end
   on keydown[key == 'Enter']
     if I match .open
@@ -371,18 +371,21 @@ behavior ComboboxFilter
     repeat for opt in Array.from(me.querySelectorAll('.menu-item'))
       remove .hl-row from opt
       set label to opt.getAttribute('data-label')
-      set meta to opt.getAttribute('data-meta')
-      if meta is null then set meta to '' end
+      set extra to opt.getAttribute('data-meta')
+      if extra is null then set extra to '' end
+      set hay to label + ' ' + extra
+      set hay to hay.toLowerCase()
+      set low to label.toLowerCase()
       set lbl to opt.querySelector('.cb-label')
       if q is ''
         set lbl.textContent to label
         call opt.removeAttribute('hidden')
-      else if (label + ' ' + meta).toLowerCase().indexOf(q) is -1
+      else if hay.indexOf(q) is -1
         set lbl.textContent to label
         call opt.setAttribute('hidden', '')
       else
         call opt.removeAttribute('hidden')
-        set i to label.toLowerCase().indexOf(q)
+        set i to low.indexOf(q)
         if i is -1
           set lbl.textContent to label
         else
