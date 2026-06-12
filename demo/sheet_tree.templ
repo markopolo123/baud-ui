@@ -1,0 +1,30 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetTree demos the fleet navigator: glyph rows with right-aligned
+// meta, the selected row (ingest-gw), an expanded branch (prod/core), a
+// collapsed-but-loaded branch (staging), and a lazy branch (prod/edge)
+// whose children hx-get /demo/tree (demo/tree_api.go) on first expand.
+// The structure is load-bearing: e2e/tree_test.go drives #tree-fleet —
+// prod is the only open root branch, staging the only closed non-lazy
+// root branch, edge the only [hx-get] branch.
+templ SheetTree() {
+	<div id="tree-demo" class="sheet-row">
+		@baud.Tree(baud.TreeProps{ID: "tree-fleet", Nodes: []baud.TreeNode{
+			{Label: "prod", Expanded: true, Children: []baud.TreeNode{
+				{Label: "core", Expanded: true, Children: []baud.TreeNode{
+					{Label: "ingest-gw", Meta: "12 pods", Selected: true},
+					{Label: "api-core", Meta: "8 pods"},
+					{Label: "billing", Meta: "3 pods"},
+				}},
+				{Label: "edge", LazyURL: "/demo/tree?node=prod/edge"},
+			}},
+			{Label: "staging", Children: []baud.TreeNode{
+				{Label: "smoke"},
+				{Label: "soak"},
+			}},
+			{Label: "docs"},
+		}})
+	</div>
+}

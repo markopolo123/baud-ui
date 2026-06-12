@@ -1,0 +1,29 @@
+/* ============================================================
+   baud/ui — tree (@layer components)
+   Lifted from design/baud-components.css. Box-drawing branch
+   glyphs live in the markup (mono, white-space: pre); the ▸/▾
+   disclosure flips via CSS content on the native <details>
+   open state — no client logic. Fixed pixel gaps and the 2px
+   accent inset are design-spec constants, not density-driven.
+   Owned by wave 3 (tree) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  .tree { list-style: none; user-select: none; }
+  .tree ul { list-style: none; }
+  .tree-row {
+    display: flex; align-items: center; gap: 5px;
+    height: var(--row); padding: 0 var(--pad);
+    white-space: nowrap; cursor: pointer; color: var(--fg-muted);
+  }
+  .tree-row:hover { background: var(--bg-hover); color: var(--fg); }
+  .tree-row.sel { background: var(--sel); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
+  .tree-glyph { color: var(--fg-faint); font-family: var(--font-mono); white-space: pre; }
+  .tree-row.sel .tree-glyph { color: var(--accent); }
+  .tree-meta { margin-left: auto; font-size: var(--fs-sm); color: var(--fg-faint); }
+
+  /* native disclosure: hide the UA marker, draw ▸/▾ in the glyph slot */
+  summary.tree-row { list-style: none; }
+  summary.tree-row::-webkit-details-marker { display: none; }
+  .tree-disclosure::before { content: "▸ "; }
+  .tree-branch[open] > summary .tree-disclosure::before { content: "▾ "; }
+}

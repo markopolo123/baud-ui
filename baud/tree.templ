@@ -1,0 +1,92 @@
+package baud
+
+// Tree is the fleet-navigator list: depth drawn as box-drawing glyphs,
+// branches as native <details>/<summary> disclosures (keyboard + a11y for
+// free), ▸/▾ flipped purely by CSS content on the open state. The only
+// client logic is one inline hyperscript toggle handler mirroring the
+// native open state onto the summary's aria-expanded.
+templ Tree(p TreeProps) {
+	<ul
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class="tree"
+	>
+		@treeLevel(p.Nodes, "", 0)
+	</ul>
+}
+
+// TreeChildren is the exported child-list fragment: one branch's <li>
+// rows drawn under the ancestor glyph prefix. Lazy branches hx-get
+// exactly this fragment into their ul[role=group]; servers compute the
+// prefix from the node's position (│/spaces per still-continuing
+// ancestor).
+templ TreeChildren(prefix string, nodes []TreeNode) {
+	@treeLevel(nodes, prefix, 1)
+}
+
+templ treeLevel(nodes []TreeNode, prefix string, depth int) {
+	for i, n := range nodes {
+		if n.branch() {
+			@treeBranch(n, treeRowGlyph(prefix, depth, i == len(nodes)-1), treeChildPrefix(prefix, depth, i == len(nodes)-1), depth)
+		} else {
+			@treeLeaf(n, treeRowGlyph(prefix, depth, i == len(nodes)-1))
+		}
+	}
+}
+
+// treeLeaf pads the glyph with two spaces where branches draw the ▸/▾
+// slot, keeping labels at one depth aligned (white-space: pre).
+templ treeLeaf(n TreeNode, glyph string) {
+	<li
+		class={ "tree-row", templ.KV("sel", n.Selected) }
+		if n.Selected {
+			aria-current="true"
+		}
+	>
+		<span class="tree-glyph">{ glyph + "  " }</span>
+		<span class="tree-label">{ n.Label }</span>
+		@treeMeta(n)
+	</li>
+}
+
+templ treeBranch(n TreeNode, glyph string, childPrefix string, depth int) {
+	<li>
+		<details
+			class="tree-branch"
+			if n.open() {
+				open
+			}
+			if n.LazyURL != "" {
+				hx-get={ n.LazyURL }
+				hx-trigger="toggle once"
+				hx-target="find ul"
+				hx-swap="innerHTML"
+			}
+			_="on toggle set @aria-expanded of the first <summary/> in me to me.open as String"
+		>
+			<summary
+				class={ "tree-row", templ.KV("sel", n.Selected) }
+				aria-expanded={ n.ariaExpanded() }
+				if n.Selected {
+					aria-current="true"
+				}
+			>
+				<span class="tree-glyph">{ glyph }<span class="tree-disclosure" aria-hidden="true"></span></span>
+				<span class="tree-label">{ n.Label }</span>
+				@treeMeta(n)
+			</summary>
+			<ul role="group">
+				if n.LazyURL == "" {
+					@treeLevel(n.Children, childPrefix, depth+1)
+				}
+			</ul>
+		</details>
+	</li>
+}
+
+templ treeMeta(n TreeNode) {
+	if n.Meta != "" {
+		<span class="tree-meta">{ n.Meta }</span>
+	}
+}

@@ -128,10 +128,10 @@ Feature: Tree — box-drawing branches, disclosure, lazy htmx children
         edge~/demo/tree?node=prod/edge
       """
     Then exactly 1 element matches "details.tree-branch[hx-get=/demo/tree?node=prod/edge]"
-    And the element "details.tree-branch" has attribute "hx-trigger" equal to "toggle once"
-    And the element "details.tree-branch" has attribute "hx-target" equal to "find ul"
-    And the element "details.tree-branch" has attribute "hx-swap" equal to "innerHTML"
-    And exactly 0 elements match "details.tree-branch > ul[role=group] > li"
+    And the element "details.tree-branch[hx-get]" has attribute "hx-trigger" equal to "toggle once"
+    And the element "details.tree-branch[hx-get]" has attribute "hx-target" equal to "find ul"
+    And the element "details.tree-branch[hx-get]" has attribute "hx-swap" equal to "innerHTML"
+    And exactly 0 elements match "details.tree-branch[hx-get] > ul[role=group] > li"
 
   Scenario: lazy branches always start collapsed
     When I render a tree from:
