@@ -27,5 +27,6 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/datepicker", handleDatePickerMenu)
 	mux.Handle("GET /sheet", templ.Handler(SheetPage(ServerOpts())))
 	mux.HandleFunc("GET /demo/tabs", tabsPane)
+	mux.HandleFunc("GET /demo/pagination", handlePagination)
 	return mux
 }
