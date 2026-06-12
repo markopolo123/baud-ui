@@ -19,7 +19,7 @@ Feature: App shell and layout foundation
     When I render the default page
     Then exactly 1 element matches "body"
     And the element "body" has classes "t-gruvbox d-dense b-line f-mono"
-    And the element "body" has attribute "_" equal to "install PaletteKey"
+    And the element "body" has attribute "_" equal to "install PaletteKey install ParseHealth"
 
   Scenario: page loads the behaviors file before the hyperscript library
     When I render the default page

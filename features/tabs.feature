@@ -64,11 +64,18 @@ Feature: Tabs — underline & boxed variants, htmx & local switching
     And exactly 1 element matches "button.tab[id=demo-tabs-tab-0][aria-selected=true]"
     And exactly 1 element matches "button.tab[id=demo-tabs-tab-1][aria-selected=false]"
 
-  Scenario: an active tab panel is a visible ARIA tabpanel
-    When I render an active tab panel "pane-pods"
+  Scenario: an active tab panel is a visible ARIA tabpanel labelled by its tab
+    When I render an active tab panel "pane-pods" labelled by "demo-tabs-tab-0"
     Then exactly 1 element matches "div.tab-panel[role=tabpanel][id=pane-pods][tabindex=0]"
+    And the element "div.tab-panel" has attribute "aria-labelledby" equal to "demo-tabs-tab-0"
     And no element matches "div.tab-panel[hidden]"
 
   Scenario: an inactive tab panel is hidden until its tab activates
-    When I render an inactive tab panel "pane-events"
+    When I render an inactive tab panel "pane-events" labelled by "demo-tabs-tab-1"
     Then exactly 1 element matches "div.tab-panel[role=tabpanel][id=pane-events][hidden]"
+    And the element "div.tab-panel" has attribute "aria-labelledby" equal to "demo-tabs-tab-1"
+
+  Scenario: a tab panel without a tab id renders no aria-labelledby
+    When I render an active tab panel "pane-free"
+    Then exactly 1 element matches "div.tab-panel[role=tabpanel][id=pane-free][tabindex=0]"
+    And no element matches "div.tab-panel[aria-labelledby]"

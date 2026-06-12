@@ -45,14 +45,14 @@ Feature: TagInput — key=value chips with hidden form inputs and suggestions
     When I render a tag input with id "ti-1" named "labels"
     Then exactly 1 element matches "input.tags-input[id=ti-1]"
 
-  Scenario: suggestions render as menu items with data-tag payloads
+  Scenario: suggestions render as canonical menu items with data-tag payloads
     When I render a tag input named "labels" with suggestions "env=staging,team=core"
-    Then exactly 1 element matches "span.tags > div.tags-menu"
-    And exactly 2 elements match "div.tags-menu > button.tags-menu-item[type=button]"
-    And exactly 1 element matches "button.tags-menu-item[data-tag=env=staging]"
-    And exactly 1 element matches "button.tags-menu-item[data-tag=team=core]"
-    And the element "button.tags-menu-item[data-tag=team=core] > span.tags-menu-tag" has text "team=core"
-    And the element "button.tags-menu-item[data-tag=team=core] > span.tags-menu-meta" has text "add"
+    Then exactly 1 element matches "span.tags > div.tags-menu.menu"
+    And exactly 2 elements match "div.tags-menu > button.menu-item[type=button]"
+    And exactly 1 element matches "button.menu-item[data-tag=env=staging]"
+    And exactly 1 element matches "button.menu-item[data-tag=team=core]"
+    And the element "button.menu-item[data-tag=team=core] > span.tags-menu-tag" has text "team=core"
+    And the element "button.menu-item[data-tag=team=core] > span.tags-menu-meta" has text "add"
 
   Scenario: no suggestions renders no menu
     When I render a tag input named "labels" with values "env=prod"
