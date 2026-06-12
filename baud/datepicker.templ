@@ -1,0 +1,70 @@
+package baud
+
+// DatePicker is the full control: trigger button (YYYY-MM-DD), hidden form
+// input, and the absolutely-positioned menu wrapping the DatePickerMenu
+// fragment. Open/close is a local .open toggle; outside-click and Esc
+// dismiss come from the shared MenuDismiss behavior. Month navigation
+// inside the menu is an htmx round-trip against p.Endpoint.
+templ DatePicker(p DatePickerProps) {
+	<span
+		class="dp"
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		_={ dpRootScript }
+	>
+		<button
+			type="button"
+			class="dp-trigger"
+			aria-haspopup="dialog"
+			aria-expanded="false"
+			_="on click toggle .open on closest .dp"
+		>
+			<span class="dp-glyph" aria-hidden="true">▦</span>
+			<span class="dp-value">{ p.triggerText() }</span>
+			<span class="dp-chev" aria-hidden="true"></span>
+		</button>
+		<input type="hidden" class="dp-input" name={ p.Name } value={ p.value() }/>
+		<div class="dp-menu" role="dialog" aria-label="choose date" _={ dpPickScript }>
+			@DatePickerMenu(p)
+		</div>
+	</span>
+}
+
+// DatePickerMenu is the server-rendered menu fragment: «‹›» nav header,
+// day-of-week row, the Monday-first 6×7 grid and the preset row. Exported
+// so consumer handlers can re-render it for the hx-get month navigation —
+// the demo's /api/datepicker handler is the reference implementation.
+templ DatePickerMenu(p DatePickerProps) {
+	<div class="dp-hd">
+		<button type="button" class="dp-nav" aria-label="previous year" hx-get={ p.navURL(-12) } hx-target="closest .dp-menu" hx-swap="innerHTML">«</button>
+		<button type="button" class="dp-nav" aria-label="previous month" hx-get={ p.navURL(-1) } hx-target="closest .dp-menu" hx-swap="innerHTML">‹</button>
+		<span class="dp-title">{ p.title() }</span>
+		<button type="button" class="dp-nav" aria-label="next month" hx-get={ p.navURL(1) } hx-target="closest .dp-menu" hx-swap="innerHTML">›</button>
+		<button type="button" class="dp-nav" aria-label="next year" hx-get={ p.navURL(12) } hx-target="closest .dp-menu" hx-swap="innerHTML">»</button>
+	</div>
+	<div class="dp-grid">
+		for _, dow := range dpDows {
+			<span class="dp-dow">{ dow }</span>
+		}
+		for _, day := range MonthGrid(p.month()) {
+			<button
+				type="button"
+				class={ "dp-day",
+					templ.KV("out", p.dayIsOut(day)),
+					templ.KV("today", dpSameDay(day, p.today())),
+					templ.KV("sel", dpSameDay(day, p.Selected)) }
+				data-date={ dpDayDate(day) }
+				aria-label={ dpDayDate(day) }
+				if dpSameDay(day, p.today()) {
+					aria-current="date"
+				}
+			>{ dpDayNum(day) }</button>
+		}
+	</div>
+	<div class="dp-presets">
+		for _, preset := range dpPresets {
+			<button type="button" class="dp-preset" data-date={ p.presetDate(preset.days) }>{ preset.label }</button>
+		}
+	</div>
+}

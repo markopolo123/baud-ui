@@ -1,0 +1,30 @@
+package demo
+
+import (
+	"time"
+
+	"github.com/markopolo123/baud-ui/baud"
+)
+
+// sheetDatePickerProps pins Selected to the first of the current month so
+// the e2e suite can compute the expected trigger text deterministically,
+// while the today outline stays live (Today zero = time.Now()).
+func sheetDatePickerProps() baud.DatePickerProps {
+	now := time.Now()
+	return baud.DatePickerProps{
+		ID:       "dp-demo",
+		Name:     "since",
+		Selected: time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local),
+		Endpoint: "/api/datepicker",
+	}
+}
+
+// SheetDatePicker demos the date picker: a pre-selected picker (today
+// outline + accent selected cell + presets) and an empty one showing the
+// "pick date" prompt. Month nav round-trips /api/datepicker.
+templ SheetDatePicker() {
+	<div class="sheet-row" id="datepicker-demo">
+		@baud.DatePicker(sheetDatePickerProps())
+		@baud.DatePicker(baud.DatePickerProps{ID: "dp-empty", Name: "until", Endpoint: "/api/datepicker"})
+	</div>
+}

@@ -23,6 +23,7 @@ func NewMux() *http.ServeMux {
 		w.Write(baudui.Behaviors)
 	})
 	mux.Handle("GET /{$}", templ.Handler(AppPage(ServerOpts())))
+	mux.HandleFunc("GET /api/datepicker", handleDatePickerMenu)
 	mux.Handle("GET /sheet", templ.Handler(SheetPage(ServerOpts())))
 	return mux
 }

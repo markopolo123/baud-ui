@@ -1,0 +1,82 @@
+/* ============================================================
+   baud/ui — date picker (@layer components)
+   Lifted from design/baud-tokens.css (".dp-*" block; the trigger
+   lifts the .select-trigger recipe, the menu the .menu recipe,
+   the nav buttons the .x-btn recipe with accent hover). Month
+   navigation is an htmx round-trip re-rendering the menu
+   fragment; open/close and picking are local hyperscript.
+   Token-only colours; remaining px are structural constants
+   (1px hairlines, small optical nudges from the design).
+   Owned by feat/datepicker — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  .dp { position: relative; display: inline-flex; }
+
+  /* ---------- trigger (the .select-trigger recipe) ---------- */
+  .dp-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: calc(var(--gap) * 1.3);
+    height: var(--rh); padding: 0 var(--pad);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    color: var(--fg);
+  }
+  .dp-trigger:hover { border-color: var(--fg-faint); }
+  .dp-glyph { color: var(--fg-faint); font-size: var(--fs-sm); }
+  .dp-value { flex: 1; text-align: left; font-variant-numeric: tabular-nums; }
+  .dp-chev { color: var(--fg-faint); font-size: var(--fs-sm); }
+  .dp-chev::before { content: "▼"; }
+  .dp.open .dp-chev::before { content: "▲"; }
+
+  /* ---------- menu (the .menu recipe; design min-width 232px ≈ 32ch) ---------- */
+  .dp-menu {
+    display: none;
+    position: absolute; top: calc(100% + 2px); left: 0;
+    min-width: 32ch;
+    padding: var(--pad);
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 10px 30px var(--shadow);
+    z-index: 60;
+  }
+  .dp.open .dp-menu { display: block; }
+
+  /* ---------- header nav ---------- */
+  .dp-hd { display: flex; align-items: center; gap: 2px; padding: 2px 2px 6px; }
+  .dp-nav { color: var(--fg-faint); padding: 0 2px; font-size: var(--fs); }
+  .dp-nav:hover { color: var(--accent); }
+  .dp-title {
+    flex: 1; text-align: center;
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  /* ---------- grid ---------- */
+  .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+  .dp-dow { text-align: center; font-size: var(--fs-sm); color: var(--fg-faint); padding: 2px 0; }
+  .dp-day {
+    height: calc(var(--row) + 1px);
+    text-align: center;
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .dp-day:hover { background: var(--bg-hover); color: var(--fg); }
+  .dp-day.out { color: var(--fg-faint); opacity: 0.45; }
+  .dp-day.today { box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .dp-day.sel { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+  /* ---------- preset row ---------- */
+  .dp-presets {
+    display: flex; gap: 4px;
+    padding-top: 6px; margin-top: 6px;
+    border-top: 1px var(--border-style, solid) var(--border);
+  }
+  .dp-preset {
+    flex: 1; height: calc(var(--row) - 2px);
+    font-size: var(--fs-sm); color: var(--fg-muted);
+    border: 1px var(--border-style, solid) var(--border);
+    background: var(--bg-raised);
+  }
+  .dp-preset:hover { color: var(--accent); border-color: var(--accent); }
+}
