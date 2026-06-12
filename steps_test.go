@@ -351,4 +351,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerChoiceSteps(sc, s)
 	registerDefListSteps(sc, s)
 	registerTagInputSteps(sc, s)
+	registerPanelSteps(sc, s)
 }

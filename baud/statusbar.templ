@@ -1,0 +1,14 @@
+package baud
+
+// StatusBar is the full-width cell strip — cells separated by hairlines,
+// optional leading vim-style mode cell, one spring cell flexing the rest to
+// the far edge. Pass it as ShellProps.StatusBar to render into the shell's
+// data-statusbar slot (where the strip chrome comes from the footer and the
+// inner div just flexes to fill), or render it standalone.
+templ StatusBar(cells []StatusCell) {
+	<div class="statusbar">
+		for _, c := range cells {
+			<span class={ c.classes() }>{ c.Text }</span>
+		}
+	</div>
+}

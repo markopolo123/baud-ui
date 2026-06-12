@@ -1,0 +1,65 @@
+/* ============================================================
+   baud/ui — panel, statusbar, toolbar (@layer components)
+   Lifted from design/baud-components.css (panel / status bar /
+   toolbar sections); the prototype's .panel root class becomes
+   the data-panel activation attribute. Border style flows through
+   --border-style so b-ascii dashes automatically; the ┌─ … ─┐
+   title wrap stays behind the b-ascii mode class (experimental
+   per the design spec). Fixed pixel gaps/paddings are design-spec
+   constants, not density-driven.
+   Owned by wave 2 (panel) — do not edit from other branches.
+   ============================================================ */
+@layer components {
+  /* ---------- panel ---------- */
+  [data-panel] {
+    position: relative; display: flex; flex-direction: column; min-width: 0;
+    background: var(--bg-panel); border: 1px var(--border-style, solid) var(--border);
+  }
+  .panel-hd {
+    flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    height: var(--rh); padding: 0 var(--pad);
+    border-bottom: 1px var(--border-style, solid) var(--border);
+  }
+  .panel-title {
+    font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--fg-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .panel-acts { display: flex; align-items: center; gap: 4px; }
+  .panel-bd { flex: 1; min-height: 0; overflow: auto; }
+
+  /* border-mode variants: b-shade swaps hairlines for a raised header
+     fill; b-ascii (dashes via --border-style) adds the title glyph wrap. */
+  .b-shade [data-panel] { border-color: transparent; }
+  .b-shade .panel-hd { border-bottom-color: transparent; background: var(--bg-raised); }
+
+  .b-ascii .panel-title::before {
+    content: "┌─ ";
+    color: var(--fg-faint); font-family: var(--font-mono); font-weight: 400;
+    text-transform: none; letter-spacing: 0;
+  }
+  .b-ascii .panel-title::after {
+    content: " ─┐";
+    color: var(--fg-faint); font-family: var(--font-mono); font-weight: 400;
+  }
+
+  /* ---------- status bar ---------- */
+  .statusbar {
+    flex: none; display: flex; align-items: stretch;
+    height: var(--rh); background: var(--bg-raised);
+    border-top: 1px var(--border-style, solid) var(--border-strong);
+    font-size: var(--fs-sm); color: var(--fg-muted);
+    overflow: hidden; white-space: nowrap;
+  }
+  .sb-cell { display: flex; align-items: center; gap: 5px; padding: 0 9px; border-right: 1px solid var(--border); }
+  .sb-cell:last-child { border-right: none; }
+  .sb-spring { flex: 1; border-right: none; }
+  .sb-mode { background: var(--accent); color: var(--on-accent); font-weight: 700; letter-spacing: 0.08em; }
+
+  /* inside the shell footer slot the strip chrome (height, fill, top
+     hairline) comes from [data-statusbar] — the inner strip just fills */
+  [data-statusbar] > .statusbar { flex: 1; min-width: 0; height: auto; border-top: none; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { display: flex; align-items: center; gap: var(--gap); flex-wrap: nowrap; }
+}

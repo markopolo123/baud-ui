@@ -7,7 +7,7 @@ import "github.com/markopolo123/baud-ui/baud"
 // skeleton proves the shell + panes foundation.
 templ AppPage(o Opts) {
 	@baud.Page(baud.PageProps{Title: "fleetctl — baud/ui demo", CSSHref: o.CSSHref, HSHref: o.HSHref}) {
-		@baud.Shell(baud.ShellProps{TopBar: appTopBar(o), Nav: appNav(), StatusBar: statusNote("FLEET")}) {
+		@baud.Shell(baud.ShellProps{TopBar: appTopBar(o), Nav: appNav(), StatusBar: demoStatusBar("FLEET")}) {
 			@baud.Panes(baud.PanesProps{Template: "1.4fr 1fr", Resizable: true, ID: "fleet-main", Class: "demo-main-panes"},
 				placeholderPane("fleet table", "sortable DataTable lands in wave 3"),
 				placeholderPane("log tail", "fleetctl console lands in wave 5"))

@@ -1,0 +1,35 @@
+package baud
+
+// Panel is the universal container (design/README.md "Structure"): a
+// data-panel section with a header strip — height --rh, UPPERCASE --fs-sm
+// muted title, right-aligned actions slot — and a scrollable body (the
+// templ children block). Every later wave nests its content in one of
+// these. Border modes flow through the root class swap: b-shade drops the
+// hairlines for a --bg-raised header fill, b-ascii dashes the borders and
+// wraps the title in ┌─ … ─┐ glyphs (components/panels.css).
+templ Panel(p PanelProps) {
+	<section
+		data-panel
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		if p.Class != "" {
+			class={ p.Class }
+		}
+		if p.Title != "" {
+			aria-label={ p.Title }
+		}
+	>
+		<header class="panel-hd">
+			<span class="panel-title">{ p.Title }</span>
+			if p.Actions != nil {
+				<span class="panel-acts">
+					@p.Actions
+				</span>
+			}
+		</header>
+		<div class="panel-bd">
+			{ children... }
+		</div>
+	</section>
+}

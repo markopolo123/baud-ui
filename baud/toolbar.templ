@@ -1,0 +1,11 @@
+package baud
+
+// Toolbar is the thin composition wrapper for a row of controls — Btns,
+// Selects, Inputs — with the standard stack gap (design/README.md
+// "Structure": an .hstack of controls). Children only; each control keeps
+// its own keyboard semantics (Tab between them).
+templ Toolbar() {
+	<div class="toolbar">
+		{ children... }
+	</div>
+}
