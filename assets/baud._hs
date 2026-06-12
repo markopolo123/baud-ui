@@ -36,7 +36,6 @@ behavior Resizable
   on pointerdown(target, clientX, clientY)
     if not target.matches('.split-gutter') then exit end
     halt the event
-    add .drag to target
     set isRows to (@data-panes-rows is not null)
     set kids to Array.from(my.children)
     set sizes to []
@@ -54,6 +53,9 @@ behavior Resizable
     set startPos to clientX
     if isRows then set startPos to clientY end
     set tpl to ''
+    -- .drag lands immediately before the listen loop so tests (and styling)
+    -- can treat it as "the drag loop is about to receive events".
+    add .drag to target
     repeat until event pointerup from document
       wait for pointermove(clientX, clientY) or pointerup(clientX, clientY) from document
       if it.type is 'pointermove'
