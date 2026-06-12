@@ -23,5 +23,6 @@ func Sections() []SheetSection {
 		{Title: "Structure — deflist & breadcrumb", Body: SheetDefList()},
 		{Title: "TagInput", Body: SheetTagInput()},
 		{Title: "Structure — panel · statusbar · toolbar", Body: SheetPanel()},
+		{Title: "Tabs — underline · boxed", Body: SheetTabs()},
 	}
 }
