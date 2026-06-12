@@ -1,0 +1,114 @@
+package baud
+
+// Select is the htmx-friendly baseline: a REAL <select> styled to match
+// the trigger (appearance:none, --bg-input fill, strong border, overlaid
+// ▼ chevron). Works with JS disabled and submits natively; the dropdown
+// itself is the OS one. Use SelectMenu for the fully-styled menu.
+templ Select(p SelectProps) {
+	<span
+		class={ "select", templ.KV(p.Class, p.Class != "") }
+		if p.Width != "" {
+			style={ "width: " + p.Width }
+		}
+	>
+		<select
+			class="select-native"
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			if p.Name != "" {
+				name={ p.Name }
+			}
+			disabled?={ p.Disabled }
+		>
+			for _, o := range p.Options {
+				<option
+					value={ o.Value }
+					selected?={ p.Value != "" && o.Value == p.Value }
+					disabled?={ o.Disabled }
+				>{ o.label() }</option>
+			}
+		</select>
+		<span class="select-chev" aria-hidden="true"></span>
+	</span>
+}
+
+// SelectMenu is the progressive enhancement: custom trigger + absolutely-
+// positioned listbox menu. The chevron flips ▼/▲ with the open state (CSS
+// content on .select.open); open/close, ↑↓ ↵ esc and picking are the
+// MenuDismiss/SelectKeys/SelectPick hyperscript behaviors; the hidden
+// input keeps the picked value form-submittable.
+templ SelectMenu(p SelectMenuProps) {
+	<span
+		class={ "select", templ.KV(p.Class, p.Class != "") }
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		if p.Width != "" {
+			style={ "width: " + p.Width }
+		}
+		_={ selectMenuBehaviors }
+	>
+		if p.Name != "" {
+			<input type="hidden" name={ p.Name } value={ p.Value }/>
+		}
+		<button
+			type="button"
+			class="select-trigger"
+			aria-haspopup="listbox"
+			aria-expanded="false"
+			aria-controls={ p.menuID() }
+			disabled?={ p.Disabled }
+			_={ selectTriggerHS }
+		>
+			<span class="select-value">{ p.currentLabel() }</span>
+			<span class="select-chev" aria-hidden="true"></span>
+		</button>
+		<div
+			class={ "menu", templ.KV("menu-right", p.AlignRight) }
+			role="listbox"
+			id={ p.menuID() }
+		>
+			for i, o := range p.Options {
+				@menuOption(selectOptionID(p.ID, i), o, p.Value != "" && o.Value == p.Value, "")
+			}
+		</div>
+	</span>
+}
+
+// menuOption is one listbox option, shared by SelectMenu and Combobox.
+// Focus never moves here (tabindex=-1): the trigger/input keeps focus and
+// points aria-activedescendant at the highlighted option's id. data-value/
+// -label/-meta are the contract the SelectPick and ComboboxFilter
+// behaviors read; the ✓ check renders always and is display-gated on
+// .is-active so picking needs no markup surgery.
+templ menuOption(id string, o SelectOption, selected bool, q string) {
+	<button
+		type="button"
+		role="option"
+		id={ id }
+		tabindex="-1"
+		class={ "menu-item", templ.KV("is-active", selected) }
+		data-value={ o.Value }
+		data-label={ o.label() }
+		if o.Meta != "" {
+			data-meta={ o.Meta }
+		}
+		aria-selected={ selAriaSelected(selected) }
+	>
+		<span class="cb-label">
+			{{ m := comboMatch(o.label(), q) }}
+			if m.OK {
+				{ m.Pre }<span class="cb-match">{ m.Hit }</span>{ m.Post }
+			} else {
+				{ o.label() }
+			}
+		</span>
+		<span class="menu-side">
+			if o.Meta != "" {
+				<span class="cb-meta">{ o.Meta }</span>
+			}
+			<span class="menu-check" aria-hidden="true">✓</span>
+		</span>
+	</button>
+}

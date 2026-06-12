@@ -270,3 +270,137 @@ behavior TagInput
     end
   end
 end
+
+-- SelectKeys: shared ↑↓ / ↵ / Esc keyboard handling for the enhanced
+-- select and the combobox. Installed on the .select root; the element
+-- carrying aria-expanded (trigger button or combobox input) keeps focus
+-- and points aria-activedescendant at the highlighted (.hl-row) option.
+-- Operates on visible options only, so it composes with ComboboxFilter
+-- and with server-swapped option lists. MenuDismiss owns dropping .open;
+-- the extra handlers here only keep the ARIA state in sync with it.
+behavior SelectKeys
+  on keydown[key == 'ArrowDown' or key == 'ArrowUp']
+    halt the event
+    set ctl to me.querySelector('[aria-expanded]')
+    if I do not match .open
+      add .open to me
+      if ctl is not null then call ctl.setAttribute('aria-expanded', 'true') end
+    end
+    set items to Array.from(me.querySelectorAll('.menu-item:not([hidden])'))
+    if items.length is 0 then exit end
+    set cur to me.querySelector('.menu-item.hl-row')
+    set i to items.indexOf(cur)
+    if event.key is 'ArrowDown'
+      set i to Math.min(i + 1, items.length - 1)
+    else
+      set i to Math.max(i - 1, 0)
+    end
+    if cur is not null then remove .hl-row from cur end
+    set nxt to items[i]
+    add .hl-row to nxt
+    if ctl is not null then call ctl.setAttribute('aria-activedescendant', nxt.id) end
+    call nxt.scrollIntoView({block: 'nearest'})
+  end
+  on keydown[key == 'Enter']
+    if I match .open
+      set cur to me.querySelector('.menu-item.hl-row:not([hidden])')
+      if cur is not null
+        halt the event
+        call cur.click()
+      end
+    end
+  end
+  on keyup[key == 'Escape'] from window
+    set ctl to me.querySelector('[aria-expanded]')
+    if ctl is not null
+      call ctl.setAttribute('aria-expanded', 'false')
+      call ctl.removeAttribute('aria-activedescendant')
+    end
+  end
+  on click from elsewhere
+    set ctl to me.querySelector('[aria-expanded]')
+    if ctl is not null then call ctl.setAttribute('aria-expanded', 'false') end
+  end
+end
+
+-- SelectPick: delegated option picking for the enhanced select and the
+-- combobox. Clicking a .menu-item (or ↵ via SelectKeys) writes data-value
+-- into the hidden form input, puts data-label on the trigger (.select-value)
+-- or into the combobox input, moves is-active/aria-selected/✓, resets any
+-- combobox filtering, and closes the menu with ARIA back in sync.
+behavior SelectPick
+  on click(target)
+    set opt to target.closest('.menu-item')
+    if opt is null then exit end
+    set hid to me.querySelector('input[type=hidden]')
+    if hid is not null then set hid.value to opt.getAttribute('data-value') end
+    set inp to me.querySelector('.input')
+    if inp is not null then set inp.value to opt.getAttribute('data-label') end
+    set lbl to me.querySelector('.select-value')
+    if lbl is not null then set lbl.textContent to opt.getAttribute('data-label') end
+    repeat for o in Array.from(me.querySelectorAll('.menu-item'))
+      remove .hl-row from o
+      call o.removeAttribute('hidden')
+      set t to o.querySelector('.cb-label')
+      if t is not null then set t.textContent to o.getAttribute('data-label') end
+      if o is opt
+        add .is-active to o
+        call o.setAttribute('aria-selected', 'true')
+      else
+        remove .is-active from o
+        call o.setAttribute('aria-selected', 'false')
+      end
+    end
+    remove .open from me
+    set ctl to me.querySelector('[aria-expanded]')
+    if ctl is not null
+      call ctl.setAttribute('aria-expanded', 'false')
+      call ctl.removeAttribute('aria-activedescendant')
+    end
+  end
+end
+
+-- ComboboxFilter: client-side type-to-filter for the combobox (server
+-- mode does the same round-trip via hx-get instead). Matches the query
+-- against label + meta, hides misses, and rebuilds the label as
+-- pre / accent-bold .cb-match / post — text nodes only, never markup
+-- from option data.
+behavior ComboboxFilter
+  on input
+    set inp to me.querySelector('.input')
+    set q to inp.value.trim().toLowerCase()
+    add .open to me
+    call inp.setAttribute('aria-expanded', 'true')
+    call inp.removeAttribute('aria-activedescendant')
+    repeat for opt in Array.from(me.querySelectorAll('.menu-item'))
+      remove .hl-row from opt
+      set label to opt.getAttribute('data-label')
+      set extra to opt.getAttribute('data-meta')
+      if extra is null then set extra to '' end
+      set hay to label + ' ' + extra
+      set hay to hay.toLowerCase()
+      set low to label.toLowerCase()
+      set lbl to opt.querySelector('.cb-label')
+      if q is ''
+        set lbl.textContent to label
+        call opt.removeAttribute('hidden')
+      else if hay.indexOf(q) is -1
+        set lbl.textContent to label
+        call opt.setAttribute('hidden', '')
+      else
+        call opt.removeAttribute('hidden')
+        set i to low.indexOf(q)
+        if i is -1
+          set lbl.textContent to label
+        else
+          set lbl.textContent to ''
+          call lbl.appendChild(document.createTextNode(label.substring(0, i)))
+          make a <span.cb-match/> called hit
+          set hit.textContent to label.substring(i, i + q.length)
+          call lbl.appendChild(hit)
+          call lbl.appendChild(document.createTextNode(label.substring(i + q.length)))
+        end
+      end
+    end
+  end
+end

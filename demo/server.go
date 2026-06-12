@@ -22,6 +22,7 @@ func NewMux() *http.ServeMux {
 		w.Header().Set("Content-Type", "text/hyperscript; charset=utf-8")
 		w.Write(baudui.Behaviors)
 	})
+	mux.HandleFunc("GET /api/combobox", HandleComboboxSearch)
 	mux.Handle("GET /{$}", templ.Handler(AppPage(ServerOpts())))
 	mux.HandleFunc("GET /api/datepicker", handleDatePickerMenu)
 	mux.Handle("GET /sheet", templ.Handler(SheetPage(ServerOpts())))

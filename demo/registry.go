@@ -24,5 +24,6 @@ func Sections() []SheetSection {
 		{Title: "TagInput", Body: SheetTagInput()},
 		{Title: "Structure — panel · statusbar · toolbar", Body: SheetPanel()},
 		{Title: "Tabs — underline · boxed", Body: SheetTabs()},
+		{Title: "Select — native · menu · combobox", Body: SheetSelect()},
 	}
 }

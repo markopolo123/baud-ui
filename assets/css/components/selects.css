@@ -1,0 +1,100 @@
+/* ============================================================
+   baud/ui — select / menu / combobox (@layer components)
+   Native .select-native baseline, .select-trigger + .menu
+   enhancement, combobox filter highlight. Lifted from
+   design/baud-tokens.css ("select / menu" block); raw colours
+   converted to tokens. Remaining px are structural constants
+   (1px hairlines, 2px menu offset, glow ring).
+   Owned by wave 2 (feat/select-combobox) — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- root ---------- */
+  .select { position: relative; display: inline-flex; }
+
+  /* ---------- native baseline ---------- */
+  .select-native {
+    appearance: none;
+    width: 100%; height: var(--rh);
+    padding: 0 calc(var(--pad) * 4) 0 var(--pad);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    color: var(--fg); font: inherit;
+    cursor: pointer;
+  }
+  .select-native:hover { border-color: var(--fg-faint); }
+  .select-native:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .select-native:disabled { opacity: 0.42; cursor: not-allowed; }
+  .select-native + .select-chev {
+    position: absolute; right: var(--pad); top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  /* ---------- enhanced trigger ---------- */
+  .select-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: calc(var(--gap) * 1.3);
+    width: 100%; height: var(--rh);
+    padding: 0 var(--pad);
+    background: var(--bg-input);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .select-trigger:hover { border-color: var(--fg-faint); }
+  .select-trigger:disabled { opacity: 0.42; cursor: not-allowed; }
+
+  .select-chev { color: var(--fg-faint); font-size: var(--fs-sm); }
+  .select-chev::before { content: "▼"; }
+  .select.open .select-chev::before { content: "▲"; }
+
+  /* ---------- menu ---------- */
+  .select > .menu { display: none; }
+  .select.open > .menu { display: block; }
+  .menu {
+    position: absolute; top: calc(100% + 2px); left: 0; min-width: 100%;
+    background: var(--bg-panel);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    box-shadow: 0 10px 30px var(--shadow);
+    z-index: 60;
+    max-height: calc(var(--row) * 13);
+    overflow: auto;
+    padding: 2px 0;
+  }
+  .menu-right { left: auto; right: 0; }
+
+  .menu-item {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: calc(var(--gap) * 2.5);
+    width: 100%; height: var(--row);
+    padding: 0 calc(var(--pad) * 1.5);
+    color: var(--fg-muted);
+    text-align: left; white-space: nowrap;
+  }
+  .menu-item[hidden] { display: none; }
+  .menu-item:hover { background: var(--bg-hover); color: var(--fg); }
+  /* keyboard-highlighted row (aria-activedescendant target) */
+  .menu-item.hl-row { background: var(--bg-hover); color: var(--fg); }
+  .menu-item.is-active { color: var(--accent); }
+
+  .menu-side { display: inline-flex; align-items: center; gap: var(--gap); }
+  .menu-check { color: var(--accent); font-size: var(--fs-sm); display: none; }
+  .menu-item.is-active .menu-check { display: inline; }
+  .menu-sep { height: 1px; background: var(--border); margin: 2px 0; }
+
+  .menu-empty {
+    display: none; align-items: center;
+    height: var(--row); padding: 0 calc(var(--pad) * 1.5);
+    color: var(--fg-faint); font-size: var(--fs-sm);
+  }
+  .menu:not(:has(.menu-item:not([hidden]))) .menu-empty { display: flex; }
+
+  /* ---------- combobox ---------- */
+  .combobox > .input-wrap { flex: 1; min-width: 0; cursor: text; }
+  .cb-match { color: var(--accent); font-weight: 700; }
+  .cb-meta { color: var(--fg-faint); font-size: var(--fs-sm); }
+}
