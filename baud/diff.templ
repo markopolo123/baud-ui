@@ -1,0 +1,31 @@
+package baud
+
+// DiffViewer renders a unified diff: a header bar (file + add/del counts)
+// over flex rows — dual --fg-faint line-number gutters, a sign cell, the
+// line text. Add rows tint 10% --ok, del rows 10% --err, hunk headers 8%
+// --info (the color-mix technique, components/data-extras.css). The
+// server renders everything; the component is pure CSS — no htmx, no
+// hyperscript.
+templ DiffViewer(p DiffProps) {
+	<div class="diff">
+		if p.File != "" {
+			<div class="diff-hd">
+				<span class="diff-file">{ p.File }</span>
+				<span class="diff-adds">{ p.addsText() }</span>
+				<span class="diff-dels">{ p.delsText() }</span>
+			</div>
+		}
+		for _, l := range p.Lines {
+			if l.Kind == DiffHunk {
+				<div class="diff-line hunk">{ l.Text }</div>
+			} else {
+				<div class={ "diff-line", templ.KV("add", l.Kind == DiffAdd), templ.KV("del", l.Kind == DiffDel) }>
+					<span class="diff-no">{ diffGutter(l.OldN) }</span>
+					<span class="diff-no">{ diffGutter(l.NewN) }</span>
+					<span class="diff-sign">{ l.sign() }</span>
+					<span class="diff-text">{ l.Text }</span>
+				</div>
+			}
+		}
+	</div>
+}

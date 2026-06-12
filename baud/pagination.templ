@@ -1,0 +1,48 @@
+package baud
+
+// Pagination renders the pager footer bar: range info, a flex spring, the
+// optional accent "load more ↓" append button, then the |‹ ‹ prev n/N
+// next › ›| steps (DOM order per design/baud-extras.jsx). Navigation is a
+// server round-trip — htmx hx-get per button or plain links via HrefFor —
+// so the pager needs no hyperscript. Bound buttons carry a real disabled
+// attribute (keyboard- and request-inert natively).
+templ Pagination(p PaginationProps) {
+	<nav class="pager" aria-label="pagination">
+		<span class="pager-info">{ p.rangeText() }</span>
+		<span class="pager-spring"></span>
+		if p.MoreURL != "" {
+			<button
+				type="button"
+				class="pager-btn more"
+				hx-get={ p.MoreURL }
+				hx-target={ "#" + p.MoreTarget }
+				hx-swap="beforeend"
+			>load more ↓</button>
+		}
+		@pagerBtn(p, 1, "first page", "|‹", p.Page <= 1)
+		@pagerBtn(p, p.Page-1, "previous page", "‹ prev", p.Page <= 1)
+		<span class="pager-pos">{ p.posText() }</span>
+		@pagerBtn(p, p.Page+1, "next page", "next ›", p.Page >= p.lastPage())
+		@pagerBtn(p, p.lastPage(), "last page", "›|", p.Page >= p.lastPage())
+	</nav>
+}
+
+// pagerBtn is one step control. Enabled link-mode steps are real anchors;
+// everything else is a <button> — htmx-wired when enabled in htmx mode,
+// disabled at the bounds in both modes (anchors cannot be disabled).
+templ pagerBtn(p PaginationProps, page int, label, glyph string, disabled bool) {
+	if p.linkMode() && !disabled {
+		<a class="pager-btn" aria-label={ label } href={ templ.SafeURL(p.HrefFor(page)) }>{ glyph }</a>
+	} else {
+		<button
+			type="button"
+			class="pager-btn"
+			aria-label={ label }
+			disabled?={ disabled }
+			if p.htmx() && !disabled {
+				hx-get={ p.pageURL(page) }
+				hx-target={ "#" + p.Target }
+			}
+		>{ glyph }</button>
+	}
+}
