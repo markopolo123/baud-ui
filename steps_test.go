@@ -359,4 +359,5 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	registerDataTableSteps(sc, s)
 	registerTreeSteps(sc, s)
 	registerToastSteps(sc, s)
+	registerFeedbackSteps(sc, s)
 }
