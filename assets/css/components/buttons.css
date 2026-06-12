@@ -1,0 +1,65 @@
+/* ============================================================
+   baud/ui — buttons + kbd (@layer components)
+   Btn (default/primary/danger/ghost × active/disabled), BtnGroup,
+   Kbd chip. Lifted from design/baud-tokens.css; raw colours
+   converted to tokens. Remaining px are structural constants
+   (1px hairlines, -1px group fuse, small optical nudges).
+   Owned by wave 1 (feat/btn) — do not edit in parallel.
+   ============================================================ */
+@layer components {
+  /* ---------- kbd ---------- */
+  .kbd {
+    font-family: var(--font-mono); font-size: var(--fs-sm);
+    padding: 0 4px; line-height: 1.5;
+    border: 1px var(--border-style, solid) var(--border-strong);
+    background: var(--bg-raised); color: var(--fg-muted);
+    white-space: nowrap;
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--gap);
+    height: var(--rh); padding: 0 calc(var(--pad) * 1.6);
+    font-family: var(--font-ui); font-size: var(--fs-sm);
+    font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--fg); background: var(--bg-raised);
+    border: 1px var(--border-style, solid) var(--border-strong);
+    white-space: nowrap; user-select: none;
+  }
+  .btn:hover { background: var(--bg-hover); }
+  .btn:active { background: var(--bg-active); }
+  .btn:disabled { opacity: 0.42; cursor: not-allowed; }
+  .btn .kbd { margin-left: 2px; margin-right: -3px; }
+  .btn-glyph { font-family: var(--font-mono); font-weight: 400; }
+
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent);
+    border-style: solid; /* design: stays solid even in b-ascii */
+    color: var(--on-accent);
+  }
+  .btn-primary:hover { background: color-mix(in srgb, var(--accent) 86%, var(--fg)); }
+  .btn-primary:active { background: color-mix(in srgb, var(--accent) 75%, var(--bg-app)); }
+  /* design rgba(0,0,0,.18) → on-accent tint so it tracks the theme */
+  .btn-primary .kbd {
+    background: color-mix(in srgb, var(--on-accent) 18%, transparent);
+    border-color: transparent; color: var(--on-accent);
+  }
+
+  .btn-danger {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--err) 55%, transparent);
+    color: var(--err);
+  }
+  .btn-danger:hover { background: var(--err); color: var(--bg-panel); border-color: var(--err); }
+
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--fg-muted); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--fg); }
+
+  .btn.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  /* ---------- button group (fused borders) ---------- */
+  .btn-group { display: inline-flex; }
+  .btn-group .btn { margin-left: -1px; }
+  .btn-group .btn:first-child { margin-left: 0; }
+  .btn-group .btn.is-active { position: relative; z-index: 1; }
+}

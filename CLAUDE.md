@@ -53,8 +53,9 @@ HTML, `data-*` attribute components, token-driven CSS, no class soup.
    computed styles (e.g. danger Btn border resolves to the theme's `--err`; hover fills
    err), keyboard operability (`Tab`, `↑↓ ↵ esc`), focus-visible, overlay dismiss
    (Esc + outside click), and theme/density switching by root-class swap only.
-4. `just check` = lint + `templ generate` (verify clean tree) + godog + playwright.
-   Green or it doesn't merge.
+4. `just check` = lint + build + godog + playwright (each step runs `templ generate`
+   and the CSS bundle first; `*_templ.go` is gitignored, so there is no
+   generate-drift check). Green or it doesn't merge.
 
 ## Hard rules (from the design spec)
 
