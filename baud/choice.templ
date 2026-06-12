@@ -59,6 +59,7 @@ templ Toggle(p ToggleProps) {
 					name={ p.Name }
 					value={ o.Value }
 					checked?={ o.Value == p.Value }
+					disabled?={ o.Disabled }
 				/>
 				<span class="tg-opt-label">{ o.label() }</span>
 			</label>

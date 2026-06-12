@@ -16,8 +16,9 @@ type ChoiceProps struct {
 
 // ToggleOption is one segment of a segmented Toggle.
 type ToggleOption struct {
-	Value string
-	Label string // defaults to Value
+	Value    string
+	Label    string // defaults to Value
+	Disabled bool   // disables the segment's underlying radio
 }
 
 func (o ToggleOption) label() string {

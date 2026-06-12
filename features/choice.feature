@@ -22,6 +22,10 @@ Feature: Choice controls — checkbox, radio, segmented toggle
     Then exactly 1 element matches "label.cbx > input[type=checkbox][disabled]"
     And no element matches "input[checked]"
 
+  Scenario: checked and disabled checkbox carries both attributes on the real input
+    When I render a checked disabled checkbox named "pinned" with label "pinned"
+    Then exactly 1 element matches "label.cbx > input[type=checkbox][checked][disabled]"
+
   Scenario: checkbox id lands on the input for external hooks
     When I render a checkbox with id "chk-1" named "telemetry"
     Then exactly 1 element matches "label.cbx > input[type=checkbox][id=chk-1]"
@@ -31,6 +35,11 @@ Feature: Choice controls — checkbox, radio, segmented toggle
     Then exactly 1 element matches "label.cbx > input.cbx-input[type=radio][name=region][value=eu-west]"
     And exactly 1 element matches "label.cbx > span.cbx-box[aria-hidden=true]"
     And the element "label.cbx > span.cbx-label" has text "eu-west"
+    And no element matches "input[checked]"
+
+  Scenario: disabled radio disables the real input
+    When I render a disabled radio named "region" with value "legacy" and label "legacy"
+    Then exactly 1 element matches "label.cbx > input[type=radio][disabled]"
     And no element matches "input[checked]"
 
   Scenario: radio group shares one name and has a single checked member
@@ -51,3 +60,10 @@ Feature: Choice controls — checkbox, radio, segmented toggle
     When I render a toggle named "view" with options "table,json,raw" selecting ""
     Then exactly 3 elements match "label.tg-opt > input[type=radio][name=view]"
     And no element matches "input[checked]"
+
+  Scenario: disabled toggle segment disables only its underlying radio
+    When I render a toggle named "view" with options "table,json,raw" selecting "table" disabling "raw"
+    Then exactly 3 elements match "label.tg-opt > input[type=radio][name=view]"
+    And exactly 1 element matches "label.tg-opt > input[type=radio][disabled]"
+    And exactly 1 element matches "label.tg-opt > input[type=radio][disabled][value=raw]"
+    And exactly 1 element matches "label.tg-opt > input[checked][value=table]"

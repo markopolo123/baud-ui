@@ -124,12 +124,31 @@ func TestCheckboxKeyboard(t *testing.T) {
 		t.Fatalf("Tab landed on %q, want chk-restart", got)
 	}
 
-	// focus-visible ring relocates onto the glyph of the focused control
-	ring := computed(t, page, `label.cbx:has(#chk-restart) .cbx-box`, "outlineColor")
-	if ring != gruvAccent {
-		t.Errorf("focused glyph outline color = %v, want %v", ring, gruvAccent)
+	// focus-visible ring relocates onto the glyph of the keyboard-focused
+	// control. Asserted on an UNCHECKED checkbox (Shift+Tab back to
+	// telemetry) via outline-style/width — outline-color alone is vacuous
+	// because it defaults to currentColor, which is already accent on a
+	// checked control. These fail if the :focus-visible rule is removed.
+	if err := page.Keyboard().Press("Shift+Tab"); err != nil {
+		t.Fatalf("press Shift+Tab: %v", err)
+	}
+	if got := activeID(t, page); got != "chk-telemetry" {
+		t.Fatalf("Shift+Tab landed on %q, want chk-telemetry", got)
+	}
+	if isChecked(t, page, "#chk-telemetry") {
+		t.Fatal("telemetry checkbox should be unchecked for the focus-ring assertion")
+	}
+	box := `label.cbx:has(#chk-telemetry) .cbx-box`
+	if got := computed(t, page, box, "outlineStyle"); got != "solid" {
+		t.Errorf("focused glyph outline-style = %v, want solid", got)
+	}
+	if got := computed(t, page, box, "outlineWidth"); got == "0px" {
+		t.Error("focused glyph outline-width = 0px, want a visible ring")
 	}
 
+	if err := page.Keyboard().Press("Tab"); err != nil {
+		t.Fatalf("press Tab back to chk-restart: %v", err)
+	}
 	if !isChecked(t, page, "#chk-restart") {
 		t.Fatal("auto-restart should start checked")
 	}
@@ -206,12 +225,37 @@ func TestToggleSegments(t *testing.T) {
 		t.Errorf("accent fill did not follow selection, selected segment text = %q", txt)
 	}
 
+	// keyboard focus paints the segment ring (.tg-opt:has(.tg-input:focus-visible)).
+	// Asserted via outline-style/width so the check fails if the rule is removed
+	// (outline-color alone would vacuously match currentColor).
+	focusedSeg := `.tg-opt:has(.tg-input[value="json"])`
+	if got := computed(t, page, focusedSeg, "outlineStyle"); got != "solid" {
+		t.Errorf("keyboard-focused segment outline-style = %v, want solid", got)
+	}
+	if got := computed(t, page, focusedSeg, "outlineWidth"); got == "0px" {
+		t.Error("keyboard-focused segment outline-width = 0px, want a visible ring")
+	}
+
 	// clicking a segment selects it too
 	if err := page.Locator(`.tg-opt:has(input[value="raw"])`).Click(); err != nil {
 		t.Fatalf("click raw segment: %v", err)
 	}
 	if !isChecked(t, page, `.tg input[value="raw"]`) {
 		t.Error("clicking a segment did not check its radio")
+	}
+
+	// a disabled segment ignores clicks (Force skips playwright's
+	// enabled-target wait — the click lands, the disabled radio ignores it)
+	if err := page.Locator(`.tg-opt:has(.tg-input[value="hex"])`).Click(playwright.LocatorClickOptions{
+		Force: playwright.Bool(true),
+	}); err != nil {
+		t.Fatalf("click disabled segment: %v", err)
+	}
+	if isChecked(t, page, `.tg input[value="hex"]`) {
+		t.Error("disabled segment selected on click")
+	}
+	if !isChecked(t, page, `.tg input[value="raw"]`) {
+		t.Error("clicking the disabled segment moved the selection")
 	}
 
 	// mocha swap: accent fill + on-accent text re-resolve from root class only
