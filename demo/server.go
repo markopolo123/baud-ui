@@ -31,5 +31,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /demo/datatable", handleDataTableSort)
 	mux.HandleFunc("GET /demo/tree", treeChildren)
 	mux.HandleFunc("GET /demo/toast", handleToast)
+	mux.HandleFunc("GET /demo/modal", handleModalDemo)
+	mux.HandleFunc("GET /demo/drawer", handleDrawerDemo)
 	return mux
 }

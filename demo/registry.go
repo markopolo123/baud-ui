@@ -31,5 +31,6 @@ func Sections() []SheetSection {
 		{Title: "Toasts — OOB notification stack", Body: SheetToast()},
 		{Title: "Feedback — progress · spinner · states · confirm", Body: SheetFeedback()},
 		{Title: "Overlays — popover · tooltip", Body: SheetPopover()},
+		{Title: "Overlays — modal & drawer", Body: SheetOverlay()},
 	}
 }
