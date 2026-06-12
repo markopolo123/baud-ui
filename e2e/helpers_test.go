@@ -58,6 +58,35 @@ func startBrowser(t *testing.T) playwright.Page {
 	return page
 }
 
+// startBrowserNoJS launches headless chromium with JavaScript DISABLED —
+// the canonical js-off context constructor for graceful-degradation
+// tests: no htmx, no _hyperscript, plain document navigation only.
+// page.Evaluate/locators still work (driver-side), page scripts never run.
+func startBrowserNoJS(t *testing.T) playwright.Page {
+	t.Helper()
+	pw, err := playwright.Run()
+	if err != nil {
+		t.Fatalf("playwright: %v (run `just install-browsers` first)", err)
+	}
+	t.Cleanup(func() { pw.Stop() })
+	browser, err := pw.Chromium.Launch()
+	if err != nil {
+		t.Fatalf("launch chromium: %v", err)
+	}
+	t.Cleanup(func() { browser.Close() })
+	ctx, err := browser.NewContext(playwright.BrowserNewContextOptions{
+		JavaScriptEnabled: playwright.Bool(false),
+	})
+	if err != nil {
+		t.Fatalf("new js-off context: %v", err)
+	}
+	page, err := ctx.NewPage()
+	if err != nil {
+		t.Fatalf("new page: %v", err)
+	}
+	return page
+}
+
 // computedStyle resolves one computed-style property on the first element
 // matching the locator.
 func computedStyle(t *testing.T, l playwright.Locator, prop string) string {

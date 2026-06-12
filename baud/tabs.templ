@@ -1,8 +1,11 @@
 package baud
 
 // Tabs renders the strip: an ARIA tablist of real <button role=tab>
-// elements. Enter/Space activate natively (they are buttons); the Tabs
-// hyperscript behavior adds ←/→ roving focus and the is-active /
+// elements — or, in htmx mode with Tab.NavHref set, real <a role=tab>
+// links so panes stay reachable with scripting disabled (progressive
+// enhancement: htmx intercepts the click when on; plain navigation when
+// off). Buttons activate natively on Enter/Space (anchors on Enter); the
+// Tabs hyperscript behavior adds ←/→ roving focus and the is-active /
 // aria-selected swap on activation, plus the local-mode panel swap when
 // data-tabs-local is set. In htmx mode each tab carries hx-get/hx-target
 // so the server renders the pane into the shared target panel.
@@ -19,32 +22,59 @@ templ Tabs(p TabsProps) {
 		_="install Tabs"
 	>
 		for i, t := range p.Tabs {
-			<button
-				type="button"
-				if p.tabID(i) != "" {
-					id={ p.tabID(i) }
-				}
-				class={ "tab", templ.KV("is-active", i == p.ActiveIndex) }
-				role="tab"
-				aria-selected={ p.selected(i) }
-				tabindex={ p.tabindex(i) }
-				if p.controls(t) != "" {
-					aria-controls={ p.controls(t) }
-				}
-				if p.htmx() && t.Href != "" {
-					hx-get={ t.Href }
-					hx-target={ "#" + p.Target }
-				}
-			>
-				{ t.Label }
-				if t.Count != nil {
-					@Badge(BadgeProps{}) {
-						{ t.count() }
+			if p.htmx() && t.NavHref != "" {
+				<a
+					href={ templ.SafeURL(t.NavHref) }
+					if p.tabID(i) != "" {
+						id={ p.tabID(i) }
 					}
-				}
-			</button>
+					class={ "tab", templ.KV("is-active", i == p.ActiveIndex) }
+					role="tab"
+					aria-selected={ p.selected(i) }
+					tabindex="0"
+					if p.controls(t) != "" {
+						aria-controls={ p.controls(t) }
+					}
+					if t.Href != "" {
+						hx-get={ t.Href }
+						hx-target={ "#" + p.Target }
+					}
+				>
+					@tabBody(t)
+				</a>
+			} else {
+				<button
+					type="button"
+					if p.tabID(i) != "" {
+						id={ p.tabID(i) }
+					}
+					class={ "tab", templ.KV("is-active", i == p.ActiveIndex) }
+					role="tab"
+					aria-selected={ p.selected(i) }
+					tabindex={ p.tabindex(i) }
+					if p.controls(t) != "" {
+						aria-controls={ p.controls(t) }
+					}
+					if p.htmx() && t.Href != "" {
+						hx-get={ t.Href }
+						hx-target={ "#" + p.Target }
+					}
+				>
+					@tabBody(t)
+				</button>
+			}
 		}
 	</div>
+}
+
+// tabBody is the shared tab content: label + optional count Badge.
+templ tabBody(t Tab) {
+	{ t.Label }
+	if t.Count != nil {
+		@Badge(BadgeProps{}) {
+			{ t.count() }
+		}
+	}
 }
 
 // TabPanel is one tab pane: role=tabpanel, hidden until its tab activates.

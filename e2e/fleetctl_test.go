@@ -368,12 +368,12 @@ func TestFleetctlPaletteRunsDeployCommand(t *testing.T) {
 	); err != nil {
 		t.Fatalf("Ctrl-K never opened the console palette: %v", err)
 	}
-	if n, _ := page.Locator("#fleet-palette .palette-item").Count(); n != 4 {
-		t.Fatalf("seeded command count = %d, want 4", n)
+	if n, _ := page.Locator("#fleet-palette .palette-item").Count(); n != 7 {
+		t.Fatalf("seeded command count = %d, want 7", n)
 	}
 
-	if err := page.Locator("#fleet-palette-input").PressSequentially("deploy"); err != nil {
-		t.Fatalf("type deploy: %v", err)
+	if err := page.Locator("#fleet-palette-input").PressSequentially("deploy fleet"); err != nil {
+		t.Fatalf("type deploy fleet: %v", err)
 	}
 	if _, err := page.WaitForFunction(
 		`() => document.querySelectorAll('#fleet-palette .palette-item').length === 1`, nil,
@@ -397,6 +397,155 @@ func TestFleetctlPaletteRunsDeployCommand(t *testing.T) {
 		t.Fatalf("press Escape: %v", err)
 	}
 	fleetctlWaitDetached(t, page, "#fleet-modal")
+}
+
+// TestFleetctlPaletteRestartToast: ⌘K → "restart ingest workers" must
+// have a visible console effect (acceptance-audit finding: no palette
+// no-ops): the hidden relay replays its click, /fleet/cmd?op=restart-
+// ingest round-trips, and the OOB toast lands.
+func TestFleetctlPaletteRestartToast(t *testing.T) {
+	page, base := fleetctlOpen(t)
+
+	if err := page.Locator("#fleet-cmd-btn").Click(); err != nil {
+		t.Fatalf("click cmd button: %v", err)
+	}
+	if _, err := page.WaitForFunction(
+		`() => document.querySelector('#fleet-palette').classList.contains('open')
+			&& document.activeElement && document.activeElement.id === 'fleet-palette-input'`, nil,
+	); err != nil {
+		t.Fatalf("cmd button never opened the console palette: %v", err)
+	}
+
+	if err := page.Locator("#fleet-palette-input").PressSequentially("restart"); err != nil {
+		t.Fatalf("type restart: %v", err)
+	}
+	if _, err := page.WaitForFunction(
+		`() => document.querySelectorAll('#fleet-palette .palette-item').length === 1`, nil,
+	); err != nil {
+		t.Fatalf("server filter never narrowed to the restart command: %v", err)
+	}
+	if got := fleetctlAttr(t, page, "#fleet-palette .palette-item", "data-cmd"); got != "restart-ingest" {
+		t.Fatalf("filtered row data-cmd = %q, want restart-ingest", got)
+	}
+
+	reqs := fleetctlCountRequests(page, base, "/fleet/cmd?op=restart-ingest")
+	if err := page.Keyboard().Press("Enter"); err != nil {
+		t.Fatalf("press Enter: %v", err)
+	}
+	if err := page.Locator("#toasts .toast.tone-ok").WaitFor(playwright.LocatorWaitForOptions{
+		Timeout: playwright.Float(10000),
+	}); err != nil {
+		t.Fatalf("restart OOB toast never landed: %v", err)
+	}
+	if n := atomic.LoadInt32(reqs); n != 1 {
+		t.Errorf("restart command made %d /fleet/cmd request(s), want 1", n)
+	}
+	toastTitle, err := page.Locator("#toasts .toast .toast-title").TextContent()
+	if err != nil || !strings.Contains(toastTitle, "restart queued: ingest-gw") {
+		t.Errorf("toast title = %q (err=%v), want restart queued: ingest-gw…", toastTitle, err)
+	}
+	if _, err := page.WaitForFunction(
+		`() => !document.querySelector('#fleet-palette').classList.contains('open')`, nil,
+	); err != nil {
+		t.Fatalf("palette never closed after activation: %v", err)
+	}
+}
+
+// TestFleetctlMetricValueHierarchy: the metrics strip's big numbers carry
+// the prototype MetricCell hierarchy — 1.5× base size (18px at d-dense),
+// weight 700, tone-coloured (breaching p99 in --err) — and rescale from a
+// d-cozy root-class swap alone (13px × 1.5 = 19.5px).
+func TestFleetctlMetricValueHierarchy(t *testing.T) {
+	page, _ := fleetctlOpen(t)
+
+	if got := computedStyleSel(t, page, "dd.dl-v > .fl-metric", "fontSize"); got != "18px" {
+		t.Errorf("d-dense metric value font-size = %q, want 18px (--fs × 1.5)", got)
+	}
+	if got := computedStyleSel(t, page, "dd.dl-v > .fl-metric", "fontWeight"); got != "700" {
+		t.Errorf("metric value font-weight = %q, want 700", got)
+	}
+	if got := computedStyleSel(t, page, "dd.dl-v > .fl-metric.fl-err", "color"); got != fleetGruvErr {
+		t.Errorf("breaching p99 metric color = %q, want %s (--err)", got, fleetGruvErr)
+	}
+
+	if _, err := page.Evaluate(`() => document.body.classList.replace('d-dense', 'd-cozy')`); err != nil {
+		t.Fatalf("swap density class: %v", err)
+	}
+	if _, err := page.WaitForFunction(
+		`() => getComputedStyle(document.querySelector('dd.dl-v > .fl-metric')).fontSize === '19.5px'`, nil,
+	); err != nil {
+		got := computedStyleSel(t, page, "dd.dl-v > .fl-metric", "fontSize")
+		t.Fatalf("d-cozy metric value font-size stayed %q, want 19.5px: %v", got, err)
+	}
+}
+
+// TestFleetctlTabsNoJS — graceful degradation, scripting disabled (the
+// suite's first js-off context): the topbar tabs are real links, so
+// clicking incidents navigates to /?tab=incidents and the server renders
+// that pane active with correct aria-selected. No htmx, no hyperscript.
+func TestFleetctlTabsNoJS(t *testing.T) {
+	srv := startDemo(t)
+	page := startBrowserNoJS(t)
+
+	if _, err := page.Goto(srv.URL+"/", playwright.PageGotoOptions{
+		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
+	}); err != nil {
+		t.Fatalf("goto /: %v", err)
+	}
+	// Scripting is genuinely off: the ParseHealth sentinel never runs.
+	if n, _ := page.Locator("body[data-hs-ok]").Count(); n != 0 {
+		t.Fatalf("data-hs-ok present — JavaScript ran in the js-off context")
+	}
+	if n, _ := page.Locator("#fleet-hosts").Count(); n != 1 {
+		t.Fatalf("default fleet pane missing under js-off")
+	}
+
+	// Keyboard reachability without scripting: roving tabindex is
+	// hyperscript, so anchor tabs must all sit in the native tab order.
+	if err := page.Locator("#fleet-tabs-tab-0").Focus(); err != nil {
+		t.Fatalf("focus active tab: %v", err)
+	}
+	if err := page.Keyboard().Press("Tab"); err != nil {
+		t.Fatalf("press Tab: %v", err)
+	}
+	active, err := page.Evaluate(`() => document.activeElement && document.activeElement.id`)
+	if err != nil {
+		t.Fatalf("read activeElement: %v", err)
+	}
+	if active != "fleet-tabs-tab-1" {
+		t.Fatalf("js-off Tab from tab 0 landed on %v, want fleet-tabs-tab-1 (inactive tabs must be keyboard-reachable)", active)
+	}
+	if err := page.Locator("#fleet-tabs-tab-1").Click(); err != nil {
+		t.Fatalf("click incidents tab link: %v", err)
+	}
+	if err := page.WaitForURL(srv.URL + "/?tab=incidents"); err != nil {
+		t.Fatalf("incidents tab never navigated to /?tab=incidents: %v", err)
+	}
+	if err := page.Locator("#fleet-view #fleet-incidents").WaitFor(playwright.LocatorWaitForOptions{
+		Timeout: playwright.Float(10000),
+	}); err != nil {
+		t.Fatalf("incidents pane never rendered server-side: %v", err)
+	}
+	if n, _ := page.Locator("#fleet-hosts").Count(); n != 0 {
+		t.Errorf("fleet hosts table still present on the incidents view")
+	}
+	if got := fleetctlAttr(t, page, "#fleet-tabs-tab-1", "aria-selected"); got != "true" {
+		t.Errorf("incidents tab aria-selected = %q, want true", got)
+	}
+	if got := fleetctlAttr(t, page, "#fleet-tabs-tab-0", "aria-selected"); got != "false" {
+		t.Errorf("fleet tab aria-selected = %q, want false", got)
+	}
+
+	// And back: the fleet tab link restores the default view.
+	if err := page.Locator("#fleet-tabs-tab-0").Click(); err != nil {
+		t.Fatalf("click fleet tab link: %v", err)
+	}
+	if err := page.WaitForURL(srv.URL + "/?tab=fleet"); err != nil {
+		t.Fatalf("fleet tab never navigated to /?tab=fleet: %v", err)
+	}
+	if n, _ := page.Locator("#fleet-hosts").Count(); n != 1 {
+		t.Errorf("fleet hosts table missing after navigating back")
+	}
 }
 
 // TestFleetctlTabsSwapViews: the topbar tabs hx-get their pane into the
@@ -532,6 +681,9 @@ func TestFleetctlEndpointsRejectGarbage(t *testing.T) {
 		"/fleet/host",
 		"/fleet/kill?host=nope",
 		"/fleet/tree?node=nope",
+		"/fleet/cmd?op=nope",
+		"/fleet/cmd",
+		"/?tab=nope",
 	} {
 		res, err := srv.Client().Get(srv.URL + q)
 		if err != nil {
@@ -551,6 +703,9 @@ func TestFleetctlEndpointsRejectGarbage(t *testing.T) {
 		"/fleet/deploy",
 		"/fleet/deploy/run",
 		"/fleet/palette?q=deploy",
+		"/fleet/cmd?op=restart-ingest",
+		"/fleet/cmd?op=drain-batch-runner",
+		"/?tab=incidents",
 	} {
 		res, err := srv.Client().Get(srv.URL + q)
 		if err != nil {

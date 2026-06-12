@@ -16,11 +16,17 @@ import (
 )
 
 func (s *scenarioState) renderFleetctlConsole() error {
-	return s.render(demo.AppPage(demo.ServerOpts()))
+	return s.render(demo.AppPage(demo.ServerOpts(), "fleet"))
 }
 
 func (s *scenarioState) renderFleetctlConsoleStatic() error {
-	return s.render(demo.AppPage(demo.StaticOpts()))
+	return s.render(demo.AppPage(demo.StaticOpts(), "fleet"))
+}
+
+// renderFleetctlConsoleTab renders the console as GET /?tab=<view> does —
+// the scripting-off tab navigation path.
+func (s *scenarioState) renderFleetctlConsoleTab(view string) error {
+	return s.render(demo.AppPage(demo.ServerOpts(), view))
 }
 
 func (s *scenarioState) renderFleetctlHostDrawer(name string) error {
@@ -80,6 +86,7 @@ func (s *scenarioState) fleetctlHasCellWithText(selector, want string) error {
 func registerFleetctlSteps(sc *godog.ScenarioContext, s *scenarioState) {
 	sc.When(`^I render the fleetctl console$`, s.renderFleetctlConsole)
 	sc.When(`^I render the fleetctl console for the static site$`, s.renderFleetctlConsoleStatic)
+	sc.When(`^I render the fleetctl console with the "([^"]*)" tab active$`, s.renderFleetctlConsoleTab)
 	sc.When(`^I render the fleetctl host drawer for "([^"]*)"$`, s.renderFleetctlHostDrawer)
 	sc.When(`^I render the fleetctl deploy modal$`, s.renderFleetctlDeployModal)
 	sc.When(`^I render the fleetctl "([^"]*)" tab pane$`, s.renderFleetctlTabPane)

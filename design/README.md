@@ -52,15 +52,16 @@ Modeled on knadh/oat (https://oat.ink) — adapted for dense desktop tooling:
 
 ### 1. App shell — `data-shell`
 
-One attribute builds the whole frame (CSS grid, named areas, `100dvh`):
+One attribute builds the whole frame (CSS grid, named areas, `100dvh`).
+*(Historical handoff edit: shipped as `<div data-shell>` directly inside `<body>`.)*
 
 ```html
-<body data-shell>
+<div data-shell>
   <header data-topbar>…brand, tabs, global actions…</header>
   <aside data-nav>…tree / navigator…</aside>
   <main>…panes…</main>
   <footer data-statusbar>…</footer>
-</body>
+</div>
 ```
 
 - Grid: columns `var(--nav-w, 28ch) 1fr`, rows `auto 1fr auto`.
@@ -273,8 +274,9 @@ must work with keyboard and expose correct ARIA roles.
 
 ## Deliverables checklist (suggested order)
 
-1. `baud.css` (layers: theme/base/components/utilities) + `baud.js` (panes, palette
-   keys, menu dismiss — aim <3KB min+gz).
+1. `baud.css` (layers: theme/base/components/utilities) + client behaviours (panes,
+   palette keys, menu dismiss). *(Historical handoff edit: shipped as `assets/baud._hs`
+   _hyperscript behaviors — the project's no-JS rule replaced the planned `baud.js`.)*
 2. templ package: primitives → structure → data → overlays → feedback (inventory above).
 3. A Go demo app reproducing the prototype's **fleetctl console** (shell, metrics strip
    via DefList/Panel, sortable DataTable with htmx, Tree nav, log tail, drawer, modal,

@@ -3,13 +3,20 @@
    Lifted from design/baud-components.css. Two variants: underline
    (2px accent underline on the active tab) and boxed (bordered
    strip, active = accent fill). Tabs are real <button role=tab>
-   elements (button resets live in base.css); count badges reuse
+   elements (button resets live in base.css) — or <a role=tab>
+   links in the progressive-enhancement NavHref mode, hence the
+   anchor reset below; count badges reuse
    the Badge primitive, compacted to tab scale below. Fixed pixel
    paddings/gaps are design-spec constants, not density-driven.
    Owned by feat/tabs — do not edit in parallel.
    ============================================================ */
 @layer components {
   .tabs { display: flex; align-items: stretch; }
+
+  /* NavHref mode tabs are anchors — strip the UA link styling so they
+     read identically to the button tabs (colors come from the variant
+     rules below). */
+  a.tab { text-decoration: none; cursor: pointer; }
 
   /* ---------- underline ---------- */
   .tabs-underline { border-bottom: 1px var(--border-style, solid) var(--border); gap: 2px; }

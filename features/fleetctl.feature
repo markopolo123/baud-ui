@@ -27,15 +27,26 @@ Feature: fleetctl console — the acceptance-test composition
     And the fleetctl console has a "span.sb-cell" with text "prod · us-east-1"
     And the fleetctl console has a "span.sb-cell" with text "14:32:41 utc"
 
-  Scenario: topbar tabs hx-get their view pane into the shared tabpanel
+  Scenario: topbar tabs are real links that hx-get their view pane into the shared tabpanel
     When I render the fleetctl console
-    Then exactly 3 elements match "div.tabs[role=tablist]>button[role=tab]"
-    And the element "button[id=fleet-tabs-tab-0]" has attribute "aria-selected" equal to "true"
-    And the element "button[id=fleet-tabs-tab-0]" has attribute "hx-get" equal to "/fleet/tab?view=fleet"
-    And the element "button[id=fleet-tabs-tab-1]" has attribute "hx-get" equal to "/fleet/tab?view=incidents"
-    And the element "button[id=fleet-tabs-tab-2]" has attribute "hx-get" equal to "/fleet/tab?view=deploys"
-    And the element "button[id=fleet-tabs-tab-1]" has attribute "hx-target" equal to "#fleet-view"
+    Then exactly 3 elements match "div.tabs[role=tablist]>a[role=tab]"
+    And the element "a[id=fleet-tabs-tab-0]" has attribute "aria-selected" equal to "true"
+    And the element "a[id=fleet-tabs-tab-0]" has attribute "hx-get" equal to "/fleet/tab?view=fleet"
+    And the element "a[id=fleet-tabs-tab-1]" has attribute "hx-get" equal to "/fleet/tab?view=incidents"
+    And the element "a[id=fleet-tabs-tab-2]" has attribute "hx-get" equal to "/fleet/tab?view=deploys"
+    And the element "a[id=fleet-tabs-tab-1]" has attribute "hx-target" equal to "#fleet-view"
+    And the element "a[id=fleet-tabs-tab-0]" has attribute "href" equal to "/?tab=fleet"
+    And the element "a[id=fleet-tabs-tab-1]" has attribute "href" equal to "/?tab=incidents"
+    And the element "a[id=fleet-tabs-tab-2]" has attribute "href" equal to "/?tab=deploys"
     And exactly 1 element matches "div.tab-panel[id=fleet-view][role=tabpanel]"
+
+  Scenario: the ?tab= query server-renders the console with that pane active
+    When I render the fleetctl console with the "incidents" tab active
+    Then the element "a[id=fleet-tabs-tab-1]" has attribute "aria-selected" equal to "true"
+    And the element "a[id=fleet-tabs-tab-1]" has classes "tab is-active"
+    And the element "a[id=fleet-tabs-tab-0]" has attribute "aria-selected" equal to "false"
+    And exactly 1 element matches "div.tab-panel[id=fleet-view]>div.fleet-main>section[id=fleet-incidents]"
+    And no element matches "table.dt[id=fleet-hosts]"
 
   Scenario: the deploy action and the ⌘K hint are global topbar buttons
     When I render the fleetctl console
@@ -57,8 +68,9 @@ Feature: fleetctl console — the acceptance-test composition
   Scenario: the metrics strip composes panels of deflists, progress and badges
     When I render the fleetctl console
     Then exactly 3 elements match "div[id=fleet-metrics]>section[data-panel]"
-    And the element "dd.dl-v>span.fl-err" has text "312 ms"
-    And the element "dd.dl-v>span.fl-warn" has text "0.61%"
+    And exactly 3 elements match "dd.dl-v>span.fl-metric"
+    And the element "dd.dl-v>span.fl-metric.fl-err" has text "312 ms"
+    And the element "dd.dl-v>span.fl-metric.fl-warn" has text "0.61%"
     And exactly 3 elements match "section[id=fleet-m-capacity]>div.panel-bd>div.fleet-pad>span.prog"
     And exactly 1 element matches "span.prog-bar.tone-warn"
     And exactly 1 element matches "span.badge.bd-tint.tone-err"
@@ -122,6 +134,20 @@ Feature: fleetctl console — the acceptance-test composition
     And exactly 1 element matches "button.palette-item[data-cmd=fleet-inspect]"
     And exactly 1 element matches "a.palette-item[href=/sheet]"
 
+  Scenario: every palette fleet command has a console listener (no no-ops)
+    When I render the fleetctl console
+    Then exactly 1 element matches "button.palette-item[data-cmd=deploy-canary]"
+    And exactly 1 element matches "button.palette-item[data-cmd=restart-ingest]"
+    And exactly 1 element matches "button.palette-item[data-cmd=drain-batch-runner]"
+    And the fleetctl element "button[id=fleet-deploy-btn]" attribute "_" contains "deploy-canary"
+    And exactly 1 element matches "button[id=fleet-restart-relay][hidden]"
+    And the element "button[id=fleet-restart-relay]" has attribute "hx-get" equal to "/fleet/cmd?op=restart-ingest"
+    And the element "button[id=fleet-restart-relay]" has attribute "hx-swap" equal to "none"
+    And the fleetctl element "button[id=fleet-restart-relay]" attribute "_" contains "restart-ingest"
+    And exactly 1 element matches "button[id=fleet-drain-relay][hidden]"
+    And the element "button[id=fleet-drain-relay]" has attribute "hx-get" equal to "/fleet/cmd?op=drain-batch-runner"
+    And the fleetctl element "button[id=fleet-drain-relay]" attribute "_" contains "drain-batch-runner"
+
   Scenario: the incidents tab pane renders server-side
     When I render the fleetctl "incidents" tab pane
     Then exactly 1 element matches "section[id=fleet-incidents][data-panel]"
@@ -136,3 +162,4 @@ Feature: fleetctl console — the acceptance-test composition
     When I render the fleetctl console for the static site
     Then the element "a.brand-sub" has attribute "href" equal to "index.html"
     And exactly 1 element matches "a.palette-item[href=index.html]"
+    And the element "a[id=fleet-tabs-tab-1]" has attribute "href" equal to "app.html?tab=incidents"

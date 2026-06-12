@@ -252,6 +252,54 @@ var fleetLogLines = []fleetLogLine{
 
 // ---- tab panes -------------------------------------------------------------
 
+// fleetTabViews is the topbar tab order — index source for ActiveIndex
+// and the ?tab= allowlist.
+var fleetTabViews = []string{"fleet", "incidents", "deploys"}
+
+// fleetTabIndex maps a view to its topbar tab index (unknown → 0; the
+// console handler validates first).
+func fleetTabIndex(view string) int {
+	for i, v := range fleetTabViews {
+		if v == view {
+			return i
+		}
+	}
+	return 0
+}
+
+// fleetTabNavHref builds a tab's scripting-off navigation URL — relative
+// through Opts so the static Pages render keeps relative links.
+func fleetTabNavHref(o Opts, view string) string {
+	return o.AppHref + "?tab=" + view
+}
+
+// fleetActivePane resolves the console's server-rendered active pane
+// (unknown views fall back to the fleet pane; the handler 400s first).
+func fleetActivePane(view string) templ.Component {
+	if pane, ok := FleetTabPane(view); ok {
+		return pane
+	}
+	return fleetFleetPane()
+}
+
+// handleFleetConsole serves GET / — the console page. ?tab= picks the
+// active pane server-side (progressive enhancement: the topbar tabs are
+// real links htmx intercepts when scripting is on; with it off the
+// browser navigates here and the pane + aria-selected render correctly).
+// Unknown tabs are 400.
+func handleFleetConsole(w http.ResponseWriter, r *http.Request) {
+	view := r.URL.Query().Get("tab")
+	if view == "" {
+		view = "fleet"
+	}
+	if _, ok := FleetTabPane(view); !ok {
+		http.Error(w, "unknown tab: want fleet|incidents|deploys", http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	AppPage(ServerOpts(), view).Render(r.Context(), w)
+}
+
 // FleetTabPane resolves a topbar tab view to its server-rendered pane —
 // the GET /fleet/tab fragment and the BDD render hook (false = unknown
 // view). The fleet pane is exactly the console's initial main content, so
@@ -435,15 +483,49 @@ func handleFleetTree(w http.ResponseWriter, r *http.Request) {
 
 // fleetPaletteCommands is the console's ⌘K command set. Hrefs come from
 // Opts so the static Pages render keeps relative links; action rows carry
-// opaque command ids — the topbar deploy/inspect buttons subscribe to
-// baud:paletteCmd and replay their own click.
+// opaque command ids — the topbar deploy/inspect buttons and the hidden
+// command relays subscribe to baud:paletteCmd and replay their own click,
+// so every fleet command has a visible console effect (acceptance-audit
+// finding: no palette no-ops).
 func fleetPaletteCommands(o Opts) []baud.PaletteCommand {
 	return []baud.PaletteCommand{
 		{Category: "fleet", Label: "deploy fleet to prod", Kbd: "d", Action: "fleet-deploy"},
 		{Category: "fleet", Label: "inspect ingest-gw", Kbd: "i", Action: "fleet-inspect"},
+		{Category: "fleet", Label: "deploy canary build", Action: "deploy-canary"},
+		{Category: "fleet", Label: "restart ingest workers", Action: "restart-ingest"},
+		{Category: "fleet", Label: "drain batch-runner", Action: "drain-batch-runner"},
 		{Category: "go", Label: "go to component sheet", Kbd: "g s", Href: o.SheetHref},
 		{Category: "go", Label: "go to fleet console", Kbd: "g f", Href: o.AppHref},
 	}
+}
+
+// fleetCmdToasts maps the relay-driven palette ops onto their OOB-toast
+// payloads — the visible console effect of fleet commands that own no
+// dedicated chrome (deploy-canary replays the deploy modal instead).
+var fleetCmdToasts = map[string]baud.ToastProps{
+	"restart-ingest": {
+		Tone:  "ok",
+		Title: "restart queued: ingest-gw workers",
+		Body:  "rolling pod restart across 9/12 replicas",
+	},
+	"drain-batch-runner": {
+		Tone:  "warn",
+		Title: "draining: batch-runner",
+		Body:  "jobs cordoned — rescheduling to the standby pool",
+	},
+}
+
+// handleFleetCmd serves GET /fleet/cmd?op=… — the palette command relays'
+// round-trip (hx-swap="none": the OOB toast is the whole payload).
+// Unknown ops are 400.
+func handleFleetCmd(w http.ResponseWriter, r *http.Request) {
+	p, ok := fleetCmdToasts[r.URL.Query().Get("op")]
+	if !ok {
+		http.Error(w, "unknown op: want restart-ingest|drain-batch-runner", http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	baud.ToastOOB(p).Render(r.Context(), w)
 }
 
 // handleFleetPalette is the console palette's server-filter round-trip
