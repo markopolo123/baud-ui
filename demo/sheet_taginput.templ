@@ -1,0 +1,37 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetTagInput demos the TagInput matrix: prefilled key=value chips with a
+// suggestion menu, a bare-value chip, and an empty input with suggestions.
+// The ti-* ids are load-bearing: e2e/taginput_test.go drives Enter/Backspace/
+// ✕/filtering through them and asserts the accent chip tint per theme.
+templ SheetTagInput() {
+	<div class="sheet-row">
+		@baud.Field(baud.FieldProps{Label: "labels", For: "ti-labels", Hint: "enter adds · backspace pops"}) {
+			@baud.TagInput(baud.TagInputProps{
+				ID:          "ti-labels",
+				Name:        "labels",
+				Values:      []string{"env=prod", "region=eu-west"},
+				Suggestions: []string{"env=staging", "region=us-east", "team=core", "tier=frontend"},
+				Placeholder: "add label…",
+			})
+		}
+		@baud.Field(baud.FieldProps{Label: "bare values", For: "ti-bare"}) {
+			@baud.TagInput(baud.TagInputProps{
+				ID:          "ti-bare",
+				Name:        "tags",
+				Values:      []string{"canary"},
+				Placeholder: "add tag…",
+			})
+		}
+		@baud.Field(baud.FieldProps{Label: "empty", For: "ti-empty"}) {
+			@baud.TagInput(baud.TagInputProps{
+				ID:          "ti-empty",
+				Name:        "filters",
+				Suggestions: []string{"status=ok", "status=err"},
+				Placeholder: "add filter…",
+			})
+		}
+	</div>
+}
