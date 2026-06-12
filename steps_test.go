@@ -315,6 +315,7 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.When(`^I render panes "([^"]*)" with (\d+) panes$`, s.renderPanes)
 	sc.When(`^I render row panes "([^"]*)" with (\d+) panes$`, s.renderRowPanes)
 	sc.When(`^I render resizable panes "([^"]*)" with id "([^"]*)" and (\d+) panes$`, s.renderResizablePanes)
+	registerFieldSteps(sc, s)
 
 	sc.Then(`^exactly (\d+) elements? match(?:es)? "([^"]*)"$`, s.exactlyNMatch)
 	sc.Then(`^no element matches "([^"]*)"$`, s.noneMatch)

@@ -1,0 +1,33 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetField demos the Field/Input options matrix: plain, prefix, suffix,
+// both affixes, disabled, hint and error. The fi-* ids are load-bearing:
+// e2e/field_test.go targets them for computed-style assertions (focus
+// accent + glow, error border, affix/hint colours, theme swap).
+templ SheetField() {
+	<div class="sheet-row">
+		@baud.Field(baud.FieldProps{Label: "plain", For: "fi-plain"}) {
+			@baud.Input(baud.InputProps{ID: "fi-plain", Name: "q", Placeholder: "search hosts"})
+		}
+		@baud.Field(baud.FieldProps{Label: "prefix", For: "fi-prefix"}) {
+			@baud.Input(baud.InputProps{ID: "fi-prefix", Name: "filter", Prefix: "⌕", Placeholder: "filter"})
+		}
+		@baud.Field(baud.FieldProps{Label: "suffix", For: "fi-suffix"}) {
+			@baud.Input(baud.InputProps{ID: "fi-suffix", Name: "timeout", Value: "250", Suffix: "ms"})
+		}
+		@baud.Field(baud.FieldProps{Label: "both affixes", For: "fi-both"}) {
+			@baud.Input(baud.InputProps{ID: "fi-both", Name: "host", Prefix: "host:", Suffix: ".local", Value: "ingest-gw"})
+		}
+		@baud.Field(baud.FieldProps{Label: "disabled", For: "fi-disabled"}) {
+			@baud.Input(baud.InputProps{ID: "fi-disabled", Name: "locked", Value: "read only", Disabled: true})
+		}
+		@baud.Field(baud.FieldProps{Label: "with hint", For: "fi-hint", Hint: "fqdn preferred"}) {
+			@baud.Input(baud.InputProps{ID: "fi-hint", Name: "fqdn", Placeholder: "db-04.prod"})
+		}
+		@baud.Field(baud.FieldProps{Label: "with error", For: "fi-error", Error: "host unreachable"}) {
+			@baud.Input(baud.InputProps{ID: "fi-error", Name: "target", Value: "db-99.prod", Error: true})
+		}
+	</div>
+}

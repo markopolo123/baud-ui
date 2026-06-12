@@ -1,0 +1,36 @@
+package baud
+
+// Input is a real <input> element in a styled wrapper row with optional
+// Prefix/Suffix affixes (--fg-faint). Height --rh, mono font, zero
+// border-radius. Focus = accent border + 1px accent glow ring — pure CSS
+// (:focus-within in components/inputs.css), no client behaviour.
+templ Input(p InputProps) {
+	<span class={ "input-wrap", templ.KV("err", p.Error), templ.KV(p.Class, p.Class != "") }>
+		if p.Prefix != "" {
+			<span class="affix">{ p.Prefix }</span>
+		}
+		<input
+			class="input"
+			type={ p.typeAttr() }
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			if p.Name != "" {
+				name={ p.Name }
+			}
+			if p.Value != "" {
+				value={ p.Value }
+			}
+			if p.Placeholder != "" {
+				placeholder={ p.Placeholder }
+			}
+			if p.Error {
+				aria-invalid="true"
+			}
+			disabled?={ p.Disabled }
+		/>
+		if p.Suffix != "" {
+			<span class="affix">{ p.Suffix }</span>
+		}
+	</span>
+}
