@@ -1,0 +1,40 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetBtns demos the full Btn/BtnGroup/Kbd options matrix: every variant
+// and state, glyph prefixes, inline kbd hints, a fused group and standalone
+// kbd chips. The ids anchor the e2e computed-style assertions.
+templ SheetBtns() {
+	<div class="vstack gap-2">
+		<div class="sheet-row" id="btn-variants">
+			@baud.Btn(baud.BtnProps{Label: "default"})
+			@baud.Btn(baud.BtnProps{Label: "primary", Variant: baud.BtnPrimary})
+			@baud.Btn(baud.BtnProps{Label: "danger", Variant: baud.BtnDanger})
+			@baud.Btn(baud.BtnProps{Label: "ghost", Variant: baud.BtnGhost})
+			@baud.Btn(baud.BtnProps{Label: "active", Active: true})
+			@baud.Btn(baud.BtnProps{Label: "disabled", Disabled: true})
+			@baud.Btn(baud.BtnProps{Label: "primary off", Variant: baud.BtnPrimary, Disabled: true})
+			@baud.Btn(baud.BtnProps{Label: "danger off", Variant: baud.BtnDanger, Disabled: true})
+		</div>
+		<div class="sheet-row" id="btn-compose">
+			@baud.Btn(baud.BtnProps{Label: "deploy", Variant: baud.BtnPrimary, Glyph: "▸", Kbd: "⌘⏎"})
+			@baud.Btn(baud.BtnProps{Label: "drain node", Variant: baud.BtnDanger, Glyph: "✗"})
+			@baud.Btn(baud.BtnProps{Label: "logs", Glyph: "≡", Kbd: "L"})
+			@baud.Btn(baud.BtnProps{Label: "filter", Variant: baud.BtnGhost, Glyph: "⌕"})
+			@baud.BtnGroup() {
+				@baud.Btn(baud.BtnProps{Label: "1h"})
+				@baud.Btn(baud.BtnProps{Label: "6h", Active: true})
+				@baud.Btn(baud.BtnProps{Label: "24h"})
+				@baud.Btn(baud.BtnProps{Label: "7d"})
+			}
+			<span class="hstack gap-1" id="kbd-chips">
+				@baud.Kbd("⌘K")
+				@baud.Kbd("esc")
+				@baud.Kbd("↑")
+				@baud.Kbd("↓")
+				@baud.Kbd("⏎")
+			</span>
+		</div>
+	</div>
+}

@@ -15,6 +15,7 @@ func Sections() []SheetSection {
 	return []SheetSection{
 		{Title: "Tokens", Body: SheetTokens()},
 		{Title: "Layout — panes", Body: SheetLayout()},
+		{Title: "Primitives — buttons & kbd", Body: SheetBtns()},
 		{Title: "Field / Input", Body: SheetField()},
 	}
 }
