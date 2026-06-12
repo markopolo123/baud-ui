@@ -1,0 +1,31 @@
+package baud
+
+// Btn is the button primitive: a real <button>, height --rh, label styled
+// per the type rules (UPPERCASE --fs-sm via CSS). type="button" so buttons
+// never submit forms by accident; htmx attributes go on the element via
+// wrapping templ code when a server round-trip is wanted.
+templ Btn(p BtnProps) {
+	<button type="button" class={ p.classes() } disabled?={ p.Disabled }>
+		if p.Glyph != "" {
+			<span class="btn-glyph">{ p.Glyph }</span>
+		}
+		{ p.Label }
+		if p.Kbd != "" {
+			@Kbd(p.Kbd)
+		}
+	</button>
+}
+
+// BtnGroup fuses adjacent Btn children into one strip — hairlines collapse
+// via -1px margins in CSS; the active segment wins the overlap.
+templ BtnGroup() {
+	<span class="btn-group" role="group">
+		{ children... }
+	</span>
+}
+
+// Kbd is the keyboard-shortcut hint chip: bordered, --bg-raised, --fs-sm.
+// Semantic <kbd> element; also rendered inline inside Btn via the Kbd prop.
+templ Kbd(label string) {
+	<kbd class="kbd">{ label }</kbd>
+}
