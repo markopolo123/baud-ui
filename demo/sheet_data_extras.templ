@@ -1,0 +1,60 @@
+package demo
+
+import "github.com/markopolo123/baud-ui/baud"
+
+// SheetDataExtras demos Pagination (htmx region swap, link mode with the
+// accent "load more ↓" append) and the DiffViewer (ParseUnified fixture).
+// The ids are load-bearing: e2e/data_extras_test.go drives #pager-demo
+// (next/prev swap GET /demo/pagination, demo/pagination_api.go),
+// #pager-more (beforeend append into #pager-more-list) and asserts the
+// #diff-demo row tints.
+templ SheetDataExtras() {
+	<div class="vstack gap-3">
+		<div id="pager-demo" class="vstack gap-1">
+			@PagerRegion(1)
+		</div>
+		<div id="pager-more" class="vstack gap-1">
+			<div id="pager-more-list" class="vstack gap-0">
+				@PagerRows(1)
+			</div>
+			@baud.Pagination(baud.PaginationProps{
+				Page:       1,
+				PerPage:    pagerPerPage,
+				Total:      pagerTotal,
+				HrefFor:    pagerHref,
+				MoreURL:    "/demo/pagination?page=2&append=1",
+				MoreTarget: "pager-more-list",
+			})
+		</div>
+		<div id="diff-demo">
+			@baud.DiffViewer(baud.DiffProps{
+				File:  "cmd/fleetctl/main.go",
+				Lines: dataExtrasDiffLines(),
+			})
+		</div>
+	</div>
+}
+
+// PagerRegion is the htmx pager round-trip fragment: one page of rows +
+// the pager. The initial sheet render and every GET /demo/pagination
+// swap produce the same fragment into #pager-demo.
+templ PagerRegion(page int) {
+	<div id="pager-list" class="vstack gap-0">
+		@PagerRows(page)
+	</div>
+	@baud.Pagination(baud.PaginationProps{
+		Page:    page,
+		PerPage: pagerPerPage,
+		Total:   pagerTotal,
+		HxGet:   "/demo/pagination",
+		Target:  "pager-demo",
+	})
+}
+
+// PagerRows is one page of fixture rows — also served alone for the
+// load-more beforeend append (GET /demo/pagination?page=N&append=1).
+templ PagerRows(page int) {
+	for _, label := range pagerRowLabels(page) {
+		<div>{ label }</div>
+	}
+}

@@ -1,0 +1,53 @@
+/* ============================================================
+   baud/ui — pagination & diff viewer (@layer components)
+   Lifted nearly verbatim from design/baud-extras.css (pagination,
+   diff sections). Fixed pixel gaps/widths are design-spec
+   constants, not density-driven. Adaptations: .pager-btn is
+   inline-flex (it can render as an <a> in link mode — same box
+   either way, no underline); the diff header tone spans are
+   scoped classes instead of the prototype's tone-* utilities.
+   Owned by wave 3 (pagination/diff) — do not edit from other
+   branches.
+   ============================================================ */
+@layer components {
+  /* ---------- pagination ---------- */
+  .pager {
+    display: flex; align-items: center; gap: 8px;
+    height: var(--rh); padding: 0 var(--pad);
+    border-top: 1px solid var(--border); background: var(--bg-raised);
+    font-size: var(--fs-sm); color: var(--fg-muted); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .pager-info { color: var(--fg-faint); }
+  .pager-btn {
+    display: inline-flex; align-items: center;
+    padding: 0 5px; color: var(--fg-muted); border: 1px solid transparent;
+    height: calc(var(--row) - 4px); text-decoration: none;
+  }
+  .pager-btn:hover { color: var(--fg); background: var(--bg-hover); }
+  .pager-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .pager-btn:disabled:hover { color: var(--fg-muted); background: transparent; }
+  .pager-btn.more { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); padding: 0 8px; }
+  .pager-spring { flex: 1; }
+
+  /* ---------- diff viewer ---------- */
+  .diff { font-variant-numeric: tabular-nums; }
+  .diff-hd {
+    display: flex; align-items: center; gap: 8px;
+    height: var(--row); padding: 0 var(--pad);
+    background: var(--bg-raised); border-bottom: 1px solid var(--border);
+    font-size: var(--fs-sm); color: var(--fg-muted);
+  }
+  .diff-hd .diff-file { color: var(--accent); }
+  .diff-hd .diff-adds { color: var(--ok); }
+  .diff-hd .diff-dels { color: var(--err); }
+  .diff-line { display: flex; height: var(--row); align-items: center; white-space: pre; overflow: hidden; }
+  .diff-no { flex: none; width: 36px; text-align: right; padding-right: 8px; color: var(--fg-faint); font-size: var(--fs-sm); user-select: none; }
+  .diff-sign { flex: none; width: 16px; text-align: center; user-select: none; }
+  .diff-text { overflow: hidden; text-overflow: ellipsis; }
+  .diff-line.add { background: color-mix(in srgb, var(--ok) 10%, transparent); }
+  .diff-line.add .diff-sign, .diff-line.add .diff-text { color: var(--ok); }
+  .diff-line.del { background: color-mix(in srgb, var(--err) 10%, transparent); }
+  .diff-line.del .diff-sign, .diff-line.del .diff-text { color: var(--err); }
+  .diff-line.hunk { background: color-mix(in srgb, var(--info) 8%, transparent); color: var(--info); font-size: var(--fs-sm); padding-left: 52px; }
+}

@@ -25,5 +25,6 @@ func Sections() []SheetSection {
 		{Title: "Structure — panel · statusbar · toolbar", Body: SheetPanel()},
 		{Title: "Tabs — underline · boxed", Body: SheetTabs()},
 		{Title: "Select — native · menu · combobox", Body: SheetSelect()},
+		{Title: "Data — pagination & diff", Body: SheetDataExtras()},
 	}
 }
