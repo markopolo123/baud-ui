@@ -23,7 +23,7 @@ func NewMux() *http.ServeMux {
 		w.Write(baudui.Behaviors)
 	})
 	mux.HandleFunc("GET /api/combobox", HandleComboboxSearch)
-	mux.Handle("GET /{$}", templ.Handler(AppPage(ServerOpts())))
+	mux.HandleFunc("GET /{$}", handleFleetConsole)
 	mux.HandleFunc("GET /api/datepicker", handleDatePickerMenu)
 	mux.Handle("GET /sheet", templ.Handler(SheetPage(ServerOpts())))
 	mux.HandleFunc("GET /demo/tabs", tabsPane)
@@ -43,5 +43,6 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /fleet/deploy/run", handleFleetDeployRun)
 	mux.HandleFunc("GET /fleet/tree", handleFleetTree)
 	mux.HandleFunc("GET /fleet/palette", handleFleetPalette)
+	mux.HandleFunc("GET /fleet/cmd", handleFleetCmd)
 	return mux
 }

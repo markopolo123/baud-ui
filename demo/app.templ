@@ -6,32 +6,36 @@ import "github.com/markopolo123/baud-ui/baud"
 // (design/README.md "Deliverables" item 3): every region is a shipped
 // baud component composed over the in-memory fleet fixtures in
 // fleetctl_api.go. The topbar Tabs hx-get view panes into the shared
-// #fleet-view tabpanel; the ⌘K palette, deploy modal, host drawer and
-// OOB toasts wire the overlay flows.
-templ AppPage(o Opts) {
+// #fleet-view tabpanel (and carry plain ?tab= nav hrefs for scripting-off
+// reachability — view picks the server-rendered active pane); the ⌘K
+// palette, deploy modal, host drawer and OOB toasts wire the overlay
+// flows.
+templ AppPage(o Opts, view string) {
 	@baud.Page(baud.PageProps{Title: "fleetctl — baud/ui demo", CSSHref: o.CSSHref, HSHref: o.HSHref}) {
-		@baud.Shell(baud.ShellProps{TopBar: fleetTopBar(o), Nav: fleetNav(), StatusBar: fleetStatusBar()}) {
+		@baud.Shell(baud.ShellProps{TopBar: fleetTopBar(o, view), Nav: fleetNav(), StatusBar: fleetStatusBar()}) {
 			@baud.TabPanel("fleet-view", "", true) {
-				@fleetFleetPane()
+				@fleetActivePane(view)
 			}
 			@baud.Palette(baud.PaletteProps{ID: "fleet-palette", SearchURL: "/fleet/palette", Commands: fleetPaletteCommands(o)})
 		}
 	}
 }
 
-// fleetTopBar: brand, the view Tabs (htmx mode into #fleet-view), then the
-// global actions — the deploy confirm (htmx modal) and the ⌘K palette
-// hint. Both action buttons also subscribe to baud:paletteCmd and replay
-// their own click, so palette commands drive the exact same round-trips.
-templ fleetTopBar(o Opts) {
+// fleetTopBar: brand, the view Tabs (htmx mode into #fleet-view, NavHref
+// fallback links for scripting-off), then the global actions — the deploy
+// confirm (htmx modal) and the ⌘K palette hint. The action buttons (and
+// the hidden command relays below them) subscribe to baud:paletteCmd and
+// replay their own click, so every palette fleet command drives a real
+// console round-trip.
+templ fleetTopBar(o Opts, view string) {
 	<span class="brand">
 		<span class="brand-name">baud/fleetctl</span>
 		<span class="brand-sub">prod · us-east-1 primary</span>
 	</span>
-	@baud.Tabs(baud.TabsProps{ID: "fleet-tabs", Target: "fleet-view", Tabs: []baud.Tab{
-		{Label: "fleet", Count: tabsCount(len(fleetSvcs)), Href: "/fleet/tab?view=fleet"},
-		{Label: "incidents", Count: tabsCount(1), Href: "/fleet/tab?view=incidents"},
-		{Label: "deploys", Href: "/fleet/tab?view=deploys"},
+	@baud.Tabs(baud.TabsProps{ID: "fleet-tabs", Target: "fleet-view", ActiveIndex: fleetTabIndex(view), Tabs: []baud.Tab{
+		{Label: "fleet", Count: tabsCount(len(fleetSvcs)), Href: "/fleet/tab?view=fleet", NavHref: fleetTabNavHref(o, "fleet")},
+		{Label: "incidents", Count: tabsCount(1), Href: "/fleet/tab?view=incidents", NavHref: fleetTabNavHref(o, "incidents")},
+		{Label: "deploys", Href: "/fleet/tab?view=deploys", NavHref: fleetTabNavHref(o, "deploys")},
 	}})
 	<span class="fill"></span>
 	<button
@@ -41,7 +45,7 @@ templ fleetTopBar(o Opts) {
 		hx-get="/fleet/deploy"
 		hx-target="body"
 		hx-swap="beforeend"
-		_="on baud:paletteCmd(cmd) from body if cmd is 'fleet-deploy' then call me.click() end"
+		_="on baud:paletteCmd(cmd) from body if cmd is 'fleet-deploy' or cmd is 'deploy-canary' then call me.click() end"
 	>
 		<span class="btn-glyph">▸</span>
 		deploy
@@ -50,7 +54,32 @@ templ fleetTopBar(o Opts) {
 		cmd
 		<kbd class="kbd">⌘K</kbd>
 	</button>
+	@fleetCmdRelays()
 	<a class="brand-sub" href={ o.SheetHref }>component sheet</a>
+}
+
+// fleetCmdRelays — hidden palette-command relays: restart/drain have no
+// topbar chrome of their own, so these buttons own the /fleet/cmd toast
+// round-trips and replay their click when the ⌘K palette dispatches the
+// matching baud:paletteCmd id. Keeps every palette fleet command a real,
+// visible console action (acceptance-audit finding).
+templ fleetCmdRelays() {
+	<button
+		type="button"
+		id="fleet-restart-relay"
+		hidden
+		hx-get="/fleet/cmd?op=restart-ingest"
+		hx-swap="none"
+		_="on baud:paletteCmd(cmd) from body if cmd is 'restart-ingest' then call me.click() end"
+	></button>
+	<button
+		type="button"
+		id="fleet-drain-relay"
+		hidden
+		hx-get="/fleet/cmd?op=drain-batch-runner"
+		hx-swap="none"
+		_="on baud:paletteCmd(cmd) from body if cmd is 'drain-batch-runner' then call me.click() end"
+	></button>
 }
 
 // fleetNav is the shell's navigator: regions → clusters → hosts, the
@@ -95,15 +124,15 @@ templ fleetMetrics() {
 			<div class="fleet-pad">
 				@baud.DefList(baud.DefListProps{}) {
 					@baud.DefItem("fleet rps") {
-						<span>234,179</span>
+						<span class="fl-metric">234,179</span>
 						<span class="fl-faint">+4.2% vs 1h ago</span>
 					}
 					@baud.DefItem("p99 latency") {
-						<span class="fl-err">312 ms</span>
+						<span class="fl-metric fl-err">312 ms</span>
 						<span class="fl-faint">slo 250ms</span>
 					}
 					@baud.DefItem("error rate") {
-						<span class="fl-warn">0.61%</span>
+						<span class="fl-metric fl-warn">0.61%</span>
 						<span class="fl-faint">budget 38% burned</span>
 					}
 				}

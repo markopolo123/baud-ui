@@ -33,8 +33,8 @@ func render(out string) error {
 
 	o := demo.StaticOpts()
 	pages := map[string]templ.Component{
-		"index.html": demo.SheetPage(o), // the sheet is the landing page
-		"app.html":   demo.AppPage(o),   // fleetctl placeholder
+		"index.html": demo.SheetPage(o),        // the sheet is the landing page
+		"app.html":   demo.AppPage(o, "fleet"), // fleetctl console, fleet pane
 	}
 	for name, page := range pages {
 		f, err := os.Create(filepath.Join(out, name))
