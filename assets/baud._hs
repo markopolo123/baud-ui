@@ -525,6 +525,99 @@ behavior Overlay
   end
 end
 
+-- Palette: the ⌘K command palette overlay. PaletteKey (on <body>) sends
+-- baud:palette; opening remembers the previously focused element, shows
+-- the overlay and traps focus in the query input (Tab is swallowed —
+-- the input is the only stop). ↑↓ move the .hl highlight over the
+-- CURRENT .palette-item list — queried per keystroke, so it survives
+-- htmx swaps of the result list — with aria-activedescendant kept in
+-- sync on the input; ↵ activates the highlighted row by clicking it
+-- (anchor rows navigate; action rows carry an opaque @data-cmd that is
+-- dispatched as baud:paletteCmd(cmd) to <body>, never executed — the
+-- consumer subscribes to the event); Esc or a backdrop click closes
+-- and restores focus to the opener. Reopening
+-- clears the query and replays a keyup so the debounced hx-get
+-- (keyup changed delay:150ms) refetches the unfiltered list only when
+-- a stale filter is showing.
+behavior Palette
+  on baud:palette from window
+    set :opener to document.activeElement
+    add .open to me
+    set inp to me.querySelector('.palette-input .input')
+    set inp.value to ''
+    call inp.focus()
+    send keyup to inp
+    send baud:paletteHl(pos: 0) to me
+  end
+  on htmx:afterSwap
+    send baud:paletteHl(pos: 0) to me
+  end
+  on baud:paletteHl(pos)
+    set inp to me.querySelector('.palette-input .input')
+    set rows to Array.from(me.querySelectorAll('.palette-item'))
+    repeat for row in rows
+      remove .hl from row
+      call row.setAttribute('aria-selected', 'false')
+    end
+    if rows.length is 0
+      call inp.removeAttribute('aria-activedescendant')
+      exit
+    end
+    set row to rows[pos]
+    add .hl to row
+    call row.setAttribute('aria-selected', 'true')
+    call inp.setAttribute('aria-activedescendant', row.id)
+    call row.scrollIntoView({block: 'nearest'})
+  end
+  on keydown[key == 'ArrowDown' or key == 'ArrowUp']
+    halt the event
+    set rows to Array.from(me.querySelectorAll('.palette-item'))
+    if rows.length is 0 then exit end
+    set i to rows.indexOf(me.querySelector('.palette-item.hl'))
+    if event.key is 'ArrowDown'
+      set i to Math.min(i + 1, rows.length - 1)
+    else
+      set i to Math.max(i - 1, 0)
+    end
+    send baud:paletteHl(pos: i) to me
+  end
+  on keydown[key == 'Enter']
+    set cur to me.querySelector('.palette-item.hl')
+    if cur is not null
+      halt the event
+      call cur.click()
+    end
+  end
+  on keydown[key == 'Tab']
+    halt the event
+  end
+  on keyup[key == 'Escape'] from window
+    if I match .open then send baud:paletteClose to me end
+  end
+  on click(target)
+    if target is me
+      send baud:paletteClose to me
+    else
+      set row to target.closest('.palette-item')
+      if row is not null
+        set cmdId to row.getAttribute('data-cmd')
+        if cmdId is not null
+          send baud:paletteCmd(cmd: cmdId) to body
+        end
+        send baud:paletteClose to me
+      end
+    end
+  end
+  on baud:paletteClose
+    remove .open from me
+    set inp to me.querySelector('.palette-input .input')
+    call inp.removeAttribute('aria-activedescendant')
+    if :opener is not null
+      call :opener.focus()
+    end
+  end
+end
+
 -- ParseHealth: parse-health sentinel. KEEP THIS THE LAST BEHAVIOR IN THE
 -- FILE — a _hyperscript parse error anywhere above aborts the whole file
 -- before this definition exists, so the install on <body> silently

@@ -1,0 +1,108 @@
+package baud
+
+// Palette is the ⌘K command palette overlay: a fixed backdrop, the
+// 560px accent-bordered panel at 12vh, a › prompt query input and the
+// row listbox. Closed (display:none) until the Palette behavior adds
+// .open on baud:palette; Static renders it open, inline and inert for
+// the component sheet. With SearchURL set, keyup round-trips a
+// debounced hx-get that swaps the PaletteResults fragment into the
+// listbox — the flagship htmx integration.
+templ Palette(p PaletteProps) {
+	<div
+		class={ "palette-overlay", templ.KV("open palette-static", p.Static) }
+		id={ p.ID }
+		if !p.Static {
+			_="install Palette"
+		}
+	>
+		<div class="palette" role="dialog" aria-modal="true" aria-label="command palette">
+			<div class="palette-input">
+				<span class="prompt" aria-hidden="true">›</span>
+				<input
+					class="input"
+					type="text"
+					id={ p.inputID() }
+					name={ p.name() }
+					placeholder={ p.placeholder() }
+					role="combobox"
+					aria-expanded="true"
+					aria-controls={ p.listID() }
+					aria-autocomplete="list"
+					autocomplete="off"
+					if !p.Static && p.SearchURL != "" {
+						hx-get={ p.SearchURL }
+						hx-trigger="keyup changed delay:150ms"
+						hx-target={ "#" + p.listID() }
+						hx-swap="innerHTML"
+					}
+				/>
+				<kbd class="kbd" aria-hidden="true">↑↓</kbd>
+				<kbd class="kbd" aria-hidden="true">↵</kbd>
+			</div>
+			<div class="palette-list" role="listbox" id={ p.listID() }>
+				@PaletteResults(PaletteResultsProps{ID: p.ID, Commands: p.Commands, Highlight: p.Highlight})
+			</div>
+		</div>
+	</div>
+}
+
+// PaletteResults is the row-list fragment inside the palette listbox —
+// and the response body the server-filter hx-get swaps in. No commands
+// renders the ∅ empty state; Highlight (1-based) pre-marks a row for
+// the static styling variant (the live Palette behavior owns .hl).
+templ PaletteResults(p PaletteResultsProps) {
+	if len(p.Commands) == 0 {
+		<div class="palette-empty">∅ no matches</div>
+	}
+	for i, c := range p.Commands {
+		@paletteRow(paletteCmdID(p.ID, i), c, p.Highlight == i+1)
+	}
+}
+
+// paletteRow is one command row. Focus never moves here (tabindex=-1):
+// the input keeps focus and points aria-activedescendant at the
+// highlighted row's id. Href rows are real anchors so ↵ (the behavior
+// clicks the .hl row) navigates; Action rows are buttons carrying the
+// opaque command id as data-cmd — the Palette behavior dispatches it as
+// baud:paletteCmd to <body> on that same click. Consumer data NEVER
+// lands in a live `_` attribute.
+templ paletteRow(id string, c PaletteCommand, hl bool) {
+	if c.Href != "" {
+		<a
+			class={ "palette-item", templ.KV("hl", hl) }
+			id={ id }
+			role="option"
+			tabindex="-1"
+			aria-selected={ selAriaSelected(hl) }
+			href={ templ.SafeURL(c.Href) }
+		>
+			@paletteRowBody(c)
+		</a>
+	} else {
+		<button
+			type="button"
+			class={ "palette-item", templ.KV("hl", hl) }
+			id={ id }
+			role="option"
+			tabindex="-1"
+			aria-selected={ selAriaSelected(hl) }
+			if c.Action != "" {
+				data-cmd={ c.Action }
+			}
+		>
+			@paletteRowBody(c)
+		</button>
+	}
+}
+
+templ paletteRowBody(c PaletteCommand) {
+	<span class="pi-cat">{ c.Category }</span>
+	<span class="pi-label">{ c.Label }</span>
+	if c.Kbd != "" {
+		<span class="pi-keys">
+			for _, k := range paletteKeys(c.Kbd) {
+				@Kbd(k)
+			}
+		</span>
+	}
+}
