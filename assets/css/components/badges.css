@@ -13,7 +13,7 @@
     display: inline-flex; align-items: center; gap: 5px;
     height: calc(var(--row) - 5px); padding: 0 6px;
     font-family: var(--font-ui); font-size: var(--fs-sm);
-    font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
     border: 1px var(--border-style, solid) transparent; white-space: nowrap;
   }
   .badge .badge-dot { width: 5px; height: 5px; background: currentColor; flex: none; }
