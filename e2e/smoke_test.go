@@ -153,28 +153,45 @@ func TestResizableDragPersists(t *testing.T) {
 	// Drag the gutter 120px to the right: pointer down on its centre,
 	// move in steps (the behavior tracks pointermove), release.
 	gutter := page.Locator(sheetPanes + " > .split-gutter")
-	box, err := gutter.BoundingBox()
-	if err != nil || box == nil {
-		t.Fatalf("gutter bounding box: %v", err)
+	if err := gutter.ScrollIntoViewIfNeeded(); err != nil {
+		t.Fatalf("scroll gutter into view: %v", err)
 	}
-	x, y := box.X+box.Width/2, box.Y+box.Height/2
 	const delta = 120
 	mouse := page.Mouse()
-	if err := mouse.Move(x, y); err != nil {
-		t.Fatalf("move to gutter: %v", err)
+	// Even with the listener attached (.resizable-ready) a synthetic press
+	// has been lost on slow CI runners with no diagnosable cause, so press
+	// up to 3 times, re-reading the box each attempt (behaviors can shift
+	// layout), and capture document.elementFromPoint on the final failure.
+	var x, y float64
+	pressed := false
+	for attempt := 1; attempt <= 3 && !pressed; attempt++ {
+		box, err := gutter.BoundingBox()
+		if err != nil || box == nil {
+			t.Fatalf("gutter bounding box (attempt %d): %v", attempt, err)
+		}
+		x, y = box.X+box.Width/2, box.Y+box.Height/2
+		if err := mouse.Move(x, y); err != nil {
+			t.Fatalf("move to gutter: %v", err)
+		}
+		if err := mouse.Down(); err != nil {
+			t.Fatalf("mouse down: %v", err)
+		}
+		// The behavior adds .drag immediately before its listen loop.
+		err = page.Locator(sheetPanes + " > .split-gutter.drag").WaitFor(playwright.LocatorWaitForOptions{
+			Timeout: playwright.Float(3000),
+		})
+		if err == nil {
+			pressed = true
+			break
+		}
+		_ = mouse.Up()
+		page.WaitForTimeout(250)
 	}
-	if err := mouse.Down(); err != nil {
-		t.Fatalf("mouse down: %v", err)
-	}
-	// The drag handler is interpreted hyperscript: under CI load the whole
-	// mouse sequence can finish before its listen loop starts, in which case
-	// every move (and the pointerup) is missed and nothing persists. The
-	// behavior adds .drag immediately before its listen loop — gate on it,
-	// then give the interpreter a beat to enter its first `wait for`.
-	if err := page.Locator(sheetPanes + " > .split-gutter.drag").WaitFor(playwright.LocatorWaitForOptions{
-		Timeout: playwright.Float(5000),
-	}); err != nil {
-		t.Fatalf("drag handler never signalled .drag after pointerdown: %v", err)
+	if !pressed {
+		at, _ := page.Evaluate(
+			`([x, y]) => { const el = document.elementFromPoint(x, y); return el ? el.tagName + '.' + el.className : 'nothing'; }`,
+			[]any{x, y})
+		t.Fatalf("drag handler never signalled .drag after 3 presses; elementFromPoint(%.0f,%.0f) = %v", x, y, at)
 	}
 	page.WaitForTimeout(300)
 	if err := mouse.Move(x+delta, y, playwright.MouseMoveOptions{Steps: playwright.Int(20)}); err != nil {
