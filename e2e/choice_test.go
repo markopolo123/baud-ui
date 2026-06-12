@@ -10,8 +10,9 @@ import (
 )
 
 // Theme-resolved colours asserted below (from assets/css/tokens.css):
-//   t-gruvbox --accent #fabd2f → rgb(250, 189, 47), --on-accent #1d2021 → rgb(29, 32, 33)
-//   t-mocha   --accent #89b4fa → rgb(137, 180, 250), --on-accent #11111b → rgb(17, 17, 27)
+//
+//	t-gruvbox --accent #fabd2f → rgb(250, 189, 47), --on-accent #1d2021 → rgb(29, 32, 33)
+//	t-mocha   --accent #89b4fa → rgb(137, 180, 250), --on-accent #11111b → rgb(17, 17, 27)
 const (
 	gruvAccent   = "rgb(250, 189, 47)"
 	gruvOnAccent = "rgb(29, 32, 33)"
