@@ -12,9 +12,9 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-// computedStyle returns the computed style property of the first element
+// computedStyleSel returns the computed style property of the first element
 // matching selector.
-func computedStyle(t *testing.T, page playwright.Page, selector, prop string) string {
+func computedStyleSel(t *testing.T, page playwright.Page, selector, prop string) string {
 	t.Helper()
 	v, err := page.Evaluate(fmt.Sprintf(
 		`() => { const el = document.querySelector(%q); return el ? getComputedStyle(el)[%q] : "MISSING"; }`,
@@ -165,24 +165,24 @@ func TestBadgeComputedStyles(t *testing.T) {
 				case "solid":
 					// Solid fills with the raw tone token; text flips to the
 					// readable panel/on-accent colour.
-					assertOpaque(t, computedStyle(t, page, sel, "backgroundColor"), tone.solidBG, sel+" background")
-					assertOpaque(t, computedStyle(t, page, sel, "color"), tone.solidFG, sel+" text")
+					assertOpaque(t, computedStyleSel(t, page, sel, "backgroundColor"), tone.solidBG, sel+" background")
+					assertOpaque(t, computedStyleSel(t, page, sel, "color"), tone.solidFG, sel+" text")
 				case "outline":
 					// Outline: transparent background + tone-derived
 					// (partial-alpha) border.
-					assertTransparent(t, computedStyle(t, page, sel, "backgroundColor"), sel+" background")
-					assertToneAlpha(t, computedStyle(t, page, sel, "borderTopColor"), tone.rgb, sel+" border")
+					assertTransparent(t, computedStyleSel(t, page, sel, "backgroundColor"), sel+" background")
+					assertToneAlpha(t, computedStyleSel(t, page, sel, "borderTopColor"), tone.rgb, sel+" border")
 				case "tint":
 					if tone.name == "neutral" {
 						// Neutral tint is the opaque raised-surface pair, not
 						// a color-mix derivation.
-						assertOpaque(t, computedStyle(t, page, sel, "backgroundColor"), "50, 48, 47", sel+" background") // --bg-raised #32302f
-						assertOpaque(t, computedStyle(t, page, sel, "borderTopColor"), "80, 73, 69", sel+" border")      // --border-strong #504945
+						assertOpaque(t, computedStyleSel(t, page, sel, "backgroundColor"), "50, 48, 47", sel+" background") // --bg-raised #32302f
+						assertOpaque(t, computedStyleSel(t, page, sel, "borderTopColor"), "80, 73, 69", sel+" border")      // --border-strong #504945
 					} else {
 						// Tint: the 15%/38% color-mix — tone channels at
 						// partial alpha, neither transparent nor solid.
-						assertToneAlpha(t, computedStyle(t, page, sel, "backgroundColor"), tone.rgb, sel+" background")
-						assertToneAlpha(t, computedStyle(t, page, sel, "borderTopColor"), tone.rgb, sel+" border")
+						assertToneAlpha(t, computedStyleSel(t, page, sel, "backgroundColor"), tone.rgb, sel+" background")
+						assertToneAlpha(t, computedStyleSel(t, page, sel, "borderTopColor"), tone.rgb, sel+" border")
 					}
 				}
 			})
@@ -190,27 +190,27 @@ func TestBadgeComputedStyles(t *testing.T) {
 	}
 
 	// In-badge dot is the 5px square (currentColor, no radius).
-	if got := computedStyle(t, page, ".badge .badge-dot", "width"); got != "5px" {
+	if got := computedStyleSel(t, page, ".badge .badge-dot", "width"); got != "5px" {
 		t.Errorf("badge-dot width = %q, want 5px", got)
 	}
-	if got := computedStyle(t, page, ".badge .badge-dot", "borderRadius"); got != "0px" {
+	if got := computedStyleSel(t, page, ".badge .badge-dot", "borderRadius"); got != "0px" {
 		t.Errorf("badge-dot border-radius = %q, want 0px (square)", got)
 	}
 
 	// Status dot: 7px, the one sanctioned circle, tone colour via currentColor.
-	if got := computedStyle(t, page, ".dot.tone-err", "width"); got != "7px" {
+	if got := computedStyleSel(t, page, ".dot.tone-err", "width"); got != "7px" {
 		t.Errorf("dot width = %q, want 7px", got)
 	}
-	if got := computedStyle(t, page, ".dot.tone-err", "borderRadius"); got != "50%" {
+	if got := computedStyleSel(t, page, ".dot.tone-err", "borderRadius"); got != "50%" {
 		t.Errorf("dot border-radius = %q, want 50%%", got)
 	}
-	if got := computedStyle(t, page, ".dot.tone-err", "backgroundColor"); got != "rgb(251, 73, 52)" {
+	if got := computedStyleSel(t, page, ".dot.tone-err", "backgroundColor"); got != "rgb(251, 73, 52)" {
 		t.Errorf("gruvbox err dot background = %q, want rgb(251, 73, 52)", got)
 	}
 
 	// --- pulse: animated only under prefers-reduced-motion: no-preference -
 
-	if got := computedStyle(t, page, ".dot.pulse", "animationName"); got != "baud-pulse" {
+	if got := computedStyleSel(t, page, ".dot.pulse", "animationName"); got != "baud-pulse" {
 		t.Errorf("pulse dot animation-name = %q, want baud-pulse", got)
 	}
 	if err := page.EmulateMedia(playwright.PageEmulateMediaOptions{
@@ -218,7 +218,7 @@ func TestBadgeComputedStyles(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("emulate reduced motion: %v", err)
 	}
-	if got := computedStyle(t, page, ".dot.pulse", "animationName"); got != "none" {
+	if got := computedStyleSel(t, page, ".dot.pulse", "animationName"); got != "none" {
 		t.Errorf("pulse dot animates under reduced motion: animation-name = %q, want none", got)
 	}
 	if err := page.EmulateMedia(playwright.PageEmulateMediaOptions{
@@ -233,10 +233,10 @@ func TestBadgeComputedStyles(t *testing.T) {
 		`() => document.body.classList.replace("t-gruvbox", "t-mocha")`); err != nil {
 		t.Fatalf("swap theme class: %v", err)
 	}
-	if got := computedStyle(t, page, ".badge.bd-solid.tone-err", "backgroundColor"); got != "rgb(243, 139, 168)" {
+	if got := computedStyleSel(t, page, ".badge.bd-solid.tone-err", "backgroundColor"); got != "rgb(243, 139, 168)" {
 		t.Errorf("mocha solid err background = %q, want rgb(243, 139, 168)", got)
 	}
-	assertToneAlpha(t, computedStyle(t, page, ".badge.bd-tint.tone-err", "backgroundColor"),
+	assertToneAlpha(t, computedStyleSel(t, page, ".badge.bd-tint.tone-err", "backgroundColor"),
 		"243, 139, 168", "mocha tint err background")
 
 	// …and again to t-sollight: same root-class-swap-only mechanism.
@@ -244,7 +244,7 @@ func TestBadgeComputedStyles(t *testing.T) {
 		`() => document.body.classList.replace("t-mocha", "t-sollight")`); err != nil {
 		t.Fatalf("swap theme class: %v", err)
 	}
-	if got := computedStyle(t, page, ".badge.bd-solid.tone-err", "backgroundColor"); got != "rgb(220, 50, 47)" {
+	if got := computedStyleSel(t, page, ".badge.bd-solid.tone-err", "backgroundColor"); got != "rgb(220, 50, 47)" {
 		t.Errorf("sollight solid err background = %q, want rgb(220, 50, 47)", got)
 	}
 }
